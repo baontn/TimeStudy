@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Time Study</title>
+<style>
+body{font-family:system-ui,sans-serif;margin:0;background:#f4f5f7;color:#1c1c1e}
+header{display:flex;gap:8px;align-items:center;padding:12px 16px;background:#1f4e79;color:#fff}
+header b{flex:1}
+header select,header button{width:auto;margin:0;padding:6px 10px}
+header button{background:#ffffff33}
+main{padding:12px;max-width:640px;margin:auto}
+.card{background:#fff;border-radius:12px;padding:12px;margin-bottom:12px;box-shadow:0 1px 3px #0002}
+input,select,button,textarea{font-family:inherit;font-size:16px;padding:10px;border-radius:8px;border:1px solid #ccc;width:100%;box-sizing:border-box;margin:4px 0}
+button{background:#1f4e79;color:#fff;border:0}
+button:disabled{opacity:.4}
+button.sec{background:#e5e7eb;color:#111}
+button.red{background:#b91c1c}
+button.big{font-size:22px;padding:18px}
+button.home{font-size:22px;padding:34px 18px;margin:10px 0}
+.row{display:flex;gap:8px}.row>*{flex:1}
+.time{font-size:34px;text-align:center;font-variant-numeric:tabular-nums}
+table{width:100%;border-collapse:collapse;font-size:14px}
+td,th{padding:4px;border-bottom:1px solid #eee;text-align:right}
+th:first-child,td:first-child{text-align:left}
+.bn{background:#fde2e2}.warn{color:#b45309}.kpi{font-size:18px;margin:4px 0}
+.item{cursor:pointer}.item small,.muted{color:#555}
+.chips{display:flex;flex-wrap:wrap;gap:6px;max-height:130px;overflow:auto;margin:6px 0}
+.chip{width:auto;margin:0;padding:8px 12px;background:#e5e7eb;color:#111;border-radius:16px}
+.chip.on{background:#1f4e79;color:#fff}
+.info{background:#eef4fa;border-radius:8px;padding:8px;font-size:14px;margin:6px 0}
+.metrics{display:flex;gap:8px;margin:6px 0}
+.metrics div{flex:1;background:#eef4fa;border-radius:8px;padding:6px;text-align:center;font-size:13px}
+.metrics b{display:block;font-size:20px}
+.legend{font-size:12px;color:#555;margin-top:4px}.legend i{display:inline-block;width:12px;height:8px;margin:0 4px 0 8px;vertical-align:middle}
+.qr{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 6px}.qr button{width:auto;margin:0;padding:5px 10px;font-size:13px;border-radius:14px;background:#eef4fa;color:#1f4e79;border:1px solid #c9d9ea}
+.savebar{position:sticky;bottom:0;background:#fff;border-radius:12px;padding:10px;box-shadow:0 -2px 8px #0003;margin-top:8px}
+</style></head>
+<body>
+<header><button id="back" onclick="go('home')">&larr;</button><b id="title"></b>
+<select id="lang"><option value="en">EN</option><option value="vi">VI</option></select></header>
+<main id="app"></main>
+<script src="data.js" onerror="void 0"></script>
+<script src="engine.js"></script>
+<script src="xlsx_export.js"></script>
+<script>
+// =====================================================================
+// DATA LAYER  (sample data now; later filled by the SQL sync. UI only uses DB.*)
+// =====================================================================
+const SAMPLE_EMP = [ // dummy sample, used until a data file is loaded
+ ['000001','Sample Employee 1'],['000002','Sample Employee 2'],['000003','Sample Employee 3'],['000004','Sample Employee 4']
+].map(([code,name]) => ({ code, name, line:'G08' }));
+const SAMPLE_SAM = {31:.1998,32:.3601,33:.259,34:.3661,35:.8977,36:1.5361,37:.3528,38:.705,39:.5543,40:.7047,41:.2764,42:.2412,43:.1779,44:.4709,45:.1969,46:.5363,47:.1386,48:.2716,49:.2389,50:.1808,97:.3576};
+let EMP = [], OPS = {}, DATA_INFO = { src:'sample', generated:'' };
+function setData(d, src) { EMP = d.employees; OPS = d.ops; DATA_INFO = { src, generated:d.generated || '' }; }
+function useSample() {
+  setData({ employees:SAMPLE_EMP, ops:{ 'PUM25-00054-1301H4': Object.keys(SAMPLE_SAM).map(n => ({ no:Number(n), code:'', sam:SAMPLE_SAM[n], machine:'SNLS' })) } }, 'sample');
+}
+// small key-value store (IndexedDB, falls back to localStorage)
+const kv = (() => {
+  let p;
+  const open = () => p || (p = new Promise((res, rej) => {
+    const r = indexedDB.open('ts-db', 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('kv');
+    r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+  }));
+  const hasIDB = typeof indexedDB !== 'undefined';
+  return {
+    get: k => !hasIDB ? Promise.resolve(JSON.parse(localStorage.getItem('kv_' + k) || 'null'))
+      : open().then(db => new Promise((res, rej) => { const q = db.transaction('kv').objectStore('kv').get(k); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); })),
+    set: (k, v) => !hasIDB ? Promise.resolve(localStorage.setItem('kv_' + k, JSON.stringify(v)))
+      : open().then(db => new Promise((res, rej) => { const tx = db.transaction('kv', 'readwrite'); tx.objectStore('kv').put(v, k); tx.oncomplete = () => res(); tx.onerror = () => rej(tx.error); }))
+  };
+})();
+const norm = s => String(s || '').trim().toUpperCase();
+const DB = {
+  lines:     () => [...new Set(EMP.map(e => e.line))],
+  employees: line => EMP.filter(e => norm(e.line) === norm(line)),
+  styles:    () => Object.keys(OPS).sort(),
+  findStyle: v => Object.keys(OPS).find(k => norm(k) === norm(v)) || '',
+  ops:       style => (OPS[style] || []).slice().sort((a, b) => a.no - b.no)   // {no, code, sam, machine}
+};
+const mkOpMap = style => { const m = {}; DB.ops(style).forEach(o => m[o.no] = { sam:o.sam, machine:o.machine }); return m; };
+
+// =====================================================================
+// TEXT
+// =====================================================================
+const T = {
+ en:{title:'Time Study',newStudy:'New Study',history:'History',save:'Save study',
+  noHistory:'No studies saved yet.',study:'Study detail',delStudy:'Delete this study',sure:'Delete?',
+  line:'Line',style:'Style',ie:'Studied by',target:'Target pcs/hr (optional)',
+  exportXlsx:'Export Excel report',exportData:'Export data file (for Access)',remark:'Remark (operation situation, optional)',xlsxFail:'Excel export failed:',editStudy:'Edit / Continue study',editing:'Editing a saved study',cancelEdit:'Cancel editing',replaceDraft:'Replace the current unsaved draft with this study?',updated:'updated',chartTitle:'Line balance: capacity per operation (pcs/hr)',lgBn:'Bottleneck',lgOp:'Operation',lgTgt:'Target',lgCap:'Line capacity',dataFrom:'Data',sampleData:'SAMPLE data. Tap Load data file.',loadData:'Load data file',badFile:'This file is not a valid data file.',exportStudy:'Export data file',exportAll:'Export new data files (for Access)',exported:'exported',styleMissing:'Style not found in the synced data',selEmp:'Select employee',noEmp:'No employees found for this line',empCount:'employees on this line',
+  selOps:'Tap the operation number(s) this operator does',sam:'SAM',machine:'Machine',totalSam:'Total SAM',
+  add:'Add operator to study',addNeed:'Select an employee and at least one operation',
+  start:'Start',piece:'Piece done',stop:'Stop',undo:'Undo',del:'Delete',reset:'Clear all',
+  avg:'Avg time (s)',timePc:'Time/pc (min)',pcsHr:'pcs/hr',effp:'Efficiency',
+  firstHint:'Tap Start, then tap Piece done each time a piece is finished.',
+  timeFirst:'Time at least one operator (Start, then Piece done) to see the line analysis and save.',
+  cap:'Line capacity (pcs/hr)',eff:'Line efficiency',bal:'Balance rate',bn:'Bottleneck op',
+  opcap:'Operation capacity',moves:'Suggested moves',none:'No improving move found',
+  pieces:'Pieces',unknown:'Not in style data',move:'Move',from:'from',to:'to',now:'capacity becomes',
+  worker:'Operator',opn:'Op',cap2:'pcs/hr',timed:'operator(s) timed'},
+ vi:{title:'Nghiên cứu thời gian',newStudy:'Nghiên cứu mới',history:'Lịch sử',save:'Lưu nghiên cứu',
+  noHistory:'Chưa có nghiên cứu nào.',study:'Chi tiết nghiên cứu',delStudy:'Xóa nghiên cứu này',sure:'Xóa?',
+  line:'Chuyền',style:'Mã hàng',ie:'Người làm',target:'Mục tiêu SL/giờ (tùy chọn)',
+  exportXlsx:'Xuất báo cáo Excel',exportData:'Xuất tệp dữ liệu (cho Access)',remark:'Ghi chú (tình hình công đoạn, tùy chọn)',xlsxFail:'Xuất Excel lỗi:',editStudy:'Sửa / Tiếp tục nghiên cứu',editing:'Đang sửa nghiên cứu đã lưu',cancelEdit:'Hủy sửa',replaceDraft:'Thay bản nháp chưa lưu hiện tại bằng nghiên cứu này?',updated:'cập nhật',chartTitle:'Cân bằng chuyền: năng lực từng công đoạn (cái/giờ)',lgBn:'Nút cổ chai',lgOp:'Công đoạn',lgTgt:'Mục tiêu',lgCap:'Năng lực chuyền',dataFrom:'Dữ liệu',sampleData:'Dữ liệu MẪU. Bấm Tải tệp dữ liệu.',loadData:'Tải tệp dữ liệu',badFile:'Tệp dữ liệu không hợp lệ.',exportStudy:'Xuất tệp dữ liệu',exportAll:'Xuất các tệp dữ liệu mới (cho Access)',exported:'đã xuất',styleMissing:'Không tìm thấy mã hàng trong dữ liệu',selEmp:'Chọn công nhân',noEmp:'Không có công nhân cho chuyền này',empCount:'công nhân trong chuyền',
+  selOps:'Chọn số công đoạn công nhân này làm',sam:'SAM',machine:'Máy',totalSam:'Tổng SAM',
+  add:'Thêm công nhân vào nghiên cứu',addNeed:'Chọn công nhân và ít nhất một công đoạn',
+  start:'Bắt đầu',piece:'Xong 1 cái',stop:'Dừng',undo:'Hoàn tác',del:'Xóa',reset:'Xóa tất cả',
+  avg:'TB (giây)',timePc:'Thời gian/cái (phút)',pcsHr:'cái/giờ',effp:'Hiệu suất',
+  firstHint:'Bấm Bắt đầu, sau đó bấm Xong 1 cái mỗi khi hoàn thành một cái.',
+  timeFirst:'Bấm giờ ít nhất một công nhân (Bắt đầu, rồi Xong 1 cái) để xem phân tích và lưu.',
+  cap:'Năng lực chuyền (cái/giờ)',eff:'Hiệu suất chuyền',bal:'Tỷ lệ cân bằng',bn:'Công đoạn nút cổ chai',
+  opcap:'Năng lực từng công đoạn',moves:'Đề xuất điều chuyển',none:'Không có đề xuất cải thiện',
+  pieces:'Số cái',unknown:'Không có trong dữ liệu mã hàng',move:'Chuyển',from:'từ',to:'sang',now:'năng lực thành',
+  worker:'Công nhân',opn:'CĐ',cap2:'cái/giờ',timed:'công nhân đã bấm giờ'}
+};
+
+// =====================================================================
+// STATE
+// =====================================================================
+const APP_VER = '0.8';
+let S = { lang:'en', line:'G08', style:'PUM25-00054-1301H4', target:'', ie:'', rows:[], editId:null };
+let H = [];                                        // saved studies
+let screen = 'home', detailId = null, active = -1, live = null;
+let opMap = {}, pick = { emp:'', ops:[] };         // pick = operator being prepared
+function saveDraft() { try { localStorage.setItem('ts_draft', JSON.stringify(S)); } catch(e){} }
+function saveHist()  { try { localStorage.setItem('ts_hist', JSON.stringify(H)); } catch(e){} }
+const save = saveDraft;
+try {
+  Object.assign(S, JSON.parse(localStorage.getItem('ts_draft') || '{}'));
+  H = JSON.parse(localStorage.getItem('ts_hist') || '[]');
+  const old = JSON.parse(localStorage.getItem('ts') || 'null');            // migrate version 0.2 data
+  if (old) { H = (old.history || []).map(x => ({ ...x, id:String(x.id) })); delete old.history;
+             Object.assign(S, old); localStorage.removeItem('ts'); saveDraft(); saveHist(); }
+} catch(e){}
+S.rows.forEach(r => r.t0 = null);
+try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch(e){}
+const uid = () => (crypto.randomUUID ? crypto.randomUUID() : 'id' + Date.now() + Math.random().toString(36).slice(2));
+const t = k => T[S.lang][k];
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const f = (n, d=1) => Number(n).toFixed(d);
+const fmtDate = iso => new Date(iso).toLocaleString(S.lang === 'vi' ? 'vi-VN' : 'en-GB');
+function go(s, id) { screen = s; detailId = id ?? null; render(); }
+
+// =====================================================================
+// NEW STUDY SCREEN  (built once; only the parts that change are redrawn)
+// =====================================================================
+function viewNewSkeleton() {
+  const lines = DB.lines().map(l => `<option value="${esc(l)}">`).join('');
+  const styles = DB.styles().map(x => `<option value="${esc(x)}">`).join('');
+  const banner = S.editId ? `<div class="card info">${t('editing')} <button class="sec" onclick="cancelEdit()">${t('cancelEdit')}</button></div>` : '';
+  return banner + `<div class="card">
+      <div class="row"><div><label>${t('line')}</label>
+        <input id="line" list="lineList" value="${esc(S.line)}" oninput="onLine(this.value)" autocomplete="off">
+        <datalist id="lineList">${lines}</datalist></div>
+      <div><label>${t('style')}</label><input id="style" list="styleList" value="${esc(S.style)}" oninput="onStyle(this.value)" autocomplete="off">
+        <datalist id="styleList">${styles}</datalist></div></div>
+      <div class="warn" id="styleWarn"></div>
+      <div class="row"><div><label>${t('ie')}</label><input id="ie" value="${esc(S.ie)}" oninput="S.ie=this.value;save()"></div>
+      <div><label>${t('target')}</label><input id="target" type="number" value="${esc(S.target)}" oninput="S.target=this.value;save();updateAnalysis()"></div></div>
+    </div>
+    <div class="card">
+      <select id="empSel" onchange="pick.emp=this.value;refreshAdd()"></select>
+      <div class="muted" id="empCount"></div>
+      <div class="chips" id="chips"></div>
+      <div class="info" id="opInfo"></div>
+      <button id="addBtn" onclick="addOp()">${t('add')}</button>
+    </div>
+    <div id="cards"></div>
+    <div id="analysis"></div>
+    <div class="savebar"><div class="muted" id="saveStatus"></div>
+      <button id="saveBtn" onclick="saveStudy()">${t('save')}</button></div>`;
+}
+function buildNew() {
+  $('app').innerHTML = viewNewSkeleton();
+  opMap = mkOpMap(S.style);
+  active = S.rows.findIndex(r => r.t0 !== null);
+  $('styleWarn').textContent = (S.style && !DB.findStyle(S.style)) ? t('styleMissing') : '';
+  buildEmp(); buildOps(); refreshAdd(); updateCards(); updateAnalysis();
+}
+function onLine(v) { S.line = v; save(); buildEmp(); }
+function onStyle(v) {
+  const found = DB.findStyle(v);
+  S.style = found; save(); opMap = mkOpMap(found); pick.ops = [];
+  $('styleWarn').textContent = (!found && v.trim()) ? t('styleMissing') : '';
+  buildOps(); refreshAdd(); updateCards(); updateAnalysis();
+}
+
+function buildEmp() {                       // employee dropdown = employees of the typed line
+  const list = DB.employees(S.line);
+  $('empSel').innerHTML = `<option value="">${list.length ? t('selEmp') : t('noEmp')}</option>`
+    + list.map(e => `<option value="${esc(e.code)}">${esc(e.code)} – ${esc(e.name)}</option>`).join('');
+  $('empCount').textContent = list.length ? `${list.length} ${t('empCount')}` : '';
+  pick.emp = ''; refreshAdd();
+}
+function buildOps() {                       // operation chips of the selected style
+  const box = $('chips'), sc = box.scrollTop;
+  box.innerHTML = DB.ops(S.style).map(o =>
+    `<button class="chip ${pick.ops.includes(o.no) ? 'on' : ''}" onclick="toggleOp(${o.no})">${o.no}</button>`).join('');
+  box.scrollTop = sc;
+}
+function toggleOp(no) {
+  pick.ops = pick.ops.includes(no) ? pick.ops.filter(x => x !== no) : [...pick.ops, no];
+  buildOps(); refreshAdd();
+}
+function opDetails(ops) {                   // SAM + machine required for chosen operations
+  const sel = ops.slice().sort((a, b) => a - b), rows = DB.ops(S.style).filter(o => sel.includes(o.no));
+  const total = rows.reduce((s, o) => s + o.sam, 0);
+  const machines = [...new Set(rows.map(o => o.machine).filter(Boolean))];
+  return { rows, total, machines };
+}
+function refreshAdd() {
+  const d = opDetails(pick.ops);
+  $('opInfo').innerHTML = d.rows.length
+    ? d.rows.map(o => `<div>${t('opn')} <b>${o.no}</b>${o.code ? ' · ' + esc(o.code) : ''} · ${t('sam')} ${f(o.sam, 4)} · ${t('machine')}: <b>${esc(o.machine || '-')}</b></div>`).join('')
+      + (d.rows.length > 1 ? `<div>${t('totalSam')}: <b>${f(d.total, 4)}</b> · ${t('machine')}: ${esc(d.machines.join(', ') || '-')}</div>` : '')
+    : t('selOps');
+  const ok = pick.emp && pick.ops.length;
+  $('addBtn').disabled = !ok;
+  $('addBtn').textContent = ok ? t('add') : t('addNeed');
+}
+function addOp() {
+  if (!pick.emp || !pick.ops.length) return;
+  const e = DB.employees(S.line).find(x => x.code === pick.emp);
+  S.rows.push({ emp:e.code, name:e.name, opText:pick.ops.slice().sort((a, b) => a - b).join('+'), pieces:[], remark:'', t0:null });
+  pick = { emp:'', ops:[] }; $('empSel').value = '';
+  save(); buildOps(); refreshAdd(); updateCards(); updateAnalysis();
+}
+
+// ---------- remarks ----------
+const QUICK = ['chất lượng chưa ổn định', 'k đủ hàng làm', 'thao tác chậm, điều chỉnh lâu', 'nhảy công đoạn', 'Đi HT', 'mới học'];
+function addRemark(i, txt) {                // tap a quick remark: it is added to the text
+  const r = S.rows[i]; r.remark = r.remark ? r.remark.replace(/[;\s]+$/, '') + '; ' + txt : txt;
+  save(); updateCards();
+}
+
+// ---------- stopwatch ----------
+function tap(i, ev) {                       // Start, then every tap = one piece done
+  const r = S.rows[i], now = ev ? ev.timeStamp : performance.now();
+  if (r.t0 === null) { r.t0 = now; active = i; }
+  else { r.pieces.push((now - r.t0) / 1000); r.t0 = now; }
+  save(); updateCards(); updateAnalysis();
+}
+function stop(i) { S.rows[i].t0 = null; active = -1; save(); updateCards(); }
+function undo(i) { S.rows[i].pieces.pop(); S.rows[i].t0 = null; save(); updateCards(); updateAnalysis(); }
+function del(i) { S.rows.splice(i, 1); active = -1; save(); updateCards(); updateAnalysis(); }
+
+function updateCards() {
+  $('cards').innerHTML = S.rows.map((r, i) => {
+    const c = calcOperator(r, opMap), d = opDetails(c.ops), has = r.pieces.length > 0;
+    return `<div class="card"><b>${esc(r.name)}</b> <small class="muted">${esc(r.emp)}</small> &nbsp; ${t('opn')} <b>${esc(r.opText)}</b>
+      <div class="muted">${t('sam')} ${f(c.sam, 4)} · ${t('machine')}: ${esc(d.machines.join(', ') || '-')}</div>
+      <div class="time" id="tm${i}">${r.t0 === null ? '0.0' : ''}</div>
+      <button class="big" onpointerdown="tap(${i},event)">${r.t0 === null ? t('start') : t('piece')}</button>
+      <div>${t('pieces')}: ${r.pieces.map(p => f(p)).join(' · ') || '-'}</div>
+      ${has ? `<div class="metrics"><div>${t('avg')}<b>${f(c.sec)}</b></div><div>${t('pcsHr')}<b>${f(c.capacity)}</b></div><div>${t('effp')}<b>${f(c.eff * 100)}%</b></div></div>`
+            : `<div class="muted">${t('firstHint')}</div>`}
+      <textarea rows="2" placeholder="${t('remark')}" oninput="S.rows[${i}].remark=this.value;save()">${esc(r.remark || '')}</textarea>
+      <div class="qr">${QUICK.map((q, k) => `<button class="sec" onclick="addRemark(${i},QUICK[${k}])">+ ${esc(q)}</button>`).join('')}</div>
+      <div class="row"><button class="sec" onclick="stop(${i})">${t('stop')}</button>
+      <button class="sec" onclick="undo(${i})">${t('undo')}</button>
+      <button class="sec" onclick="del(${i})">${t('del')}</button></div></div>`;
+  }).join('');
+  keepAwake(S.rows.some(r => r.t0 !== null));
+}
+function updateAnalysis() {                 // live: recomputed after every piece, no Analyze button
+  const rows = S.rows.filter(r => r.pieces.length);
+  if (!rows.length) { live = null; $('analysis').innerHTML = `<div class="card muted">${t('timeFirst')}</div>`; }
+  else { live = analyze(rows, opMap); live.unknownOps = []; $('analysis').innerHTML = showResult(live, Number(S.target)); }
+  $('saveBtn').disabled = !live;
+  $('saveStatus').textContent = live ? `${rows.length} ${t('timed')} · ${f(live.lineCapacity)} ${t('pcsHr')} · ${f(live.lineEfficiency * 100)}%` : t('timeFirst');
+}
+function saveStudy() {
+  updateAnalysis(); if (!live) return;
+  const rec = { line:S.line, style:S.style, target:S.target, ie:S.ie,
+                raw:S.rows.filter(r => r.pieces.length).map(r => ({ emp:r.emp, name:r.name, opText:r.opText, pieces:r.pieces, remark:r.remark || '' })),
+                opsSnap:[...new Set(live.workers.flatMap(w => w.ops))].sort((a, b) => a - b).map(no => ({ no, sam:opMap[no] ? opMap[no].sam : 0, machine:opMap[no] ? opMap[no].machine : '' })),
+                meta:{ app:APP_VER, defaultAllowance:DEFAULT_ALLOWANCE }, exported:false,
+                result:JSON.parse(JSON.stringify(live)) };
+  const ex = S.editId && H.find(h => h.id === S.editId);
+  let id;
+  if (ex) { Object.assign(ex, rec, { updated:new Date().toISOString() }); id = ex.id; }      // update the same study
+  else { id = uid(); H.unshift({ id, date:new Date().toISOString(), ...rec }); }
+  S.rows = []; S.editId = null; live = null; saveHist(); saveDraft(); go('detail', id);
+}
+function editStudy(id) {                    // load a saved study back into the New Study screen
+  const h = H.find(x => x.id === id); if (!h) return;
+  if (S.rows.length && S.editId !== id && !confirm(t('replaceDraft'))) return;
+  if (S.editId !== id) {
+    S.rows = h.raw.map(r => ({ emp:r.emp, name:r.name, opText:r.opText, pieces:r.pieces.slice(), remark:r.remark || '', t0:null }));
+    S.line = h.line; S.style = h.style; S.target = h.target || ''; S.ie = h.ie || ''; S.editId = id;
+  }
+  save(); go('new');
+}
+function cancelEdit() { const id = S.editId; S.rows = []; S.editId = null; save(); go(id ? 'detail' : 'history', id); }
+function delStudy(id) { if (!confirm(t('sure'))) return; H = H.filter(h => h.id !== id); saveHist(); go('history'); }
+
+// ---------- keep screen on while timing ----------
+let lock = null;
+async function keepAwake(on) {
+  try {
+    if (on && 'wakeLock' in navigator && !lock) { lock = await navigator.wakeLock.request('screen'); lock.onrelease = () => lock = null; }
+    else if (!on && lock) { await lock.release(); lock = null; }
+  } catch(e){}
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden) keepAwake(S.rows.some(r => r.t0 !== null)); });
+
+// =====================================================================
+// OTHER SCREENS
+// =====================================================================
+function render() {
+  $('lang').value = S.lang;
+  $('back').style.display = screen === 'home' ? 'none' : '';
+  $('back').onclick = () => go(screen === 'detail' ? 'history' : 'home');
+  $('title').textContent = screen === 'home' ? t('title') : screen === 'new' ? t('newStudy') : screen === 'history' ? t('history') : t('study');
+  if (screen === 'new') return buildNew();
+  $('app').innerHTML = screen === 'home' ? viewHome() : screen === 'history' ? viewHistory() : viewDetail();
+}
+function viewHome() {
+  return `<button class="home" onclick="go('new')">+ ${t('newStudy')}</button>
+          <button class="home sec" onclick="go('history')">${t('history')} (${H.length})</button>
+          <input type="file" id="dataFile" accept=".json,.js,.txt,application/json" style="display:none" onchange="loadDataFile(this)">
+          <button class="sec" onclick="$('dataFile').click()">${t('loadData')}</button>
+          <div class="muted">${DATA_INFO.src === 'sample' ? `<span class="warn">${t('sampleData')}</span>`
+            : `${t('dataFrom')}: ${esc(DATA_INFO.generated)} · ${EMP.length} / ${DB.styles().length} ${t('style')}`}</div>`;
+}
+function viewHistory() {
+  if (!H.length) return `<div class="card">${t('noHistory')}</div>`;
+  const n = H.filter(h => !h.exported).length;
+  return `<button onclick="exportNew()" ${n ? '' : 'disabled'}>${t('exportAll')} (${n})</button>` + H.map(h => `<div class="card item" onclick="go('detail','${h.id}')">
+    <b>${t('line')} ${esc(h.line)}</b> &nbsp; <small>${esc(h.style)}</small><br><small>${fmtDate(h.date)}</small>${h.exported ? ` <small class="muted">✓ ${t('exported')}</small>` : ''}
+    <div>${t('cap')}: <b>${f(h.result.lineCapacity)}</b> &nbsp; ${t('eff')}: <b>${f(h.result.lineEfficiency * 100)}%</b></div></div>`).join('');
+}
+function viewDetail() {
+  const h = H.find(x => x.id === detailId);
+  if (!h) return `<div class="card">${t('noHistory')}</div>`;
+  return `<div class="card"><b>${t('line')} ${esc(h.line)}</b> &nbsp; <small>${esc(h.style)}</small><br><small>${fmtDate(h.date)}${h.ie ? ' · ' + esc(h.ie) : ''}${h.updated ? ' · ' + t('updated') + ' ' + fmtDate(h.updated) : ''}</small>${h.exported ? ` <small class="muted">✓ ${t('exported')}</small>` : ''}</div>`
+    + `<button onclick="editStudy('${h.id}')">${t('editStudy')}</button>`
+    + `<button onclick="exportExcel('${h.id}')">${t('exportXlsx')}</button>`
+    + `<button class="sec" onclick="exportOne('${h.id}')">${t('exportStudy')}</button>`
+    + showResult(h.result, Number(h.target), h.raw)
+    + `<button class="red" onclick="delStudy('${h.id}')">${t('delStudy')}</button>`;
+}
+function balanceChart(r, tgt) {              // inline SVG: capacity per operation, bottleneck in red
+  const ops = Object.keys(r.opCap).map(Number).sort((a, b) => a - b);
+  if (!ops.length) return '';
+  const bw = 26, gap = 10, left = 34, top = 18, bottom = 24, Ht = 180;
+  const W = Math.max(320, left + ops.length * (bw + gap) + 10);
+  const base = Math.max(...ops.map(o => r.opCap[o]), tgt || 0, r.lineCapacity) || 1, max = base * 1.15;
+  const y = v => top + (Ht - top - bottom) * (1 - v / max);
+  let g = `<svg viewBox="0 0 ${W} ${Ht}" width="${W}" height="${Ht}" role="img">`;
+  [0, .5, 1].forEach(k => { const v = base * k;
+    g += `<line x1="${left}" x2="${W}" y1="${y(v)}" y2="${y(v)}" stroke="#e5e7eb"/><text x="${left - 4}" y="${y(v) + 4}" font-size="10" text-anchor="end" fill="#555">${Math.round(v)}</text>`; });
+  ops.forEach((o, i) => {
+    const x = left + i * (bw + gap) + gap / 2, v = r.opCap[o], bn = r.bottleneckOps.includes(o);
+    g += `<rect x="${x}" y="${y(v)}" width="${bw}" height="${Math.max(0, y(0) - y(v))}" rx="3" fill="${bn ? '#dc2626' : '#1f4e79'}"/>`
+       + `<text x="${x + bw / 2}" y="${y(v) - 3}" font-size="9" text-anchor="middle" fill="#222">${Math.round(v)}</text>`
+       + `<text x="${x + bw / 2}" y="${Ht - 8}" font-size="10" text-anchor="middle" fill="#222">${o}</text>`;
+  });
+  g += `<line x1="${left}" x2="${W}" y1="${y(r.lineCapacity)}" y2="${y(r.lineCapacity)}" stroke="#dc2626" stroke-dasharray="4 3"/>`;
+  if (tgt) g += `<line x1="${left}" x2="${W}" y1="${y(tgt)}" y2="${y(tgt)}" stroke="#16a34a" stroke-width="2" stroke-dasharray="6 3"/>`
+              + `<text x="${W - 2}" y="${y(tgt) - 3}" font-size="10" text-anchor="end" fill="#16a34a">${t('lgTgt')} ${tgt}</text>`;
+  g += '</svg>';
+  return `<div class="card"><b>${t('chartTitle')}</b><div style="overflow-x:auto">${g}</div>
+    <div class="legend"><i style="background:#1f4e79"></i>${t('lgOp')}<i style="background:#dc2626"></i>${t('lgBn')} / ${t('lgCap')}${tgt ? `<i style="background:#16a34a"></i>${t('lgTgt')}` : ''}</div></div>`;
+}
+function showResult(r, tgt, raw) {
+  let h = `<div class="card"><div class="kpi">${t('cap')}: <b>${f(r.lineCapacity)}</b>${tgt ? ` / ${tgt}` : ''}</div>
+   <div class="kpi">${t('eff')}: <b>${f(r.lineEfficiency * 100)}%</b></div>
+   <div class="kpi">${t('bal')}: <b>${f(r.balanceRate * 100)}%</b></div>
+   <div class="kpi">${t('bn')}: <b>${r.bottleneckOps.join(', ')}</b></div>`;
+  if (r.unknownOps && r.unknownOps.length) h += `<div class="warn">${t('unknown')}: ${r.unknownOps.join(', ')}</div>`;
+  h += '</div>' + balanceChart(r, tgt) + `<div class="card"><b>${t('opcap')}</b><table><tr><th>${t('opn')}</th><th>${t('cap2')}</th></tr>`;
+  Object.keys(r.opCap).sort((a, b) => r.opCap[a] - r.opCap[b]).forEach(o =>
+    h += `<tr class="${r.bottleneckOps.includes(Number(o)) ? 'bn' : ''}"><td>${o}</td><td>${f(r.opCap[o])}</td></tr>`);
+  h += `</table></div><div class="card"><b>${t('worker')}</b><table><tr><th>${t('worker')}</th><th>${t('opn')}</th><th>${t('avg')}</th><th>${t('pcsHr')}</th><th>%</th></tr>`;
+  r.workers.forEach((w, i) => {
+    const rm = (raw && raw[i] && raw[i].remark) || w.remark || '';
+    h += `<tr><td>${esc(w.name || w.emp)}</td><td>${esc(w.opText)}</td><td>${f(w.sec)}</td><td>${f(w.capacity)}</td><td>${f(w.eff * 100)}</td></tr>`
+       + (rm ? `<tr><td colspan="5" class="muted" style="text-align:left">📝 ${esc(rm)}</td></tr>` : '');
+  });
+  h += `</table></div><div class="card"><b>${t('moves')}</b>`;
+  h += r.suggestion.moves.length
+    ? r.suggestion.moves.map(m => `<div>${t('move')} ${esc(m.name || m.emp)} ${t('from')} ${m.from} ${t('to')} ${m.to} → ${t('now')} ${f(m.newCapacity)}</div>`).join('')
+    : `<div>${t('none')}</div>`;
+  return h + '</div>';
+}
+
+// =====================================================================
+// LOAD DATA FILE / EXPORT STUDY FILES  (no sign-in: the phone's file picker and share sheet)
+// =====================================================================
+async function loadDataFile(inp) {
+  const file = inp.files && inp.files[0]; if (!file) return;
+  try { await ingestDataText(await file.text()); } catch (e) { alert(t('badFile')); }
+  inp.value = '';
+}
+async function ingestDataText(txt) {          // accepts data.json or data.js
+  const i = txt.indexOf('{'), k = txt.lastIndexOf('}');
+  const d = JSON.parse(txt.slice(i, k + 1));
+  if (!Array.isArray(d.employees) || typeof d.ops !== 'object') throw new Error('bad');
+  await kv.set('data', d); setData(d, 'loaded');
+  S.style = DB.findStyle(S.style) || DB.styles()[0] || ''; save(); render();
+}
+function studyFile(h) {
+  const body = { format:'timestudy-1', id:h.id, date:h.date, updated:h.updated || null, line:h.line, style:h.style, target:h.target, ie:h.ie, raw:h.raw, meta:h.meta, result:h.result };
+  const clean = x => String(x).replace(/[^A-Za-z0-9._-]/g, '_');
+  const stamp = (h.updated || h.date).slice(0, 16).replace(/[-:T]/g, '');          // a changed study gets a new file name
+  const name = `study_${clean(h.line)}_${clean(h.style)}_${stamp}_${h.id.slice(0, 8)}.json`;
+  return new File([JSON.stringify(body)], name, { type:'application/json' });
+}
+function download(file) {
+  const a = document.createElement('a'); a.href = URL.createObjectURL(file); a.download = file.name;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+}
+async function shareFiles(files) {          // phone share sheet (choose OneDrive); normal download as fallback
+  try {
+    if (navigator.canShare && navigator.canShare({ files })) await navigator.share({ files });
+    else files.forEach(download);
+    return true;
+  } catch (e) { if (e && e.name === 'AbortError') return false; files.forEach(download); return true; }
+}
+async function exportStudies(list) {
+  if (!list.length) return;
+  if (!(await shareFiles(list.map(studyFile)))) return;
+  list.forEach(h => h.exported = true); saveHist(); render();
+}
+let LOGO = null;                              // optional logo.png from the app folder, loaded at start so sharing stays instant
+async function loadLogo() { try { const r = await fetch('logo.png'); if (r.ok) LOGO = new Uint8Array(await r.arrayBuffer()); } catch (e) {} }
+function exportExcel(id) {                    // Excel report in the company template layout + analysis sheet
+  const h = H.find(x => x.id === id); if (!h) return;
+  let file;
+  try { file = studyXlsxFile(h, DB.ops(h.style), LOGO); } catch (e) { alert(t('xlsxFail') + ' ' + e.message); return; }
+  return shareFiles([file]);
+}
+const exportOne = id => exportStudies(H.filter(h => h.id === id));
+const exportNew = () => exportStudies(H.filter(h => !h.exported));
+
+// live timer display
+setInterval(() => {
+  if (document.hidden || screen !== 'new' || active < 0 || !S.rows[active] || S.rows[active].t0 === null) return;
+  const el = $('tm' + active);
+  if (el) el.textContent = f((performance.now() - S.rows[active].t0) / 1000);
+}, 100);
+$('lang').onchange = e => { S.lang = e.target.value; save(); render(); };
+async function boot() {
+  if (typeof SYNC !== 'undefined') setData(SYNC, 'file'); else useSample();     // data.js (PC testing) or sample
+  try { const d = await kv.get('data'); if (d && (!DATA_INFO.generated || (d.generated || '') >= DATA_INFO.generated)) setData(d, 'loaded'); } catch (e) {}
+  if (!S.editId) S.style = DB.findStyle(S.style) || DB.styles()[0] || '';
+  render();
+  loadLogo();
+}
+boot();
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => {});
+</script></body></html>
