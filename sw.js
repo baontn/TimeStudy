@@ -1,6 +1,6 @@
-// Offline cache. Change VERSION every time you update index.html, engine.js or xlsx_export.js.
-const VERSION = 'ts-v8';
-const APP_FILES = ['./', './index.html', './engine.js', './xlsx_export.js'];
+// Offline cache. Change VERSION every time you update index.html or engine.js.
+const VERSION = 'ts-v13';
+const APP_FILES = ['./', './index.html', './engine.js', './analytics.js', './xlsx_export.js'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(VERSION).then(async c => {
     await c.addAll(APP_FILES);

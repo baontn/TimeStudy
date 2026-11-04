@@ -8,20 +8,23 @@ header{display:flex;gap:8px;align-items:center;padding:12px 16px;background:#1f4
 header b{flex:1}
 header select,header button{width:auto;margin:0;padding:6px 10px}
 header button{background:#ffffff33}
-main{padding:12px;max-width:640px;margin:auto}
+main{padding:12px;max-width:640px;margin:auto}main.wide{max-width:1000px}
 .card{background:#fff;border-radius:12px;padding:12px;margin-bottom:12px;box-shadow:0 1px 3px #0002}
 input,select,button,textarea{font-family:inherit;font-size:16px;padding:10px;border-radius:8px;border:1px solid #ccc;width:100%;box-sizing:border-box;margin:4px 0}
 button{background:#1f4e79;color:#fff;border:0}
 button:disabled{opacity:.4}
 button.sec{background:#e5e7eb;color:#111}
 button.red{background:#b91c1c}
+button.green{background:#15803d}
 button.big{font-size:22px;padding:18px}
 button.home{font-size:22px;padding:34px 18px;margin:10px 0}
+button.small{width:auto;padding:5px 12px;font-size:14px;margin:2px}
 .row{display:flex;gap:8px}.row>*{flex:1}
 .time{font-size:34px;text-align:center;font-variant-numeric:tabular-nums}
 table{width:100%;border-collapse:collapse;font-size:14px}
 td,th{padding:4px;border-bottom:1px solid #eee;text-align:right}
 th:first-child,td:first-child{text-align:left}
+td.l,th.l{text-align:left}
 .bn{background:#fde2e2}.warn{color:#b45309}.kpi{font-size:18px;margin:4px 0}
 .item{cursor:pointer}.item small,.muted{color:#555}
 .chips{display:flex;flex-wrap:wrap;gap:6px;max-height:130px;overflow:auto;margin:6px 0}
@@ -33,22 +36,40 @@ th:first-child,td:first-child{text-align:left}
 .metrics b{display:block;font-size:20px}
 .legend{font-size:12px;color:#555;margin-top:4px}.legend i{display:inline-block;width:12px;height:8px;margin:0 4px 0 8px;vertical-align:middle}
 .qr{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 6px}.qr button{width:auto;margin:0;padding:5px 10px;font-size:13px;border-radius:14px;background:#eef4fa;color:#1f4e79;border:1px solid #c9d9ea}
+.pl{display:block;text-align:left;margin:4px 0}.pl small{display:block;color:#555;font-size:12px}
+#modal{position:fixed;inset:0;background:#0007;z-index:20;display:flex;align-items:flex-end;justify-content:center}
+#modal .sheet{background:#fff;border-radius:16px 16px 0 0;padding:14px;width:100%;max-width:640px;max-height:80vh;overflow:auto;box-sizing:border-box}
+#plist{max-height:45vh;overflow:auto}
+#toast{position:fixed;left:12px;right:12px;bottom:80px;background:#1f2937;color:#fff;padding:12px;border-radius:10px;z-index:30;font-size:14px}
+.cyc{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0}.cy{width:auto;margin:0;padding:6px 10px;font-size:14px;border-radius:14px;background:#e5e7eb;color:#111}
+.cy.off{text-decoration:line-through;opacity:.45}.done{border-left:5px solid #16a34a}.ok{color:#16a34a;font-weight:600}
 .savebar{position:sticky;bottom:0;background:#fff;border-radius:12px;padding:10px;box-shadow:0 -2px 8px #0003;margin-top:8px}
+.dot{display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:middle;margin-right:4px}
+.dot.green{background:#16a34a}.dot.amber{background:#f59e0b}.dot.red{background:#dc2626}
+.q-ok{border-left:5px solid #16a34a}.q-check{border-left:5px solid #f59e0b}.q-review{border-left:5px solid #dc2626}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:12px}
+.tile{background:#fff;border-radius:12px;padding:10px;box-shadow:0 1px 3px #0002}.tile small{color:#555;display:block;font-size:12px}.tile b{font-size:22px}
+.scroll{overflow-x:auto}.scroll table{min-width:620px}
+tr.go{cursor:pointer}tr.go:hover{background:#f3f7fb}
+.badge{display:inline-block;border-radius:10px;padding:1px 8px;font-size:12px;background:#e5e7eb;color:#111}
+.badge.ok{background:#dcfce7;color:#166534}.badge.check{background:#fef3c7;color:#92400e}.badge.review{background:#fee2e2;color:#991b1b}
+.filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+h3{margin:4px 0 8px;font-size:16px}
 </style></head>
 <body>
-<header><button id="back" onclick="go('home')">&larr;</button><b id="title"></b>
+<header><button id="back" onclick="goBack()">&larr;</button><b id="title"></b>
 <select id="lang"><option value="en">EN</option><option value="vi">VI</option></select></header>
 <main id="app"></main>
 <script src="data.js" onerror="void 0"></script>
 <script src="engine.js"></script>
+<script src="analytics.js"></script>
 <script src="xlsx_export.js"></script>
 <script>
 // =====================================================================
-// DATA LAYER  (sample data now; later filled by the SQL sync. UI only uses DB.*)
+// DATA LAYER  (sample data until a data file is loaded; the UI only uses DB.*)
 // =====================================================================
-const SAMPLE_EMP = [ // dummy sample, used until a data file is loaded
- ['000001','Sample Employee 1'],['000002','Sample Employee 2'],['000003','Sample Employee 3'],['000004','Sample Employee 4']
-].map(([code,name]) => ({ code, name, line:'G08' }));
+const SAMPLE_EMP = [['000001','Sample Employee 1'],['000002','Sample Employee 2'],['000003','Sample Employee 3'],['000004','Sample Employee 4']]
+  .map(([code,name]) => ({ code, name, line:'G08' }));
 const SAMPLE_SAM = {31:.1998,32:.3601,33:.259,34:.3661,35:.8977,36:1.5361,37:.3528,38:.705,39:.5543,40:.7047,41:.2764,42:.2412,43:.1779,44:.4709,45:.1969,46:.5363,47:.1386,48:.2716,49:.2389,50:.1808,97:.3576};
 let EMP = [], OPS = {}, DATA_INFO = { src:'sample', generated:'' };
 function setData(d, src) { EMP = d.employees; OPS = d.ops; DATA_INFO = { src, generated:d.generated || '' }; }
@@ -73,7 +94,7 @@ const kv = (() => {
 })();
 const norm = s => String(s || '').trim().toUpperCase();
 const DB = {
-  lines:     () => [...new Set(EMP.map(e => e.line))],
+  lines:     () => [...new Set(EMP.map(e => e.line))].sort(),
   employees: line => EMP.filter(e => norm(e.line) === norm(line)),
   styles:    () => Object.keys(OPS).sort(),
   findStyle: v => Object.keys(OPS).find(k => norm(k) === norm(v)) || '',
@@ -88,46 +109,91 @@ const T = {
  en:{title:'Time Study',newStudy:'New Study',history:'History',save:'Save study',
   noHistory:'No studies saved yet.',study:'Study detail',delStudy:'Delete this study',sure:'Delete?',
   line:'Line',style:'Style',ie:'Studied by',target:'Target pcs/hr (optional)',
-  exportXlsx:'Export Excel report',exportData:'Export data file (for Access)',remark:'Remark (operation situation, optional)',xlsxFail:'Excel export failed:',editStudy:'Edit / Continue study',editing:'Editing a saved study',cancelEdit:'Cancel editing',replaceDraft:'Replace the current unsaved draft with this study?',updated:'updated',chartTitle:'Line balance: capacity per operation (pcs/hr)',lgBn:'Bottleneck',lgOp:'Operation',lgTgt:'Target',lgCap:'Line capacity',dataFrom:'Data',sampleData:'SAMPLE data. Tap Load data file.',loadData:'Load data file',badFile:'This file is not a valid data file.',exportStudy:'Export data file',exportAll:'Export new data files (for Access)',exported:'exported',styleMissing:'Style not found in the synced data',selEmp:'Select employee',noEmp:'No employees found for this line',empCount:'employees on this line',
+  cycles:'Cycles per operator',cyclesHint:'Tap a time to exclude an abnormal cycle (thread break, waiting...)',cv:'Variation',cvHigh:'High variation: check the method or exclude abnormal cycles',open:'Open',close:'Close',missingOps:'Operations not studied yet (line capacity may be wrong)',
+  studyType:'Study type',ty_routine:'Routine check',ty_new:'New style / baseline',ty_before:'Before improvement',ty_after:'After improvement',manpower:'Line manpower (optional)',note:'What was changed / observations (optional)',needIe:'Enter "Studied by" to save.',
+  quality:'Study quality',q_ok:'OK',q_check:'Check',q_review:'Needs review',qi_few:'{n} operator(s) with fewer than 3 cycles',qi_cover:'{n} operations not studied (coverage {v})',qi_missing:'{n} operation(s) not studied',qi_var:'{n} operator(s) with high variation (over 15%)',
+  loadPeople:'Load email list',noPeopleShort:'No email list loaded yet. Tap Load email list.',user:'User',change:'Change',selectName:'Select your name',whoAreYou:'Who are you? Choose your name',searchName:'Search name or email',noMatch:'No match',cancel:'Cancel',sendReport:'Send report to my email',noPeople:'Load the email list first (Home > Load email list).',sendInfo:'Choose OneDrive > reports folder. The Excel report will be emailed to {email} automatically.',badPeople:'No valid name and email found in this file.',
+  exportXlsx:'Export Excel report',exportStudy:'Export data file',exportAll:'Send all new studies to the folder',remark:'Remark (operation situation, optional)',xlsxFail:'Excel export failed:',
+  editStudy:'Edit / Continue study',editing:'Editing a saved study',cancelEdit:'Cancel editing',replaceDraft:'Replace the current unsaved draft with this study?',updated:'updated',
+  chartTitle:'Line balance: capacity per operation (pcs/hr)',lgBn:'Bottleneck',lgOp:'Operation',lgTgt:'Target',lgCap:'Line capacity',
+  dataFrom:'Data',sampleData:'SAMPLE data. Tap Load data file.',loadData:'Load data file',badFile:'This file is not a valid data file.',exported:'sent',
+  styleMissing:'Style not found in the synced data',selEmp:'Select employee',noEmp:'No employees found for this line',empCount:'employees on this line',
   selOps:'Tap the operation number(s) this operator does',sam:'SAM',machine:'Machine',totalSam:'Total SAM',
   add:'Add operator to study',addNeed:'Select an employee and at least one operation',
-  start:'Start',piece:'Piece done',stop:'Stop',undo:'Undo',del:'Delete',reset:'Clear all',
-  avg:'Avg time (s)',timePc:'Time/pc (min)',pcsHr:'pcs/hr',effp:'Efficiency',
+  start:'Start',piece:'Piece done',stop:'Stop',undo:'Undo',del:'Delete',
+  avg:'Avg time (s)',pcsHr:'pcs/hr',effp:'Efficiency',
   firstHint:'Tap Start, then tap Piece done each time a piece is finished.',
   timeFirst:'Time at least one operator (Start, then Piece done) to see the line analysis and save.',
   cap:'Line capacity (pcs/hr)',eff:'Line efficiency',bal:'Balance rate',bn:'Bottleneck op',
   opcap:'Operation capacity',moves:'Suggested moves',none:'No improving move found',
   pieces:'Pieces',unknown:'Not in style data',move:'Move',from:'from',to:'to',now:'capacity becomes',
-  worker:'Operator',opn:'Op',cap2:'pcs/hr',timed:'operator(s) timed'},
+  worker:'Operator',opn:'Op',cap2:'pcs/hr',timed:'operator(s) timed',myWeek:'My studies in the last 7 days',
+  dash:'Supervisor dashboard',supTools:'Supervisor tools',roleSup:'Supervisor',roleOff:'IE officer',
+  teamLoaded:'Studies loaded',loadTeam:'Load studies from folder',refreshTeam:'Refresh studies',teamHelp:'Pick the folder with the study files (TimeStudy/reports). On a PC with Chrome or Edge it remembers the folder, so Refresh needs one tap.',teamDone:'{n} study file(s) read, {bad} skipped.',
+  noTeam:'No studies loaded yet. Tap "Load studies from folder" and pick the folder with the study files.',
+  period:'Period',p_7:'Last 7 days',p_30:'Last 30 days',p_month:'This month',p_90:'Last 90 days',p_all:'All time',allLines:'All lines',allIE:'All IE officers',allTypes:'All types',
+  standards:'Standards',stdEff:'Standard efficiency %',stdBal:'Minimum balance rate %',
+  kStudies:'Studies',kLines:'Lines',kEff:'Avg efficiency (latest per line)',kStatus:'On standard / Watch / Below',kGap:'Avg gap to target',kPot:'Gain possible by balancing',kReview:'Studies to review',
+  needAtt:'Needs attention',allGood:'All studied lines are on standard.',linesTitle:'Latest study per line',effByLine:'Efficiency by line (latest study)',trendTitle:'Efficiency trend',trendWeek:'weekly average, all lines',
+  impTitle:'Improvement tracker (before → after)',noImp:'No before/after pairs yet. Mark studies as "Before improvement" and "After improvement" on the same line and style.',
+  machTitle:'Bottleneck by machine type',remTitle:'Most frequent operator remarks',covTitle:'Lines not studied in this period',covAll:'All known lines were studied.',ieTitle:'IE officer activity',studiesTitle:'Studies in this period',
+  cLine:'Line',cStyle:'Style',cDate:'Date',cIE:'IE officer',cEff:'Eff.',cCap:'Capacity / target',cBal:'Balance',cBn:'Bottleneck',cPot:'+Gain',cQual:'Quality',cRev:'Review',cStudies:'Studies',cOk:'Quality OK',cCyc:'Avg cycles',cLast:'Last study',cBefore:'Before',cAfter:'After',cDEff:'Δ eff.',cDCap:'Δ capacity',
+  r_eff:'Efficiency {v} is below the standard {s}',r_cap:'Capacity is {v} of the target',r_bal:'Balance rate {v} is below {s}',potNote:'+{v} possible by balancing',
+  review:'Supervisor review',rv_approved:'Approved',rv_recheck:'Needs recheck',rv_clear:'Clear',rvComment:'Comment for the IE officer',rvSaved:'Review saved on this device.',
+  expSummary:'Export summary (Excel)',copySummary:'Copy summary text',copied:'Summary copied.',readOnly:'Study done by another IE officer (read only).',by:'by',allSent:'Nothing new to send.'},
  vi:{title:'Nghiên cứu thời gian',newStudy:'Nghiên cứu mới',history:'Lịch sử',save:'Lưu nghiên cứu',
   noHistory:'Chưa có nghiên cứu nào.',study:'Chi tiết nghiên cứu',delStudy:'Xóa nghiên cứu này',sure:'Xóa?',
   line:'Chuyền',style:'Mã hàng',ie:'Người làm',target:'Mục tiêu SL/giờ (tùy chọn)',
-  exportXlsx:'Xuất báo cáo Excel',exportData:'Xuất tệp dữ liệu (cho Access)',remark:'Ghi chú (tình hình công đoạn, tùy chọn)',xlsxFail:'Xuất Excel lỗi:',editStudy:'Sửa / Tiếp tục nghiên cứu',editing:'Đang sửa nghiên cứu đã lưu',cancelEdit:'Hủy sửa',replaceDraft:'Thay bản nháp chưa lưu hiện tại bằng nghiên cứu này?',updated:'cập nhật',chartTitle:'Cân bằng chuyền: năng lực từng công đoạn (cái/giờ)',lgBn:'Nút cổ chai',lgOp:'Công đoạn',lgTgt:'Mục tiêu',lgCap:'Năng lực chuyền',dataFrom:'Dữ liệu',sampleData:'Dữ liệu MẪU. Bấm Tải tệp dữ liệu.',loadData:'Tải tệp dữ liệu',badFile:'Tệp dữ liệu không hợp lệ.',exportStudy:'Xuất tệp dữ liệu',exportAll:'Xuất các tệp dữ liệu mới (cho Access)',exported:'đã xuất',styleMissing:'Không tìm thấy mã hàng trong dữ liệu',selEmp:'Chọn công nhân',noEmp:'Không có công nhân cho chuyền này',empCount:'công nhân trong chuyền',
+  cycles:'Số chu kỳ mỗi công nhân',cyclesHint:'Chạm vào một thời gian để loại chu kỳ bất thường (đứt chỉ, chờ hàng...)',cv:'Độ biến động',cvHigh:'Biến động cao: kiểm tra thao tác hoặc loại chu kỳ bất thường',open:'Mở',close:'Đóng',missingOps:'Công đoạn chưa bấm giờ (năng lực chuyền có thể chưa đúng)',
+  studyType:'Loại nghiên cứu',ty_routine:'Kiểm tra định kỳ',ty_new:'Mã hàng mới / ban đầu',ty_before:'Trước cải tiến',ty_after:'Sau cải tiến',manpower:'Số lao động của chuyền (tùy chọn)',note:'Đã thay đổi gì / nhận xét (tùy chọn)',needIe:'Nhập "Người làm" để lưu.',
+  quality:'Chất lượng nghiên cứu',q_ok:'Đạt',q_check:'Cần kiểm tra',q_review:'Cần xem lại',qi_few:'{n} công nhân bấm ít hơn 3 chu kỳ',qi_cover:'{n} công đoạn chưa nghiên cứu (độ phủ {v})',qi_missing:'{n} công đoạn chưa nghiên cứu',qi_var:'{n} công nhân biến động cao (trên 15%)',
+  loadPeople:'Tải danh sách email',noPeopleShort:'Chưa có danh sách email. Bấm Tải danh sách email.',user:'Người dùng',change:'Đổi',selectName:'Chọn tên của bạn',whoAreYou:'Bạn là ai? Chọn tên của bạn',searchName:'Tìm tên hoặc email',noMatch:'Không tìm thấy',cancel:'Hủy',sendReport:'Gửi báo cáo về email của tôi',noPeople:'Hãy tải danh sách email trước (Trang chính > Tải danh sách email).',sendInfo:'Chọn OneDrive > thư mục reports. Báo cáo Excel sẽ tự động gửi đến {email}.',badPeople:'Không tìm thấy tên và email hợp lệ trong tệp.',
+  exportXlsx:'Xuất báo cáo Excel',exportStudy:'Xuất tệp dữ liệu',exportAll:'Gửi các nghiên cứu mới vào thư mục',remark:'Ghi chú (tình hình công đoạn, tùy chọn)',xlsxFail:'Xuất Excel lỗi:',
+  editStudy:'Sửa / Tiếp tục nghiên cứu',editing:'Đang sửa nghiên cứu đã lưu',cancelEdit:'Hủy sửa',replaceDraft:'Thay bản nháp chưa lưu hiện tại bằng nghiên cứu này?',updated:'cập nhật',
+  chartTitle:'Cân bằng chuyền: năng lực từng công đoạn (cái/giờ)',lgBn:'Nút cổ chai',lgOp:'Công đoạn',lgTgt:'Mục tiêu',lgCap:'Năng lực chuyền',
+  dataFrom:'Dữ liệu',sampleData:'Dữ liệu MẪU. Bấm Tải tệp dữ liệu.',loadData:'Tải tệp dữ liệu',badFile:'Tệp dữ liệu không hợp lệ.',exported:'đã gửi',
+  styleMissing:'Không tìm thấy mã hàng trong dữ liệu',selEmp:'Chọn công nhân',noEmp:'Không có công nhân cho chuyền này',empCount:'công nhân trong chuyền',
   selOps:'Chọn số công đoạn công nhân này làm',sam:'SAM',machine:'Máy',totalSam:'Tổng SAM',
   add:'Thêm công nhân vào nghiên cứu',addNeed:'Chọn công nhân và ít nhất một công đoạn',
-  start:'Bắt đầu',piece:'Xong 1 cái',stop:'Dừng',undo:'Hoàn tác',del:'Xóa',reset:'Xóa tất cả',
-  avg:'TB (giây)',timePc:'Thời gian/cái (phút)',pcsHr:'cái/giờ',effp:'Hiệu suất',
+  start:'Bắt đầu',piece:'Xong 1 cái',stop:'Dừng',undo:'Hoàn tác',del:'Xóa',
+  avg:'TB (giây)',pcsHr:'cái/giờ',effp:'Hiệu suất',
   firstHint:'Bấm Bắt đầu, sau đó bấm Xong 1 cái mỗi khi hoàn thành một cái.',
   timeFirst:'Bấm giờ ít nhất một công nhân (Bắt đầu, rồi Xong 1 cái) để xem phân tích và lưu.',
   cap:'Năng lực chuyền (cái/giờ)',eff:'Hiệu suất chuyền',bal:'Tỷ lệ cân bằng',bn:'Công đoạn nút cổ chai',
   opcap:'Năng lực từng công đoạn',moves:'Đề xuất điều chuyển',none:'Không có đề xuất cải thiện',
   pieces:'Số cái',unknown:'Không có trong dữ liệu mã hàng',move:'Chuyển',from:'từ',to:'sang',now:'năng lực thành',
-  worker:'Công nhân',opn:'CĐ',cap2:'cái/giờ',timed:'công nhân đã bấm giờ'}
+  worker:'Công nhân',opn:'CĐ',cap2:'cái/giờ',timed:'công nhân đã bấm giờ',myWeek:'Nghiên cứu của tôi trong 7 ngày qua',
+  dash:'Bảng theo dõi của giám sát',supTools:'Công cụ giám sát',roleSup:'Giám sát',roleOff:'IE',
+  teamLoaded:'Số nghiên cứu đã tải',loadTeam:'Tải nghiên cứu từ thư mục',refreshTeam:'Làm mới nghiên cứu',teamHelp:'Chọn thư mục chứa các tệp nghiên cứu (TimeStudy/reports). Trên máy tính dùng Chrome hoặc Edge, ứng dụng nhớ thư mục nên chỉ cần bấm Làm mới.',teamDone:'Đã đọc {n} tệp, bỏ qua {bad} tệp.',
+  noTeam:'Chưa tải nghiên cứu nào. Bấm "Tải nghiên cứu từ thư mục" và chọn thư mục chứa các tệp nghiên cứu.',
+  period:'Thời gian',p_7:'7 ngày qua',p_30:'30 ngày qua',p_month:'Tháng này',p_90:'90 ngày qua',p_all:'Tất cả',allLines:'Tất cả chuyền',allIE:'Tất cả IE',allTypes:'Tất cả loại',
+  standards:'Tiêu chuẩn',stdEff:'Hiệu suất chuẩn %',stdBal:'Tỷ lệ cân bằng tối thiểu %',
+  kStudies:'Nghiên cứu',kLines:'Chuyền',kEff:'Hiệu suất TB (lần mới nhất mỗi chuyền)',kStatus:'Đạt / Theo dõi / Chưa đạt',kGap:'Chênh lệch TB so với mục tiêu',kPot:'Có thể tăng nhờ cân bằng',kReview:'Nghiên cứu cần xem lại',
+  needAtt:'Cần chú ý',allGood:'Tất cả chuyền đã nghiên cứu đều đạt chuẩn.',linesTitle:'Nghiên cứu mới nhất của từng chuyền',effByLine:'Hiệu suất theo chuyền (lần mới nhất)',trendTitle:'Xu hướng hiệu suất',trendWeek:'trung bình theo tuần, tất cả chuyền',
+  impTitle:'Theo dõi cải tiến (trước → sau)',noImp:'Chưa có cặp trước/sau. Hãy đánh dấu nghiên cứu là "Trước cải tiến" và "Sau cải tiến" cùng chuyền và mã hàng.',
+  machTitle:'Nút cổ chai theo loại máy',remTitle:'Ghi chú công nhân hay gặp nhất',covTitle:'Chuyền chưa được nghiên cứu trong kỳ này',covAll:'Tất cả chuyền đã có nghiên cứu.',ieTitle:'Hoạt động của IE',studiesTitle:'Các nghiên cứu trong kỳ',
+  cLine:'Chuyền',cStyle:'Mã hàng',cDate:'Ngày',cIE:'IE',cEff:'HS',cCap:'Năng lực / mục tiêu',cBal:'Cân bằng',cBn:'Nút cổ chai',cPot:'+Tăng',cQual:'Chất lượng',cRev:'Duyệt',cStudies:'Số NC',cOk:'Đạt chất lượng',cCyc:'Chu kỳ TB',cLast:'Lần cuối',cBefore:'Trước',cAfter:'Sau',cDEff:'Δ HS',cDCap:'Δ năng lực',
+  r_eff:'Hiệu suất {v} thấp hơn chuẩn {s}',r_cap:'Năng lực đạt {v} so với mục tiêu',r_bal:'Tỷ lệ cân bằng {v} thấp hơn {s}',potNote:'có thể tăng {v} nếu cân bằng',
+  review:'Duyệt của giám sát',rv_approved:'Đã duyệt',rv_recheck:'Cần kiểm tra lại',rv_clear:'Xóa',rvComment:'Nhận xét cho IE',rvSaved:'Đã lưu nhận xét trên thiết bị này.',
+  expSummary:'Xuất báo cáo tổng hợp (Excel)',copySummary:'Sao chép nội dung tóm tắt',copied:'Đã sao chép.',readOnly:'Nghiên cứu của IE khác (chỉ xem).',by:'bởi',allSent:'Không có gì mới để gửi.'}
 };
 
 // =====================================================================
 // STATE
 // =====================================================================
-const APP_VER = '0.8';
-let S = { lang:'en', line:'G08', style:'PUM25-00054-1301H4', target:'', ie:'', rows:[], editId:null };
-let H = [];                                        // saved studies
-let screen = 'home', detailId = null, active = -1, live = null;
+const APP_VER = '2.0';
+let S = { lang:'en', line:'G08', style:'PUM25-00054-1301H4', target:'', ie:'', type:'routine', manpower:'', note:'', rows:[], editId:null, me:null, cycles:5, supMode:false,
+          sup:{ eff:55, bal:70, period:'30', line:'', ie:'', type:'' } };
+let H = [];                                        // my saved studies
+let TEAM = [], REV = {}, DIRH = null, PEOPLE = [], CHOOSER_CB = null;   // studies of other IEs, supervisor reviews, folder handle, email list
+let screen = 'home', detailId = null, detailBack = 'history', active = -1, live = null;
 let opMap = {}, pick = { emp:'', ops:[] };         // pick = operator being prepared
 function saveDraft() { try { localStorage.setItem('ts_draft', JSON.stringify(S)); } catch(e){} }
 function saveHist()  { try { localStorage.setItem('ts_hist', JSON.stringify(H)); } catch(e){} }
 const save = saveDraft;
 try {
   Object.assign(S, JSON.parse(localStorage.getItem('ts_draft') || '{}'));
+  S.sup = Object.assign({ eff:55, bal:70, period:'30', line:'', ie:'', type:'' }, S.sup || {});
   H = JSON.parse(localStorage.getItem('ts_hist') || '[]');
   const old = JSON.parse(localStorage.getItem('ts') || 'null');            // migrate version 0.2 data
   if (old) { H = (old.history || []).map(x => ({ ...x, id:String(x.id) })); delete old.history;
@@ -136,12 +202,21 @@ try {
 S.rows.forEach(r => r.t0 = null);
 try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch(e){}
 const uid = () => (crypto.randomUUID ? crypto.randomUUID() : 'id' + Date.now() + Math.random().toString(36).slice(2));
-const t = k => T[S.lang][k];
+const t = k => (T[S.lang][k] !== undefined ? T[S.lang][k] : k);
+const tf = (k, o) => Object.keys(o || {}).reduce((s, x) => s.split('{' + x + '}').join(o[x]), t(k));
 const $ = id => document.getElementById(id);
-const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const f = (n, d=1) => Number(n).toFixed(d);
+const P = (v, d=1) => (Number(v) * 100).toFixed(d) + '%';
 const fmtDate = iso => new Date(iso).toLocaleString(S.lang === 'vi' ? 'vi-VN' : 'en-GB');
-function go(s, id) { screen = s; detailId = id ?? null; render(); }
+const fmtDay = iso => new Date(iso).toLocaleDateString(S.lang === 'vi' ? 'vi-VN' : 'en-GB');
+const isSup = () => !!(S.supMode || (S.me && S.me.role === 'supervisor'));
+const findStudy = id => H.find(x => x.id === id) || TEAM.find(x => x.id === id);
+function go(s, id, from) {
+  if (s === 'detail') detailBack = from || (screen === 'sup' ? 'sup' : 'history');
+  screen = s; detailId = id ?? null; render();
+}
+function goBack() { go(screen === 'detail' ? detailBack : 'home'); }
 
 // =====================================================================
 // NEW STUDY SCREEN  (built once; only the parts that change are redrawn)
@@ -150,6 +225,7 @@ function viewNewSkeleton() {
   const lines = DB.lines().map(l => `<option value="${esc(l)}">`).join('');
   const styles = DB.styles().map(x => `<option value="${esc(x)}">`).join('');
   const banner = S.editId ? `<div class="card info">${t('editing')} <button class="sec" onclick="cancelEdit()">${t('cancelEdit')}</button></div>` : '';
+  const types = ['routine', 'new', 'before', 'after'].map(k => `<option value="${k}" ${S.type === k ? 'selected' : ''}>${t('ty_' + k)}</option>`).join('');
   return banner + `<div class="card">
       <div class="row"><div><label>${t('line')}</label>
         <input id="line" list="lineList" value="${esc(S.line)}" oninput="onLine(this.value)" autocomplete="off">
@@ -157,8 +233,12 @@ function viewNewSkeleton() {
       <div><label>${t('style')}</label><input id="style" list="styleList" value="${esc(S.style)}" oninput="onStyle(this.value)" autocomplete="off">
         <datalist id="styleList">${styles}</datalist></div></div>
       <div class="warn" id="styleWarn"></div>
-      <div class="row"><div><label>${t('ie')}</label><input id="ie" value="${esc(S.ie)}" oninput="S.ie=this.value;save()"></div>
+      <div class="row"><div><label>${t('ie')}</label><input id="ie" value="${esc(S.ie)}" oninput="S.ie=this.value;save();updateAnalysis()"></div>
       <div><label>${t('target')}</label><input id="target" type="number" value="${esc(S.target)}" oninput="S.target=this.value;save();updateAnalysis()"></div></div>
+      <div class="row"><div><label>${t('studyType')}</label><select id="type" onchange="S.type=this.value;save()">${types}</select></div>
+      <div><label>${t('manpower')}</label><input id="manpower" type="number" min="0" value="${esc(S.manpower)}" oninput="S.manpower=this.value;save()"></div></div>
+      <label>${t('cycles')}</label><input id="cycles" type="number" min="1" max="20" value="${esc(S.cycles || 5)}" oninput="S.cycles=this.value;save();updateCards()">
+      <textarea id="note" rows="2" placeholder="${t('note')}" oninput="S.note=this.value;save()">${esc(S.note)}</textarea>
     </div>
     <div class="card">
       <select id="empSel" onchange="pick.emp=this.value;refreshAdd()"></select>
@@ -168,6 +248,7 @@ function viewNewSkeleton() {
       <button id="addBtn" onclick="addOp()">${t('add')}</button>
     </div>
     <div id="cards"></div>
+    <div id="quality"></div>
     <div id="analysis"></div>
     <div class="savebar"><div class="muted" id="saveStatus"></div>
       <button id="saveBtn" onclick="saveStudy()">${t('save')}</button></div>`;
@@ -186,11 +267,10 @@ function onStyle(v) {
   $('styleWarn').textContent = (!found && v.trim()) ? t('styleMissing') : '';
   buildOps(); refreshAdd(); updateCards(); updateAnalysis();
 }
-
 function buildEmp() {                       // employee dropdown = employees of the typed line
   const list = DB.employees(S.line);
   $('empSel').innerHTML = `<option value="">${list.length ? t('selEmp') : t('noEmp')}</option>`
-    + list.map(e => `<option value="${esc(e.code)}">${esc(e.code)} – ${esc(e.name)}</option>`).join('');
+    + list.map(e => `<option value="${esc(e.code)}">${esc(e.code)} – ${esc(e.name)}${S.rows.some(r => r.emp === e.code) ? ' ✓' : ''}</option>`).join('');
   $('empCount').textContent = list.length ? `${list.length} ${t('empCount')}` : '';
   pick.emp = ''; refreshAdd();
 }
@@ -223,9 +303,9 @@ function refreshAdd() {
 function addOp() {
   if (!pick.emp || !pick.ops.length) return;
   const e = DB.employees(S.line).find(x => x.code === pick.emp);
-  S.rows.push({ emp:e.code, name:e.name, opText:pick.ops.slice().sort((a, b) => a - b).join('+'), pieces:[], remark:'', t0:null });
-  pick = { emp:'', ops:[] }; $('empSel').value = '';
-  save(); buildOps(); refreshAdd(); updateCards(); updateAnalysis();
+  S.rows.push({ emp:e.code, name:e.name, opText:pick.ops.slice().sort((a, b) => a - b).join('+'), pieces:[], skip:[], remark:'', t0:null });
+  pick = { emp:'', ops:[] };
+  save(); buildEmp(); buildOps(); refreshAdd(); updateCards(); updateAnalysis();
 }
 
 // ---------- remarks ----------
@@ -236,64 +316,105 @@ function addRemark(i, txt) {                // tap a quick remark: it is added t
 }
 
 // ---------- stopwatch ----------
-function tap(i, ev) {                       // Start, then every tap = one piece done
+const MIN_CYCLE = 1.5;                        // seconds: a faster second tap is treated as an accidental double tap
+const openCard = new Set();                   // finished cards the IE opened again
+const cyclesGoal = () => Math.max(1, Number(S.cycles) || 5);
+const nUsed = r => usedCycles(r).length;
+function nextToTime(i) {                      // next operator that still needs cycles
+  for (let k = 1; k <= S.rows.length; k++) { const j = (i + k) % S.rows.length; if (nUsed(S.rows[j]) < cyclesGoal()) return j; }
+  return -1;
+}
+function tap(i, ev) {                         // Start, then every tap = one piece done
   const r = S.rows[i], now = ev ? ev.timeStamp : performance.now();
-  if (r.t0 === null) { r.t0 = now; active = i; }
-  else { r.pieces.push((now - r.t0) / 1000); r.t0 = now; }
+  let next = -1;
+  if (r.t0 === null) {
+    S.rows.forEach((x, k) => { if (k !== i) x.t0 = null; });                  // only one stopwatch runs at a time
+    r.t0 = now; active = i;
+  } else {
+    const sec = (now - r.t0) / 1000;
+    if (sec < MIN_CYCLE) return;
+    r.pieces.push(sec); r.t0 = now;
+    if (nUsed(r) >= cyclesGoal()) { r.t0 = null; active = -1; openCard.delete(i); next = nextToTime(i); }   // enough cycles: stop and move on
+  }
+  save(); updateCards(); updateAnalysis();
+  if (next >= 0) { const el = $('card' + next); if (el && el.scrollIntoView) el.scrollIntoView({ behavior:'smooth', block:'center' }); }
+}
+function toggleCycle(i, k) {                  // exclude / include an abnormal cycle
+  const r = S.rows[i]; r.skip = r.skip || [];
+  r.skip = r.skip.includes(k) ? r.skip.filter(x => x !== k) : [...r.skip, k];
   save(); updateCards(); updateAnalysis();
 }
 function stop(i) { S.rows[i].t0 = null; active = -1; save(); updateCards(); }
-function undo(i) { S.rows[i].pieces.pop(); S.rows[i].t0 = null; save(); updateCards(); updateAnalysis(); }
-function del(i) { S.rows.splice(i, 1); active = -1; save(); updateCards(); updateAnalysis(); }
+function undo(i) { const r = S.rows[i]; r.pieces.pop(); r.skip = (r.skip || []).filter(k => k < r.pieces.length); r.t0 = null; save(); updateCards(); updateAnalysis(); }
+function del(i) { S.rows.splice(i, 1); active = -1; openCard.clear(); save(); buildEmp(); updateCards(); updateAnalysis(); }
 
 function updateCards() {
+  const tg = cyclesGoal();
   $('cards').innerHTML = S.rows.map((r, i) => {
-    const c = calcOperator(r, opMap), d = opDetails(c.ops), has = r.pieces.length > 0;
-    return `<div class="card"><b>${esc(r.name)}</b> <small class="muted">${esc(r.emp)}</small> &nbsp; ${t('opn')} <b>${esc(r.opText)}</b>
+    const c = calcOperator(r, opMap), d = opDetails(c.ops), n = c.n, done = n >= tg && r.t0 === null;
+    const stat = n ? `${t('avg')} <b>${f(c.sec)}</b> · ${f(c.capacity)} ${t('pcsHr')} · ${f(c.eff * 100)}% · ${t('cv')} ${f(c.cv * 100)}%` : '';
+    const warnCv = n >= 3 && c.cv > 0.15 ? `<div class="warn">⚠ ${t('cvHigh')}</div>` : '';
+    if (done && !openCard.has(i)) return `<div class="card done" id="card${i}"><b>${esc(r.name)}</b> <small class="muted">${esc(r.emp)}</small> &nbsp; ${t('opn')} <b>${esc(r.opText)}</b> <span class="ok">✓ ${n}/${tg}</span>
+      <div class="muted">${stat}</div>${warnCv}${r.remark ? `<div class="muted">📝 ${esc(r.remark)}</div>` : ''}
+      <button class="sec" onclick="openCard.add(${i});updateCards()">${t('open')}</button></div>`;
+    return `<div class="card${done ? ' done' : ''}" id="card${i}"><b>${esc(r.name)}</b> <small class="muted">${esc(r.emp)}</small> &nbsp; ${t('opn')} <b>${esc(r.opText)}</b> <span class="${done ? 'ok' : 'muted'}">${n}/${tg}</span>
       <div class="muted">${t('sam')} ${f(c.sam, 4)} · ${t('machine')}: ${esc(d.machines.join(', ') || '-')}</div>
       <div class="time" id="tm${i}">${r.t0 === null ? '0.0' : ''}</div>
       <button class="big" onpointerdown="tap(${i},event)">${r.t0 === null ? t('start') : t('piece')}</button>
-      <div>${t('pieces')}: ${r.pieces.map(p => f(p)).join(' · ') || '-'}</div>
-      ${has ? `<div class="metrics"><div>${t('avg')}<b>${f(c.sec)}</b></div><div>${t('pcsHr')}<b>${f(c.capacity)}</b></div><div>${t('effp')}<b>${f(c.eff * 100)}%</b></div></div>`
-            : `<div class="muted">${t('firstHint')}</div>`}
+      ${r.pieces.length ? `<div class="cyc">${r.pieces.map((p, k) => `<button class="cy ${(r.skip || []).includes(k) ? 'off' : ''}" onclick="toggleCycle(${i},${k})">${f(p)}</button>`).join('')}</div><div class="muted" style="font-size:12px">${t('cyclesHint')}</div>` : ''}
+      ${n ? `<div class="metrics"><div>${t('avg')}<b>${f(c.sec)}</b></div><div>${t('pcsHr')}<b>${f(c.capacity)}</b></div><div>${t('effp')}<b>${f(c.eff * 100)}%</b></div></div><div class="muted">${t('cv')}: ${f(c.cv * 100)}%</div>${warnCv}`
+          : `<div class="muted">${t('firstHint')}</div>`}
       <textarea rows="2" placeholder="${t('remark')}" oninput="S.rows[${i}].remark=this.value;save()">${esc(r.remark || '')}</textarea>
       <div class="qr">${QUICK.map((q, k) => `<button class="sec" onclick="addRemark(${i},QUICK[${k}])">+ ${esc(q)}</button>`).join('')}</div>
       <div class="row"><button class="sec" onclick="stop(${i})">${t('stop')}</button>
       <button class="sec" onclick="undo(${i})">${t('undo')}</button>
-      <button class="sec" onclick="del(${i})">${t('del')}</button></div></div>`;
+      <button class="sec" onclick="del(${i})">${t('del')}</button>${done ? `<button class="sec" onclick="openCard.delete(${i});updateCards()">${t('close')}</button>` : ''}</div></div>`;
   }).join('');
   keepAwake(S.rows.some(r => r.t0 !== null));
 }
+function liveStudy() {                      // the study as it would be saved now
+  return { raw: S.rows.filter(r => r.pieces.length).map(r => ({ emp:r.emp, name:r.name, opText:r.opText, pieces:r.pieces, skip:r.skip || [], remark:r.remark || '' })),
+           result: live, target: S.target, opsSnap: [] };
+}
+function qualityHtml(q) {
+  const txt = i => tf('qi_' + i.k, { n: i.n, v: i.v != null ? P(i.v, 0) : '' });
+  return `<div class="card q-${q.status}"><b>${t('quality')}: ${t('q_' + q.status)}</b> <span class="muted">· ${f(q.avgCycles)} ${t('cycles').toLowerCase()}</span>${q.issues.map(i => `<div class="warn">⚠ ${esc(txt(i))}</div>`).join('')}</div>`;
+}
 function updateAnalysis() {                 // live: recomputed after every piece, no Analyze button
   const rows = S.rows.filter(r => r.pieces.length);
-  if (!rows.length) { live = null; $('analysis').innerHTML = `<div class="card muted">${t('timeFirst')}</div>`; }
-  else { live = analyze(rows, opMap); live.unknownOps = []; $('analysis').innerHTML = showResult(live, Number(S.target)); }
-  $('saveBtn').disabled = !live;
-  $('saveStatus').textContent = live ? `${rows.length} ${t('timed')} · ${f(live.lineCapacity)} ${t('pcsHr')} · ${f(live.lineEfficiency * 100)}%` : t('timeFirst');
+  if (!rows.length) { live = null; $('analysis').innerHTML = `<div class="card muted">${t('timeFirst')}</div>`; $('quality').innerHTML = ''; }
+  else { live = analyze(rows, opMap); live.unknownOps = [];
+         live.missingOps = DB.ops(S.style).map(o => o.no).filter(no => live.opCap[no] === undefined);
+         $('quality').innerHTML = qualityHtml(AN.quality(liveStudy()));
+         $('analysis').innerHTML = showResult(live, Number(S.target)); }
+  const ready = live && S.ie.trim() && DB.findStyle(S.style);
+  $('saveBtn').disabled = !ready;
+  $('saveStatus').textContent = !live ? t('timeFirst') : !S.ie.trim() ? t('needIe') : !DB.findStyle(S.style) ? t('styleMissing')
+    : `${rows.length} ${t('timed')} · ${f(live.lineCapacity)} ${t('pcsHr')} · ${f(live.lineEfficiency * 100)}%`;
 }
 function saveStudy() {
-  updateAnalysis(); if (!live) return;
-  const rec = { line:S.line, style:S.style, target:S.target, ie:S.ie,
-                raw:S.rows.filter(r => r.pieces.length).map(r => ({ emp:r.emp, name:r.name, opText:r.opText, pieces:r.pieces, remark:r.remark || '' })),
+  updateAnalysis(); if (!live || !S.ie.trim()) return;
+  const raw = S.rows.filter(r => r.pieces.length).map(r => ({ emp:r.emp, name:r.name, opText:r.opText, pieces:r.pieces, skip:r.skip || [], remark:r.remark || '' }));
+  const rec = { line:S.line, style:S.style, target:S.target, ie:S.ie.trim(), type:S.type || 'routine', note:S.note || '', manpower:S.manpower || '', cyclesGoal:cyclesGoal(), raw,
                 opsSnap:[...new Set(live.workers.flatMap(w => w.ops))].sort((a, b) => a - b).map(no => ({ no, sam:opMap[no] ? opMap[no].sam : 0, machine:opMap[no] ? opMap[no].machine : '' })),
-                meta:{ app:APP_VER, defaultAllowance:DEFAULT_ALLOWANCE }, exported:false,
-                result:JSON.parse(JSON.stringify(live)) };
+                meta:{ app:APP_VER, defaultAllowance:DEFAULT_ALLOWANCE }, exported:false, result:JSON.parse(JSON.stringify(live)) };
+  rec.quality = AN.quality(rec);
   const ex = S.editId && H.find(h => h.id === S.editId);
   let id;
   if (ex) { Object.assign(ex, rec, { updated:new Date().toISOString() }); id = ex.id; }      // update the same study
   else { id = uid(); H.unshift({ id, date:new Date().toISOString(), ...rec }); }
-  S.rows = []; S.editId = null; live = null; saveHist(); saveDraft(); go('detail', id);
+  S.rows = []; S.editId = null; S.type = 'routine'; S.note = ''; S.manpower = ''; live = null; saveHist(); saveDraft(); go('detail', id, 'history');
 }
 function editStudy(id) {                    // load a saved study back into the New Study screen
   const h = H.find(x => x.id === id); if (!h) return;
   if (S.rows.length && S.editId !== id && !confirm(t('replaceDraft'))) return;
   if (S.editId !== id) {
-    S.rows = h.raw.map(r => ({ emp:r.emp, name:r.name, opText:r.opText, pieces:r.pieces.slice(), remark:r.remark || '', t0:null }));
-    S.line = h.line; S.style = h.style; S.target = h.target || ''; S.ie = h.ie || ''; S.editId = id;
+    S.rows = h.raw.map(r => ({ emp:r.emp, name:r.name, opText:r.opText, pieces:r.pieces.slice(), skip:(r.skip || []).slice(), remark:r.remark || '', t0:null }));
+    S.line = h.line; S.style = h.style; S.target = h.target || ''; S.ie = h.ie || ''; S.type = h.type || 'routine'; S.note = h.note || ''; S.manpower = h.manpower || ''; S.editId = id;
   }
   save(); go('new');
 }
-function cancelEdit() { const id = S.editId; S.rows = []; S.editId = null; save(); go(id ? 'detail' : 'history', id); }
+function cancelEdit() { const id = S.editId; S.rows = []; S.editId = null; save(); go(id ? 'detail' : 'history', id, 'history'); }
 function delStudy(id) { if (!confirm(t('sure'))) return; H = H.filter(h => h.id !== id); saveHist(); go('history'); }
 
 // ---------- keep screen on while timing ----------
@@ -307,40 +428,74 @@ async function keepAwake(on) {
 document.addEventListener('visibilitychange', () => { if (!document.hidden) keepAwake(S.rows.some(r => r.t0 !== null)); });
 
 // =====================================================================
-// OTHER SCREENS
+// SCREENS: home, history, detail
 // =====================================================================
 function render() {
+  const y = window.scrollY;
   $('lang').value = S.lang;
   $('back').style.display = screen === 'home' ? 'none' : '';
-  $('back').onclick = () => go(screen === 'detail' ? 'history' : 'home');
-  $('title').textContent = screen === 'home' ? t('title') : screen === 'new' ? t('newStudy') : screen === 'history' ? t('history') : t('study');
+  $('app').className = screen === 'sup' ? 'wide' : '';
+  $('title').textContent = screen === 'home' ? t('title') : screen === 'new' ? t('newStudy') : screen === 'history' ? t('history') : screen === 'sup' ? t('dash') : t('study');
   if (screen === 'new') return buildNew();
-  $('app').innerHTML = screen === 'home' ? viewHome() : screen === 'history' ? viewHistory() : viewDetail();
+  $('app').innerHTML = screen === 'home' ? viewHome() : screen === 'history' ? viewHistory() : screen === 'sup' ? viewSup() : viewDetail();
+  if (screen === 'sup' && y) window.scrollTo(0, y);
 }
 function viewHome() {
+  const week = Date.now() - 7 * 86400000, mine = H.filter(h => new Date(h.date).getTime() >= week).length;
+  const meLine = !PEOPLE.length ? t('noPeopleShort') : S.me
+    ? `${t('user')}: <b>${esc(S.me.name)}</b> (${esc(S.me.email)}) · ${S.me.role === 'supervisor' ? t('roleSup') : t('roleOff')} <button class="sec small" onclick="openChooser()">${t('change')}</button>`
+    : `<button onclick="openChooser()">${t('selectName')}</button>`;
   return `<button class="home" onclick="go('new')">+ ${t('newStudy')}</button>
           <button class="home sec" onclick="go('history')">${t('history')} (${H.length})</button>
+          ${isSup() ? `<button class="home green" onclick="go('sup')">${t('dash')}</button>` : ''}
+          <div class="muted">${t('myWeek')}: <b>${mine}</b></div>
           <input type="file" id="dataFile" accept=".json,.js,.txt,application/json" style="display:none" onchange="loadDataFile(this)">
           <button class="sec" onclick="$('dataFile').click()">${t('loadData')}</button>
+          <input type="file" id="peopleFile" accept=".csv,.txt,.json,text/csv,application/json" style="display:none" onchange="loadPeopleFile(this)">
+          <button class="sec" onclick="$('peopleFile').click()">${t('loadPeople')}</button>
+          <div class="muted">${meLine}</div>
+          <label class="muted"><input type="checkbox" style="width:auto;margin:6px 6px 0 0" ${S.supMode ? 'checked' : ''} onchange="S.supMode=this.checked;save();render()">${t('supTools')}</label>
           <div class="muted">${DATA_INFO.src === 'sample' ? `<span class="warn">${t('sampleData')}</span>`
             : `${t('dataFrom')}: ${esc(DATA_INFO.generated)} · ${EMP.length} / ${DB.styles().length} ${t('style')}`}</div>`;
 }
+const qBadge = s => { const q = s.quality || AN.quality(s); return `<span class="badge ${q.status}">${t('q_' + q.status)}</span>`; };
+const revBadge = id => REV[id] ? `<span class="badge ${REV[id].status === 'approved' ? 'ok' : 'review'}">${t('rv_' + REV[id].status)}</span>` : '';
 function viewHistory() {
   if (!H.length) return `<div class="card">${t('noHistory')}</div>`;
   const n = H.filter(h => !h.exported).length;
-  return `<button onclick="exportNew()" ${n ? '' : 'disabled'}>${t('exportAll')} (${n})</button>` + H.map(h => `<div class="card item" onclick="go('detail','${h.id}')">
-    <b>${t('line')} ${esc(h.line)}</b> &nbsp; <small>${esc(h.style)}</small><br><small>${fmtDate(h.date)}</small>${h.exported ? ` <small class="muted">✓ ${t('exported')}</small>` : ''}
+  return `<button onclick="exportNew()" ${n ? '' : 'disabled'}>${t('exportAll')} (${n})</button>` + H.map(h => `<div class="card item" onclick="go('detail','${h.id}','history')">
+    <b>${t('line')} ${esc(h.line)}</b> &nbsp; <small>${esc(h.style)}</small> ${qBadge(h)}<br><small>${fmtDate(h.date)} · ${t('ty_' + (h.type || 'routine'))}</small>${h.exported ? ` <small class="muted">✓ ${t('exported')}</small>` : ''}
     <div>${t('cap')}: <b>${f(h.result.lineCapacity)}</b> &nbsp; ${t('eff')}: <b>${f(h.result.lineEfficiency * 100)}%</b></div></div>`).join('');
 }
+function reviewPanel(h) {
+  const r = REV[h.id] || {};
+  return `<div class="card"><h3>${t('review')} ${revBadge(h.id)}</h3>
+    <textarea id="rvText" rows="2" placeholder="${t('rvComment')}">${esc(r.comment || '')}</textarea>
+    <div class="row"><button class="green" onclick="saveReview('${h.id}','approved')">${t('rv_approved')}</button>
+    <button class="red" onclick="saveReview('${h.id}','recheck')">${t('rv_recheck')}</button>
+    <button class="sec" onclick="saveReview('${h.id}','')">${t('rv_clear')}</button></div></div>`;
+}
+async function saveReview(id, status) {
+  if (!status) delete REV[id]; else REV[id] = { status, comment: ($('rvText') || {}).value || '', by: S.me ? S.me.name : '', at: new Date().toISOString() };
+  try { await kv.set('reviews', REV); } catch (e) {}
+  toast(t('rvSaved')); render();
+}
 function viewDetail() {
-  const h = H.find(x => x.id === detailId);
+  const h = findStudy(detailId);
   if (!h) return `<div class="card">${t('noHistory')}</div>`;
-  return `<div class="card"><b>${t('line')} ${esc(h.line)}</b> &nbsp; <small>${esc(h.style)}</small><br><small>${fmtDate(h.date)}${h.ie ? ' · ' + esc(h.ie) : ''}${h.updated ? ' · ' + t('updated') + ' ' + fmtDate(h.updated) : ''}</small>${h.exported ? ` <small class="muted">✓ ${t('exported')}</small>` : ''}</div>`
-    + `<button onclick="editStudy('${h.id}')">${t('editStudy')}</button>`
-    + `<button onclick="exportExcel('${h.id}')">${t('exportXlsx')}</button>`
-    + `<button class="sec" onclick="exportOne('${h.id}')">${t('exportStudy')}</button>`
+  const own = H.some(x => x.id === h.id), q = h.quality || AN.quality(h);
+  return `<div class="card"><b>${t('line')} ${esc(h.line)}</b> &nbsp; <small>${esc(h.style)}</small> ${qBadge(h)} ${revBadge(h.id)}<br>
+      <small>${fmtDate(h.date)}${h.ie ? ' · ' + esc(h.ie) : ''}${h.updated ? ' · ' + t('updated') + ' ' + fmtDate(h.updated) : ''}</small>${h.exported ? ` <small class="muted">✓ ${t('exported')}</small>` : ''}
+      <div class="muted">${t('ty_' + (h.type || 'routine'))}${Number(h.manpower) ? ' · ' + t('manpower').replace(' (optional)', '').replace(' (tùy chọn)', '') + ': ' + esc(h.manpower) : ''}</div>
+      ${h.note ? `<div>📝 ${esc(h.note)}</div>` : ''}${own ? '' : `<div class="muted">${t('readOnly')}</div>`}</div>`
+    + (q.issues.length ? qualityHtml(q) : '')
+    + (own ? `<button onclick="editStudy('${h.id}')">${t('editStudy')}</button>
+              <button onclick="sendReport('${h.id}')">${t('sendReport')}${S.me ? ' → ' + esc(S.me.email) : ''}</button>` : '')
+    + `<button class="sec" onclick="exportExcel('${h.id}')">${t('exportXlsx')}</button>`
+    + (own ? `<button class="sec" onclick="exportOne('${h.id}')">${t('exportStudy')}</button>` : '')
+    + (isSup() ? reviewPanel(h) : '')
     + showResult(h.result, Number(h.target), h.raw)
-    + `<button class="red" onclick="delStudy('${h.id}')">${t('delStudy')}</button>`;
+    + (own ? `<button class="red" onclick="delStudy('${h.id}')">${t('delStudy')}</button>` : '');
 }
 function balanceChart(r, tgt) {              // inline SVG: capacity per operation, bottleneck in red
   const ops = Object.keys(r.opCap).map(Number).sort((a, b) => a - b);
@@ -369,7 +524,8 @@ function showResult(r, tgt, raw) {
   let h = `<div class="card"><div class="kpi">${t('cap')}: <b>${f(r.lineCapacity)}</b>${tgt ? ` / ${tgt}` : ''}</div>
    <div class="kpi">${t('eff')}: <b>${f(r.lineEfficiency * 100)}%</b></div>
    <div class="kpi">${t('bal')}: <b>${f(r.balanceRate * 100)}%</b></div>
-   <div class="kpi">${t('bn')}: <b>${r.bottleneckOps.join(', ')}</b></div>`;
+   <div class="kpi">${t('bn')}: <b>${r.bottleneckOps.join(', ')}</b>${(() => { const who = r.workers.filter(w => w.ops.some(o => r.bottleneckOps.includes(o))).map(w => `${w.name || w.emp} (${f(w.sec)} s)`).join(', '); return who ? ` <span class="muted">— ${esc(who)}</span>` : ''; })()}</div>`;
+  if (r.missingOps && r.missingOps.length) h += `<div class="warn">⚠ ${t('missingOps')}: ${r.missingOps.join(', ')}</div>`;
   if (r.unknownOps && r.unknownOps.length) h += `<div class="warn">${t('unknown')}: ${r.unknownOps.join(', ')}</div>`;
   h += '</div>' + balanceChart(r, tgt) + `<div class="card"><b>${t('opcap')}</b><table><tr><th>${t('opn')}</th><th>${t('cap2')}</th></tr>`;
   Object.keys(r.opCap).sort((a, b) => r.opCap[a] - r.opCap[b]).forEach(o =>
@@ -377,7 +533,7 @@ function showResult(r, tgt, raw) {
   h += `</table></div><div class="card"><b>${t('worker')}</b><table><tr><th>${t('worker')}</th><th>${t('opn')}</th><th>${t('avg')}</th><th>${t('pcsHr')}</th><th>%</th></tr>`;
   r.workers.forEach((w, i) => {
     const rm = (raw && raw[i] && raw[i].remark) || w.remark || '';
-    h += `<tr><td>${esc(w.name || w.emp)}</td><td>${esc(w.opText)}</td><td>${f(w.sec)}</td><td>${f(w.capacity)}</td><td>${f(w.eff * 100)}</td></tr>`
+    h += `<tr><td>${esc(w.name || w.emp)}${w.cv > 0.15 && w.n >= 3 ? ' ⚠' : ''}</td><td>${esc(w.opText)}</td><td>${f(w.sec)}</td><td>${f(w.capacity)}</td><td>${f(w.eff * 100)}</td></tr>`
        + (rm ? `<tr><td colspan="5" class="muted" style="text-align:left">📝 ${esc(rm)}</td></tr>` : '');
   });
   h += `</table></div><div class="card"><b>${t('moves')}</b>`;
@@ -385,6 +541,241 @@ function showResult(r, tgt, raw) {
     ? r.suggestion.moves.map(m => `<div>${t('move')} ${esc(m.name || m.emp)} ${t('from')} ${m.from} ${t('to')} ${m.to} → ${t('now')} ${f(m.newCapacity)}</div>`).join('')
     : `<div>${t('none')}</div>`;
   return h + '</div>';
+}
+
+// =====================================================================
+// SUPERVISOR: load the studies of all IE officers, dashboard, reports
+// =====================================================================
+const allStudies = () => { const m = new Map(); [...TEAM, ...H].forEach(s => { const c = m.get(s.id); if (!c || AN.when(s) >= AN.when(c)) m.set(s.id, s); }); return [...m.values()]; };
+const setOf = () => ({ eff: (Number(S.sup.eff) || 55) / 100, bal: (Number(S.sup.bal) || 70) / 100 });
+const okStudy = o => o && o.format === 'timestudy-1' && o.id && o.result && o.result.opCap && Array.isArray(o.raw);
+async function loadTeamFiles(files) {
+  const found = []; let bad = 0;
+  for (const file of files) {
+    if (!/\.json$/i.test(file.name)) continue;
+    try { const o = JSON.parse(await file.text()); if (okStudy(o)) found.push(o); else bad++; } catch (e) { bad++; }
+  }
+  const m = new Map(TEAM.map(s => [s.id, s]));
+  found.forEach(s => { const c = m.get(s.id); if (!c || AN.when(s) >= AN.when(c)) m.set(s.id, s); });     // keep the newest version of every study
+  TEAM = [...m.values()];
+  try { await kv.set('team', TEAM); } catch (e) {}
+  toast(tf('teamDone', { n: found.length, bad })); render();
+}
+async function pickTeamFolder() {
+  if (window.showDirectoryPicker) {
+    try { DIRH = await window.showDirectoryPicker({ id: 'ts-studies' }); try { await kv.set('dirHandle', DIRH); } catch (e) {} await refreshTeam(); }
+    catch (e) { if (!e || e.name !== 'AbortError') toast(String(e)); }
+  } else $('teamFiles').click();                                  // phones / iPad: select all the study files at once
+}
+async function refreshTeam() {
+  if (!DIRH) return pickTeamFolder();
+  try {
+    let p = await DIRH.queryPermission({ mode: 'read' }); if (p !== 'granted') p = await DIRH.requestPermission({ mode: 'read' });
+    if (p !== 'granted') return;
+    const files = []; for await (const [name, h] of DIRH.entries()) if (h.kind === 'file' && /\.json$/i.test(name)) files.push(await h.getFile());
+    await loadTeamFiles(files);
+  } catch (e) { DIRH = null; toast(String(e)); }
+}
+function setSup(k, v) { S.sup[k] = v; save(); render(); }
+function barsH(items, mark) {                 // horizontal bars, e.g. efficiency per line
+  if (!items.length) return '';
+  const rowH = 26, left = 56, W = 360, right = 40, top = 6, maxV = Math.max(...items.map(i => i.value), mark || 0, 0.01) * 1.1;
+  const H2 = top + items.length * rowH + 16, x = v => left + (W - left - right) * v / maxV;
+  let g = `<svg viewBox="0 0 ${W} ${H2}" width="100%" role="img">`;
+  items.forEach((it, k) => { const y = top + k * rowH;
+    g += `<text x="${left - 6}" y="${y + 16}" font-size="12" text-anchor="end" fill="#222">${esc(it.label)}</text><rect x="${left}" y="${y + 3}" width="${Math.max(1, x(it.value) - left)}" height="16" rx="3" fill="${it.color}"/><text x="${x(it.value) + 4}" y="${y + 16}" font-size="11" fill="#222">${P(it.value, 0)}</text>`; });
+  if (mark) g += `<line x1="${x(mark)}" x2="${x(mark)}" y1="${top}" y2="${H2 - 14}" stroke="#16a34a" stroke-width="2" stroke-dasharray="5 3"/><text x="${x(mark)}" y="${H2 - 3}" font-size="10" text-anchor="middle" fill="#16a34a">${P(mark, 0)}</text>`;
+  return g + '</svg>';
+}
+function trendSvg(pts, mark) {                // efficiency over time
+  if (!pts.length) return '';
+  const W = Math.max(320, 50 + pts.length * 46), Ht = 160, l = 36, tp = 16, b = 26, maxV = Math.max(...pts.map(p => p.value), mark || 0, 0.01) * 1.15;
+  const x = i => pts.length === 1 ? l + (W - l - 10) / 2 : l + (W - l - 16) * i / (pts.length - 1), y = v => tp + (Ht - tp - b) * (1 - v / maxV);
+  let g = `<svg viewBox="0 0 ${W} ${Ht}" width="${W}" height="${Ht}" role="img">`;
+  [0, .5, 1].forEach(k => { const v = maxV / 1.15 * k; g += `<line x1="${l}" x2="${W}" y1="${y(v)}" y2="${y(v)}" stroke="#e5e7eb"/><text x="${l - 4}" y="${y(v) + 4}" font-size="10" text-anchor="end" fill="#555">${P(v, 0)}</text>`; });
+  if (mark) g += `<line x1="${l}" x2="${W}" y1="${y(mark)}" y2="${y(mark)}" stroke="#16a34a" stroke-width="2" stroke-dasharray="6 3"/>`;
+  g += `<polyline fill="none" stroke="#1f4e79" stroke-width="2" points="${pts.map((p, i) => x(i) + ',' + y(p.value)).join(' ')}"/>`;
+  pts.forEach((p, i) => { g += `<circle cx="${x(i)}" cy="${y(p.value)}" r="3.5" fill="#1f4e79"/><text x="${x(i)}" y="${y(p.value) - 7}" font-size="10" text-anchor="middle" fill="#222">${P(p.value, 0)}</text><text x="${x(i)}" y="${Ht - 8}" font-size="10" text-anchor="middle" fill="#555">${p.label}</text>`; });
+  return g + '</svg>';
+}
+function reasonText(r, set) { return tf('r_' + r.k, { v: P(r.v, 0), s: P(r.k === 'bal' ? set.bal : set.eff, 0) }); }
+function supModel() {                         // everything the dashboard and the Excel summary show
+  const set = setOf(), f2 = S.sup, all = allStudies();
+  const list = AN.filterStudies(all, { from: AN.periodFrom(f2.period), line: f2.line, ie: f2.ie, type: f2.type });
+  const last = AN.latestPerLine(list).map(s => ({ s, r: AN.rag(s, set), b: AN.bottleneck(s), pot: AN.potential(s), q: s.quality || AN.quality(s) }))
+    .sort((a, b) => b.r.level - a.r.level || a.s.result.lineEfficiency - b.s.result.lineEfficiency);
+  return { set, all, list, last, k: AN.kpis(list, set), imp: AN.improvements(list), mach: AN.machineStats(list), rem: AN.remarkStats(list, 8), off: AN.officerStats(list, set) };
+}
+function viewSup() {
+  const f2 = S.sup, m = supModel(), { set, all, list, last, k } = m;
+  const opt = (arr, cur, ph) => `<option value="">${ph}</option>` + arr.map(v => `<option value="${esc(v)}" ${v === cur ? 'selected' : ''}>${esc(v)}</option>`).join('');
+  const lines = [...new Set(all.map(s => s.line))].sort(), ies = [...new Set(all.map(s => s.ie).filter(Boolean))].sort();
+  const sel = (key, body) => `<select onchange="setSup('${key}',this.value)">${body}</select>`;
+  const periods = ['7', '30', 'month', '90', 'all'].map(p => `<option value="${p}" ${f2.period === p ? 'selected' : ''}>${t('p_' + p)}</option>`).join('');
+  const types = `<option value="">${t('allTypes')}</option>` + ['routine', 'new', 'before', 'after'].map(v => `<option value="${v}" ${f2.type === v ? 'selected' : ''}>${t('ty_' + v)}</option>`).join('');
+  let h = `<div class="card"><div class="row" style="align-items:center;flex-wrap:wrap">
+      <div>${t('teamLoaded')}: <b>${TEAM.length}</b>${DIRH ? ' 📁' : ''}</div>
+      <button class="small" onclick="${DIRH ? 'refreshTeam()' : 'pickTeamFolder()'}">${DIRH ? t('refreshTeam') : t('loadTeam')}</button>
+      ${DIRH ? `<button class="sec small" onclick="pickTeamFolder()">${t('loadTeam')}</button>` : ''}</div>
+      <div class="muted" style="font-size:12px">${t('teamHelp')}</div>
+      <input type="file" id="teamFiles" accept=".json,application/json" multiple style="display:none" onchange="loadTeamFiles([...this.files])"></div>`;
+  if (!all.length) return h + `<div class="card">${t('noTeam')}</div>`;
+  h += `<div class="card"><div class="filters">${sel('period', periods)}${sel('line', opt(lines, f2.line, t('allLines')))}${sel('ie', opt(ies, f2.ie, t('allIE')))}${sel('type', types)}</div>
+      <div class="row" style="margin-top:6px"><div><label class="muted">${t('stdEff')}</label><input type="number" min="1" max="100" value="${esc(f2.eff)}" onchange="setSup('eff',this.value)"></div>
+      <div><label class="muted">${t('stdBal')}</label><input type="number" min="1" max="100" value="${esc(f2.bal)}" onchange="setSup('bal',this.value)"></div></div></div>`;
+  if (!list.length) return h + `<div class="card">${t('noHistory')}</div>`;
+  const tile = (l, v) => `<div class="tile"><small>${l}</small><b>${v}</b></div>`;
+  h += `<div class="tiles">${tile(t('kStudies'), k.studies)}${tile(t('kLines'), k.lines)}${tile(t('kEff'), `<span style="color:${k.avgEff >= set.eff ? '#16a34a' : '#dc2626'}">${P(k.avgEff)}</span>`)}
+    ${tile(t('kStatus'), `<span class="dot green"></span>${k.green} <span class="dot amber"></span>${k.amber} <span class="dot red"></span>${k.red}`)}
+    ${tile(t('kGap'), k.avgGap == null ? '–' : (k.avgGap >= 0 ? '+' : '') + P(k.avgGap, 0))}${tile(t('kPot'), '+' + P(k.potential, 0))}${tile(t('kReview'), k.review)}</div>`;
+  // needs attention
+  const att = last.filter(x => x.r.level > 0).slice(0, 6);
+  h += `<div class="card"><h3>${t('needAtt')}</h3>` + (att.length ? att.map(x => `<div class="card q-${x.r.level === 2 ? 'review' : 'check'}" style="margin:6px 0;cursor:pointer" onclick="go('detail','${x.s.id}','sup')">
+      <b><span class="dot ${x.r.name}"></span>${esc(x.s.line)}</b> · ${esc(x.s.style)} · <b>${P(x.s.result.lineEfficiency)}</b> <small class="muted">${fmtDay(x.s.date)} · ${esc(x.s.ie)}</small>
+      ${x.r.reasons.map(r => `<div class="warn">• ${esc(reasonText(r, set))}</div>`).join('')}
+      <div class="muted">${t('cBn')}: ${x.b.ops.join(', ')}${x.b.machines.length ? ' (' + esc(x.b.machines.join(', ')) + ')' : ''}${x.b.who.length ? ' — ' + esc(x.b.who.map(w => `${w.name} ${f(w.sec, 0)} s${w.remark ? ' (' + w.remark + ')' : ''}`).join('; ')) : ''}</div>
+      ${x.pot > 0.03 ? `<div class="ok">${tf('potNote', { v: P(x.pot, 0) })}</div>` : ''}</div>`).join('') : `<div class="ok">${t('allGood')}</div>`) + '</div>';
+  // lines table + charts
+  h += `<div class="card"><h3>${t('linesTitle')}</h3><div class="scroll"><table><tr><th class="l"></th><th class="l">${t('cLine')}</th><th class="l">${t('cStyle')}</th><th>${t('cDate')}</th><th class="l">${t('cIE')}</th><th>${t('cEff')}</th><th>${t('cCap')}</th><th>${t('cBal')}</th><th class="l">${t('cBn')}</th><th>${t('cPot')}</th><th>${t('cQual')}</th><th>${t('cRev')}</th></tr>`
+    + last.map(x => `<tr class="go" onclick="go('detail','${x.s.id}','sup')"><td class="l"><span class="dot ${x.r.name}"></span></td><td class="l"><b>${esc(x.s.line)}</b></td><td class="l">${esc(x.s.style)}</td><td>${fmtDay(x.s.date)}</td><td class="l">${esc(x.s.ie)}</td>
+      <td><b>${P(x.s.result.lineEfficiency)}</b></td><td>${f(x.s.result.lineCapacity, 0)}${Number(x.s.target) ? ' / ' + esc(x.s.target) : ''}</td><td>${P(x.s.result.balanceRate, 0)}</td>
+      <td class="l">${x.b.ops.join(', ')}${x.b.machines.length ? ' · ' + esc(x.b.machines.join(', ')) : ''}</td><td>${x.pot > 0.01 ? '+' + P(x.pot, 0) : ''}</td><td>${qBadge(x.s)}</td><td>${revBadge(x.s.id)}</td></tr>`).join('')
+    + '</table></div></div>';
+  h += `<div class="card"><h3>${t('effByLine')}</h3>${barsH(last.map(x => ({ label: x.s.line, value: x.s.result.lineEfficiency, color: ['#16a34a', '#f59e0b', '#dc2626'][x.r.level] })), set.eff)}</div>`;
+  const pts = f2.line ? AN.trend(list, f2.line).map(p => ({ value: p.eff, label: fmtDay(p.date).slice(0, 5) })) : AN.weekly(list).map(p => ({ value: p.eff, label: fmtDay(p.date).slice(0, 5) }));
+  h += `<div class="card"><h3>${t('trendTitle')} ${f2.line ? esc(f2.line) : '(' + t('trendWeek') + ')'}</h3><div class="scroll">${trendSvg(pts, set.eff)}</div></div>`;
+  // improvements
+  h += `<div class="card"><h3>${t('impTitle')}</h3>` + (m.imp.length ? `<div class="scroll"><table><tr><th class="l">${t('cLine')}</th><th class="l">${t('cStyle')}</th><th>${t('cBefore')}</th><th>${t('cAfter')}</th><th>${t('cDEff')}</th><th>${t('cDCap')}</th></tr>`
+    + m.imp.map(x => `<tr class="go" onclick="go('detail','${x.after.id}','sup')"><td class="l"><b>${esc(x.line)}</b></td><td class="l">${esc(x.style)}</td><td>${P(x.before.result.lineEfficiency)}</td><td>${P(x.after.result.lineEfficiency)}</td>
+      <td class="${x.dEff >= 0 ? 'ok' : 'warn'}">${x.dEff >= 0 ? '+' : ''}${(x.dEff * 100).toFixed(1)} pts</td><td class="${x.dCap >= 0 ? 'ok' : 'warn'}">${x.dCap >= 0 ? '+' : ''}${P(x.dCap, 0)}</td></tr>`).join('') + '</table></div>' : `<div class="muted">${t('noImp')}</div>`) + '</div>';
+  // machines + remarks
+  const maxN = Math.max(1, ...m.mach.map(x => x.n));
+  h += `<div class="card"><h3>${t('machTitle')}</h3>${m.mach.map(x => `<div style="display:flex;align-items:center;gap:8px;margin:3px 0"><span style="width:90px">${esc(x.machine)}</span><div style="background:#1f4e79;height:14px;border-radius:3px;width:${Math.round(x.n / maxN * 60)}%"></div><b>${x.n}</b></div>`).join('')}</div>`;
+  h += `<div class="card"><h3>${t('remTitle')}</h3>${m.rem.length ? m.rem.map(x => `<div>${x.n} × ${esc(x.text)}</div>`).join('') : '–'}</div>`;
+  // coverage
+  const done = new Set(list.map(s => s.line)), miss = DB.lines().filter(l => !done.has(l));
+  h += `<div class="card"><h3>${t('covTitle')}</h3>${miss.length ? miss.map(l => `<span class="badge">${esc(l)}</span> `).join('') : `<span class="ok">${t('covAll')}</span>`}</div>`;
+  // officers
+  h += `<div class="card"><h3>${t('ieTitle')}</h3><div class="scroll"><table><tr><th class="l">${t('cIE')}</th><th>${t('cStudies')}</th><th>${t('cOk')}</th><th>${t('cCyc')}</th><th>${t('cLast')}</th></tr>`
+    + m.off.map(o => `<tr><td class="l">${esc(o.ie)}</td><td>${o.studies}</td><td>${P(o.okPct, 0)}</td><td>${f(o.avgCycles)}</td><td>${o.last ? fmtDay(new Date(o.last).toISOString()) : ''}</td></tr>`).join('') + '</table></div></div>';
+  // studies list
+  const recent = [...list].sort((a, b) => AN.at(b) - AN.at(a)).slice(0, 40);
+  h += `<div class="card"><h3>${t('studiesTitle')} (${list.length})</h3><div class="scroll"><table><tr><th class="l">${t('cDate')}</th><th class="l">${t('cLine')}</th><th class="l">${t('cStyle')}</th><th class="l">${t('cIE')}</th><th>${t('cEff')}</th><th>${t('cQual')}</th><th>${t('cRev')}</th></tr>`
+    + recent.map(s => `<tr class="go" onclick="go('detail','${s.id}','sup')"><td class="l">${fmtDay(s.date)}</td><td class="l"><b>${esc(s.line)}</b></td><td class="l">${esc(s.style)}</td><td class="l">${esc(s.ie)}</td><td>${P(s.result.lineEfficiency)}</td><td>${qBadge(s)}</td><td>${revBadge(s.id)}</td></tr>`).join('') + '</table></div></div>';
+  h += `<button onclick="exportSummary()">${t('expSummary')}</button><button class="sec" onclick="copySummary()">${t('copySummary')}</button>`;
+  return h;
+}
+function periodLabel() { return t('p_' + S.sup.period) + (S.sup.line ? ' · ' + S.sup.line : '') + (S.sup.ie ? ' · ' + S.sup.ie : ''); }
+async function copySummary() {
+  const m = supModel(), txt = AN.summaryText(m.list, m.set, periodLabel(), S.lang);
+  try { await navigator.clipboard.writeText(txt); }
+  catch (e) { const ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); } catch (e2) {} ta.remove(); }
+  toast(t('copied'));
+}
+function summarySpecs() {                     // sheets of the supervisor's Excel summary
+  const m = supModel(), { set, list, last, k } = m, c = (v, w) => ({ h: v, w: w || 14, t: 'c' });
+  const stName = l => ['GREEN', 'WATCH', 'BELOW'][l], stCls = l => ['green', 'amber', 'red'][l];
+  const en = k2 => T.en[k2];
+  const summary = { name: 'Summary', title: 'Line capacity summary', filter: false, lines: [`Period / filter: ${periodLabel()}`, `Standards: efficiency ${P(set.eff, 0)}, balance rate ${P(set.bal, 0)}`, `Prepared by: ${S.me ? S.me.name : ''}   Date: ${fmtDay(new Date().toISOString())}`],
+    cols: [{ h: 'Indicator', w: 44, t: 't' }, c('Value', 18)],
+    rows: [['Studies', { v: k.studies }], ['Lines studied', { v: k.lines }], ['Average efficiency (latest study per line)', { v: P(k.avgEff) }], ['Lines on standard', { v: k.green }], ['Lines to watch', { v: k.amber }], ['Lines below standard', { v: k.red }],
+      ['Average gap to target capacity', { v: k.avgGap == null ? '' : P(k.avgGap, 0) }], ['Average gain possible by balancing', { v: P(k.potential, 0) }], ['Studies that need review', { v: k.review }]] };
+  const lines = { name: 'Lines', title: 'Latest study per line', cols: [c('Status', 10), c('Line', 8), { h: 'Style', w: 22, t: 't' }, c('Date', 12), { h: 'IE officer', w: 16, t: 't' }, { h: 'Efficiency', w: 11, t: 'p' }, { h: 'Capacity (pcs/hr)', w: 12, t: 'n' }, { h: 'Target (pcs/hr)', w: 12, t: 'n' }, { h: 'Balance rate', w: 11, t: 'p' }, c('Bottleneck op', 14), { h: 'Bottleneck machine', w: 16, t: 't' }, { h: 'Gain by balancing', w: 12, t: 'p' }, c('Quality', 12), c('Review', 14), { h: 'Why', w: 46, t: 't' }],
+    rows: last.map(x => [{ v: stName(x.r.level), st: stCls(x.r.level) }, x.s.line, x.s.style, fmtDay(x.s.date), x.s.ie, x.s.result.lineEfficiency, x.s.result.lineCapacity, Number(x.s.target) || '', x.s.result.balanceRate, x.b.ops.join(', '), x.b.machines.join(', '), x.pot,
+      en('q_' + x.q.status), REV[x.s.id] ? en('rv_' + REV[x.s.id].status) : '', x.r.reasons.map(r => tfEn('r_' + r.k, { v: P(r.v, 0), s: P(r.k === 'bal' ? set.bal : set.eff, 0) })).join('; ')]) };
+  const studies = { name: 'Studies', title: 'All studies in the period', cols: [c('Date', 12), c('Line', 8), { h: 'Style', w: 22, t: 't' }, { h: 'IE officer', w: 16, t: 't' }, { h: 'Type', w: 22, t: 't' }, { h: 'Operators', w: 10, t: 'i' }, { h: 'Manpower', w: 10, t: 'i' }, { h: 'Capacity (pcs/hr)', w: 12, t: 'n' }, { h: 'Target (pcs/hr)', w: 12, t: 'n' }, { h: 'Efficiency', w: 11, t: 'p' }, { h: 'Balance rate', w: 11, t: 'p' }, c('Bottleneck op', 14), { h: 'Bottleneck machine', w: 16, t: 't' }, { h: 'Gain by balancing', w: 12, t: 'p' }, c('Quality', 12), c('Review', 14), { h: 'Review comment', w: 30, t: 't' }, { h: 'Note / change made', w: 40, t: 't' }],
+    rows: [...list].sort((a, b) => AN.at(b) - AN.at(a)).map(s => { const b = AN.bottleneck(s), q = s.quality || AN.quality(s), rv = REV[s.id] || {};
+      return [fmtDay(s.date), s.line, s.style, s.ie, en('ty_' + (s.type || 'routine')), (s.raw || []).length, Number(s.manpower) || '', s.result.lineCapacity, Number(s.target) || '', s.result.lineEfficiency, s.result.balanceRate, b.ops.join(', '), b.machines.join(', '), AN.potential(s), en('q_' + q.status), rv.status ? en('rv_' + rv.status) : '', rv.comment || '', s.note || '']; }) };
+  const imp = { name: 'Improvements', title: 'Improvement tracker (before / after)', cols: [c('Line', 8), { h: 'Style', w: 22, t: 't' }, { h: 'Efficiency before', w: 14, t: 'p' }, { h: 'Efficiency after', w: 14, t: 'p' }, { h: 'Change (points)', w: 14, t: 'n' }, { h: 'Capacity change', w: 14, t: 'p' }, { h: 'What was changed', w: 50, t: 't' }],
+    rows: m.imp.map(x => [x.line, x.style, x.before.result.lineEfficiency, x.after.result.lineEfficiency, x.dEff * 100, x.dCap, x.after.note || '']) };
+  const mach = { name: 'Bottlenecks', title: 'How often each machine type holds the bottleneck', cols: [{ h: 'Machine type', w: 24, t: 't' }, { h: 'Studies', w: 12, t: 'i' }], rows: m.mach.map(x => [x.machine, x.n]) };
+  const rem = { name: 'Remarks', title: 'Most frequent operator remarks', cols: [{ h: 'Remark', w: 60, t: 't' }, { h: 'Times', w: 10, t: 'i' }], rows: AN.remarkStats(list, 30).map(x => [x.text, x.n]) };
+  const off = { name: 'IE activity', title: 'IE officer activity and study quality', cols: [{ h: 'IE officer', w: 20, t: 't' }, { h: 'Studies', w: 10, t: 'i' }, { h: 'Quality OK', w: 12, t: 'p' }, { h: 'Need review', w: 12, t: 'i' }, { h: 'Avg cycles per operator', w: 16, t: 'n' }, { h: 'Avg variation', w: 14, t: 'p' }, c('Last study', 12)],
+    rows: m.off.map(o => [o.ie, o.studies, o.okPct, o.review, o.avgCycles, o.avgCv, o.last ? fmtDay(new Date(o.last).toISOString()) : '']) };
+  return [summary, lines, studies, imp, mach, rem, off];
+}
+const tfEn = (k, o) => Object.keys(o).reduce((s, x) => s.split('{' + x + '}').join(o[x]), T.en[k]);
+function exportSummary() {
+  let file;
+  try { const d = new Date(), p = x => String(x).padStart(2, '0'); file = summaryXlsxFile(summarySpecs(), `Capacity_Summary_${S.sup.period}_${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}.xlsx`); }
+  catch (e) { alert(t('xlsxFail') + ' ' + e.message); return; }
+  return shareFiles([file]);
+}
+
+// =====================================================================
+// EMAIL LIST + SEND (the IE officer picks the name once)
+// =====================================================================
+const fold = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/gi, 'd').toLowerCase();
+const okMail = e => /^[^\s@,;]+@[^\s@,;]+\.[^\s@,;]+$/.test(e);
+const roleOf = v => /sup|giam sat|\bgs\b|manager|truong|lead/.test(fold(v)) ? 'supervisor' : 'officer';
+function parsePeople(txt) {                   // CSV (comma, semicolon or tab) or JSON; columns: name, email, role (optional)
+  txt = String(txt).replace(/^\uFEFF/, '').trim();
+  let rows;
+  if (txt[0] === '{' || txt[0] === '[') {
+    const j = JSON.parse(txt), arr = Array.isArray(j) ? j : (j.people || []);
+    rows = arr.map(p => [p.name, p.email, p.role]);
+  } else {
+    const lines = txt.split(/\r?\n/).filter(l => l.trim());
+    const count = (l, d) => l.split(d).length - 1;
+    const d = [',', ';', '\t'].sort((a, b) => count(lines[0], b) - count(lines[0], a))[0];
+    const split = l => { const o = []; let cur = '', q = false;
+      for (let i = 0; i < l.length; i++) { const c = l[i];
+        if (c === '"') { if (q && l[i + 1] === '"') { cur += '"'; i++; } else q = !q; }
+        else if (c === d && !q) { o.push(cur); cur = ''; } else cur += c; }
+      o.push(cur); return o.map(x => x.trim()); };
+    rows = lines.map(split);
+    const head = rows[0].map(x => fold(x));
+    if (head.some(x => x.includes('mail'))) {                                 // header row: find the columns
+      const ni = Math.max(0, head.findIndex(x => x.includes('name') || x.includes('ten'))), ei = head.findIndex(x => x.includes('mail')),
+            ri = head.findIndex(x => x.includes('role') || x.includes('vai tro') || x.includes('chuc'));
+      rows = rows.slice(1).map(r => [r[ni], r[ei], ri >= 0 ? r[ri] : '']);
+    }
+  }
+  return rows.map(r => ({ name: String(r[0] || '').trim(), email: String(r[1] || '').trim(), role: roleOf(r[2]) }))
+    .filter(p => p.name && okMail(p.email)).sort((a, b) => a.name.localeCompare(b.name, 'vi'));
+}
+async function loadPeopleFile(inp) {
+  const file = inp.files && inp.files[0]; if (!file) return;
+  try {
+    const list = parsePeople(await file.text());
+    if (!list.length) { alert(t('badPeople')); inp.value = ''; return; }
+    PEOPLE = list; await kv.set('people', list);
+    if (S.me && !list.some(p => p.email === S.me.email)) S.me = null;
+    else if (S.me) S.me.role = list.find(p => p.email === S.me.email).role;
+    save(); render(); if (!S.me) openChooser();
+  } catch (e) { alert(t('badPeople')); }
+  inp.value = '';
+}
+function openChooser(cb) {
+  closeChooser(); CHOOSER_CB = cb || null;
+  const m = document.createElement('div'); m.id = 'modal';
+  m.innerHTML = `<div class="sheet"><b>${t('whoAreYou')}</b><input id="pq" placeholder="${t('searchName')}" autocomplete="off"><div id="plist"></div><button class="sec" onclick="closeChooser()">${t('cancel')}</button></div>`;
+  document.body.appendChild(m);
+  const draw = () => { const qs = fold($('pq').value).split(/\s+/).filter(Boolean);          // every typed word must match
+    $('plist').innerHTML = PEOPLE.map((p, i) => [p, i]).filter(([p]) => { const hay = fold(p.name + ' ' + p.email); return qs.every(w => hay.includes(w)); }).slice(0, 100)
+      .map(([p, i]) => `<button class="sec pl" onclick="pickPerson(${i})">${esc(p.name)}<small>${esc(p.email)}</small></button>`).join('') || `<div class="muted">${t('noMatch')}</div>`; };
+  $('pq').oninput = draw; draw();
+}
+function closeChooser() { const m = $('modal'); if (m) m.remove(); }
+function pickPerson(i) {
+  S.me = { name: PEOPLE[i].name, email: PEOPLE[i].email, role: PEOPLE[i].role || 'officer' };
+  if (!S.ie.trim()) S.ie = S.me.name;                              // "Studied by" is filled in automatically
+  save();
+  const cb = CHOOSER_CB; CHOOSER_CB = null; closeChooser();
+  if (cb) cb(); else render();
+}
+function toast(msg) {
+  const old = $('toast'); if (old) old.remove();
+  const d = document.createElement('div'); d.id = 'toast'; d.textContent = msg; document.body.appendChild(d);
+  setTimeout(() => d.remove(), 9000);
+}
+function sendReport(id) {                     // Excel report (+ data file) -> OneDrive "reports" folder; the flow e-mails the Excel to the address in the file name
+  const h = H.find(x => x.id === id); if (!h) return;
+  if (!PEOPLE.length) { alert(t('noPeople')); return; }
+  if (!S.me) { openChooser(() => sendReport(id)); return; }       // first time only
+  let files;
+  try { files = [studyXlsxFile(h, DB.ops(h.style), LOGO, S.me.email), studyFile(h)]; } catch (e) { alert(t('xlsxFail') + ' ' + e.message); return; }
+  return shareFiles(files).then(ok => { if (ok) { h.exported = true; saveHist(); toast(tf('sendInfo', { email: S.me.email })); } });
 }
 
 // =====================================================================
@@ -402,8 +793,9 @@ async function ingestDataText(txt) {          // accepts data.json or data.js
   await kv.set('data', d); setData(d, 'loaded');
   S.style = DB.findStyle(S.style) || DB.styles()[0] || ''; save(); render();
 }
-function studyFile(h) {
-  const body = { format:'timestudy-1', id:h.id, date:h.date, updated:h.updated || null, line:h.line, style:h.style, target:h.target, ie:h.ie, raw:h.raw, meta:h.meta, result:h.result };
+function studyFile(h) {                       // the data file the supervisor dashboard and Access import read
+  const body = { format:'timestudy-1', id:h.id, date:h.date, updated:h.updated || null, line:h.line, style:h.style, target:h.target, ie:h.ie, type:h.type || 'routine', note:h.note || '', manpower:h.manpower || '',
+                 cyclesGoal:h.cyclesGoal || null, raw:h.raw, opsSnap:h.opsSnap || [], quality:h.quality || AN.quality(h), meta:h.meta, result:h.result };
   const clean = x => String(x).replace(/[^A-Za-z0-9._-]/g, '_');
   const stamp = (h.updated || h.date).slice(0, 16).replace(/[-:T]/g, '');          // a changed study gets a new file name
   const name = `study_${clean(h.line)}_${clean(h.style)}_${stamp}_${h.id.slice(0, 8)}.json`;
@@ -421,14 +813,14 @@ async function shareFiles(files) {          // phone share sheet (choose OneDriv
   } catch (e) { if (e && e.name === 'AbortError') return false; files.forEach(download); return true; }
 }
 async function exportStudies(list) {
-  if (!list.length) return;
+  if (!list.length) { toast(t('allSent')); return; }
   if (!(await shareFiles(list.map(studyFile)))) return;
   list.forEach(h => h.exported = true); saveHist(); render();
 }
 let LOGO = null;                              // optional logo.png from the app folder, loaded at start so sharing stays instant
 async function loadLogo() { try { const r = await fetch('logo.png'); if (r.ok) LOGO = new Uint8Array(await r.arrayBuffer()); } catch (e) {} }
 function exportExcel(id) {                    // Excel report in the company template layout + analysis sheet
-  const h = H.find(x => x.id === id); if (!h) return;
+  const h = findStudy(id); if (!h) return;
   let file;
   try { file = studyXlsxFile(h, DB.ops(h.style), LOGO); } catch (e) { alert(t('xlsxFail') + ' ' + e.message); return; }
   return shareFiles([file]);
@@ -446,9 +838,13 @@ $('lang').onchange = e => { S.lang = e.target.value; save(); render(); };
 async function boot() {
   if (typeof SYNC !== 'undefined') setData(SYNC, 'file'); else useSample();     // data.js (PC testing) or sample
   try { const d = await kv.get('data'); if (d && (!DATA_INFO.generated || (d.generated || '') >= DATA_INFO.generated)) setData(d, 'loaded'); } catch (e) {}
+  try { const p = await kv.get('people'); if (Array.isArray(p)) PEOPLE = p; } catch (e) {}
+  try { const tm = await kv.get('team'); if (Array.isArray(tm)) TEAM = tm; const rv = await kv.get('reviews'); if (rv && typeof rv === 'object') REV = rv; DIRH = (await kv.get('dirHandle')) || null; } catch (e) {}
   if (!S.editId) S.style = DB.findStyle(S.style) || DB.styles()[0] || '';
+  if (!S.ie && S.me) S.ie = S.me.name;
   render();
   loadLogo();
+  if (PEOPLE.length && !S.me) openChooser();                  // first start: choose your name once
 }
 boot();
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => {});

@@ -68,6 +68,8 @@
   def('aRedNum', 7, 5, 1, 166, 'center', 'center', 0); def('aRedCell', 7, 5, 1, 0, 'left', 'center', 1);
   def('aVal', 7, 0, 0, 166, 'left', 'center', 0);  def('aValPct', 7, 0, 0, 165, 'left', 'center', 0);
   def('aValTxt', 7, 0, 0, 0, 'left', 'center', 0);
+  def('aInt', 0, 0, 1, 1, 'center', 'center', 0);   def('aTxtC', 0, 0, 1, 0, 'center', 'center', 1);
+  def('gRed', 7, 5, 1, 0, 'center', 'center', 1);   def('gAmber', 7, 6, 1, 0, 'center', 'center', 1);   def('gGreen', 7, 7, 1, 0, 'center', 'center', 1);
   const stylesXml = () => `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
 <numFmts count="3"><numFmt numFmtId="164" formatCode="0.0000"/><numFmt numFmtId="165" formatCode="0.0%"/><numFmt numFmtId="166" formatCode="0.0"/></numFmts>
@@ -82,11 +84,13 @@
 <font><b/><sz val="11"/><name val="Calibri"/><family val="2"/></font>
 <font><b/><sz val="14"/><name val="Calibri"/><family val="2"/></font>
 </fonts>
-<fills count="6"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill>
+<fills count="8"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill>
 <fill><patternFill patternType="solid"><fgColor rgb="FFFFFF00"/><bgColor indexed="64"/></patternFill></fill>
 <fill><patternFill patternType="solid"><fgColor rgb="FF92D050"/><bgColor indexed="64"/></patternFill></fill>
 <fill><patternFill patternType="solid"><fgColor rgb="FFD9E1F2"/><bgColor indexed="64"/></patternFill></fill>
-<fill><patternFill patternType="solid"><fgColor rgb="FFFFC7CE"/><bgColor indexed="64"/></patternFill></fill></fills>
+<fill><patternFill patternType="solid"><fgColor rgb="FFFFC7CE"/><bgColor indexed="64"/></patternFill></fill>
+<fill><patternFill patternType="solid"><fgColor rgb="FFFFEB9C"/><bgColor indexed="64"/></patternFill></fill>
+<fill><patternFill patternType="solid"><fgColor rgb="FFC6EFCE"/><bgColor indexed="64"/></patternFill></fill></fills>
 <borders count="2"><border><left/><right/><top/><bottom/><diagonal/></border>
 <border><left style="thin"><color auto="1"/></left><right style="thin"><color auto="1"/></right><top style="thin"><color auto="1"/></top><bottom style="thin"><color auto="1"/></bottom><diagonal/></border></borders>
 <cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>
@@ -119,14 +123,15 @@
 <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
 <sheetPr>${o.tab ? `<tabColor rgb="${o.tab}"/>` : ''}<pageSetUpPr fitToPage="1"/></sheetPr>
 <dimension ref="A1:${colL(o.cols.length - 1)}${this.maxRow}"/>
-<sheetViews><sheetView${o.selected ? ' tabSelected="1"' : ''} zoomScale="${o.zoom}" zoomScaleNormal="${o.zoom}" workbookViewId="0"/></sheetViews>
+<sheetViews><sheetView${o.selected ? ' tabSelected="1"' : ''} zoomScale="${o.zoom}" zoomScaleNormal="${o.zoom}" workbookViewId="0"${o.freeze ? `><pane ySplit="${o.freeze}" topLeftCell="A${o.freeze + 1}" activePane="bottomLeft" state="frozen"/></sheetView>` : '/>'}</sheetViews>
 <sheetFormatPr defaultColWidth="11.85546875" defaultRowHeight="${o.defH}"/>
 <cols>${cols}</cols><sheetData>${rows}</sheetData>
+${o.autoFilter ? `<autoFilter ref="${o.autoFilter}"/>` : ''}
 ${this.merges.length ? `<mergeCells count="${this.merges.length}">${this.merges.map(m => `<mergeCell ref="${m}"/>`).join('')}</mergeCells>` : ''}
 ${o.cf || ''}${o.zeroMargins ? '<printOptions horizontalCentered="1"/><pageMargins left="0" right="0" top="0" bottom="0" header="0" footer="0"/>' : '<pageMargins left="0.5" right="0.5" top="0.6" bottom="0.6" header="0.3" footer="0.3"/>'}
 <pageSetup paperSize="9" orientation="${o.orient}" fitToWidth="1" fitToHeight="${o.fitH}"/>
 ${o.footer ? `<headerFooter><oddFooter>${o.footer}</oddFooter></headerFooter>` : ''}
-<drawing r:id="rId1"/>
+${o.noDrawing ? '' : '<drawing r:id="rId1"/>'}
 </worksheet>`;
   };
 
@@ -164,6 +169,7 @@ ${line(1, 'D', 'Line capacity', caps.line, 'DC2626', 22225)}${hasTgt ? line(2, '
   // ---------------- the workbook ----------------
   const NS = 'xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"';
   const REL = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships';
+  const TYPES = { routine: 'Routine check', new: 'New style / baseline', before: 'Before improvement', after: 'After improvement' };
   const dmy = d => `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
 
   function build(h, styleOps, logo) {
@@ -240,9 +246,12 @@ ${line(1, 'D', 'Line capacity', caps.line, 'DC2626', 22225)}${hasTgt ? line(2, '
     const kp = [['Line capacity (pcs/hr)', lineCap, ST.aVal], ['Line efficiency', num(R.lineEfficiency), ST.aValPct],
       ['Balance rate (bottleneck / average)', num(R.balanceRate), ST.aValPct],
       ['Bottleneck operation(s)', R.bottleneckOps.join(', '), ST.aValTxt], ['Target (pcs/hr)', tgt || '', tgt ? ST.aVal : ST.aValTxt],
-      ['Gap to target (pcs/hr)', tgt ? lineCap - tgt : '', tgt ? ST.aVal : ST.aValTxt]];
+      ['Gap to target (pcs/hr)', tgt ? lineCap - tgt : '', tgt ? ST.aVal : ST.aValTxt],
+      ['Operations not studied', (R.missingOps || []).join(', '), ST.aValTxt],
+      ['Study type', TYPES[h.type || 'routine'] || '', ST.aValTxt], ['Line manpower', Number(h.manpower) || '', Number(h.manpower) ? ST.aVal : ST.aValTxt],
+      ['Note / change made', h.note || '', ST.aValTxt]];
     kp.forEach((k, i) => { s2.put(0, 5 + i, { s: ST.aBold, v: k[0] }); s2.put(1, 5 + i, { s: k[2], v: k[1] }); });
-    const th = 12;                               // table header row
+    const th = 16;                               // table header row
     ['Operation', 'Capacity (pcs/hr)', '% of line capacity', 'Line capacity', 'Target', 'Operators', 'Status']
       .forEach((t, c) => s2.put(c, th, { s: ST.aHdr, v: t }));
     s2.heights[th] = 32;
@@ -314,10 +323,53 @@ ${line(1, 'D', 'Line capacity', caps.line, 'DC2626', 22225)}${hasTgt ? line(2, '
     return zip(files);
   }
 
-  function studyXlsxFile(h, styleOps, logo) {
+  // ---------------- supervisor summary workbook: tables with header filter and colour status ----------------
+  function tableSheet(spec) {
+    const s = new Sheet(); let r = 1;
+    if (spec.title) s.put(0, r++, { s: ST.aTitle, v: spec.title });
+    (spec.lines || []).forEach(l => s.put(0, r++, { s: ST.aValTxt, v: l }));
+    if (spec.title || (spec.lines || []).length) r++;
+    const hr = r; spec.cols.forEach((c, i) => s.put(i, hr, { s: ST.aHdr, v: c.h })); s.heights[hr] = 34; r++;
+    const first = r;
+    spec.rows.forEach(row => { row.forEach((cell, i) => {
+      const c = spec.cols[i] || {}, o = (cell !== null && typeof cell === 'object') ? cell : { v: cell };
+      const st = o.st ? ST['g' + o.st[0].toUpperCase() + o.st.slice(1)] : ({ t: ST.aCell, n: ST.aNum, p: ST.aPct, i: ST.aInt, c: ST.aTxtC }[c.t || 't']);
+      let v = (o.v === undefined || o.v === null) ? '' : o.v; if (typeof v === 'number' && !isFinite(v)) v = '';
+      s.put(i, r, { s: st, v });
+    }); r++; });
+    return { s, hr, last: Math.max(first, r - 1), ncols: spec.cols.length };
+  }
+  function buildSummary(specs) {
+    const names = [], safe = n => { let b = String(n || 'Sheet').replace(/[\\\/\?\*\[\]:']/g, '-').slice(0, 28) || 'Sheet', k = b, i = 2; while (names.includes(k)) k = b + i++; names.push(k); return k; };
+    const parts = specs.map((sp, i) => { const t = tableSheet(sp), nm = safe(sp.name);
+      const xml = t.s.xml({ cols: sp.cols.map(c => c.w || 14), zoom: 100, defH: 15, orient: 'landscape', fitH: 0, noDrawing: true, selected: i === 0,
+        freeze: t.hr, autoFilter: sp.filter === false ? '' : `A${t.hr}:${colL(t.ncols - 1)}${t.last}` });
+      return { nm, xml }; });
+    const rel = list => `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${list.map(([id, type, target]) => `<Relationship Id="${id}" Type="${REL}/${type}" Target="${target}"/>`).join('')}</Relationships>`;
+    const ct = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/>
+<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>
+${parts.map((p, i) => `<Override PartName="/xl/worksheets/sheet${i + 1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('')}
+<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>`;
+    const wb = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<workbook ${NS} xmlns:r="${REL}"><bookViews><workbookView xWindow="0" yWindow="0" windowWidth="15360" windowHeight="7020"/></bookViews>
+<sheets>${parts.map((p, i) => `<sheet name="${esc(p.nm)}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join('')}</sheets><calcPr calcId="191029"/></workbook>`;
+    const files = [['[Content_Types].xml', ct], ['_rels/.rels', rel([['rId1', 'officeDocument', 'xl/workbook.xml']])], ['xl/workbook.xml', wb],
+      ['xl/_rels/workbook.xml.rels', rel([...parts.map((p, i) => ['rId' + (i + 1), 'worksheet', `worksheets/sheet${i + 1}.xml`]), ['rId' + (parts.length + 1), 'styles', 'styles.xml']])],
+      ['xl/styles.xml', stylesXml()], ...parts.map((p, i) => [`xl/worksheets/sheet${i + 1}.xml`, p.xml])]
+      .map(([name, text]) => ({ name, data: enc.encode(text) }));
+    return zip(files);
+  }
+  const XLSX_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+  root.summaryXlsxBytes = buildSummary;
+  root.summaryXlsxFile = (specs, name) => new File([buildSummary(specs)], name, { type: XLSX_MIME });
+
+  function studyXlsxFile(h, styleOps, logo, toEmail) {
     const d = new Date(h.date), p = x => String(x).padStart(2, '0');
     const clean = x => String(x).replace(/[^A-Za-z0-9._-]/g, '_');
-    const name = `Capacity_${clean(h.line)}_${clean(h.style)}_${p(d.getDate())}_${p(d.getMonth() + 1)}.xlsx`;
+    const to = toEmail ? '__TO_' + String(toEmail).replace(/[^A-Za-z0-9@._+-]/g, '') : '';   // the email flow reads the address from here
+    const name = `Capacity_${clean(h.line)}_${clean(h.style)}_${p(d.getDate())}_${p(d.getMonth() + 1)}${to}.xlsx`;
     return new File([build(h, styleOps, logo)], name, { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
   }
   root.studyXlsxBytes = build;
