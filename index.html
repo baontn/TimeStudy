@@ -65,6 +65,7 @@ h3{margin:4px 0 8px;font-size:16px}
 <script src="analytics.js"></script>
 <script src="xlsx_export.js"></script>
 <script>
+const API_URL = ''https://script.google.com/macros/s/AKfycbwPeGCCI_bQSJvtXlYhFkO7vv3zH9jbamSaJOptet3TATkkDNnU8mHLYVanZ6PH3E9E/exec";   // paste the Apps Script web app address here (ends with /exec)
 // =====================================================================
 // DATA LAYER  (sample data until a data file is loaded; the UI only uses DB.*)
 // =====================================================================
@@ -106,17 +107,17 @@ const mkOpMap = style => { const m = {}; DB.ops(style).forEach(o => m[o.no] = { 
 // TEXT
 // =====================================================================
 const T = {
- en:{title:'Time Study',newStudy:'New Study',history:'History',save:'Save study',
+ en:{title:'Time Study',login:'Log in',loginHelp:'Enter the email and PIN your supervisor gave you.',email:'Email',pin:'PIN',logout:'Log out',syncNow:'Sync now',waiting:'waiting to send',synced:'synced',syncOk:'Everything is sent.',emailMe:'Email me the report',emailSent:'Report emailed to {email}.',emailFail:'Could not email the report:',notConfigured:'The server address is not set in the app (API_URL).',refresh:'Refresh studies',updating:'Updating...',offline:'No connection. Studies stay on this phone and are sent automatically later.',loginFail:'Login failed:',newStudy:'New Study',history:'History',save:'Save study',
   noHistory:'No studies saved yet.',study:'Study detail',delStudy:'Delete this study',sure:'Delete?',
   line:'Line',style:'Style',ie:'Studied by',target:'Target pcs/hr (optional)',
   cycles:'Cycles per operator',cyclesHint:'Tap a time to exclude an abnormal cycle (thread break, waiting...)',cv:'Variation',cvHigh:'High variation: check the method or exclude abnormal cycles',open:'Open',close:'Close',missingOps:'Operations not studied yet (line capacity may be wrong)',
   studyType:'Study type',ty_routine:'Routine check',ty_new:'New style / baseline',ty_before:'Before improvement',ty_after:'After improvement',manpower:'Line manpower (optional)',note:'What was changed / observations (optional)',needIe:'Enter "Studied by" to save.',
   quality:'Study quality',q_ok:'OK',q_check:'Check',q_review:'Needs review',qi_few:'{n} operator(s) with fewer than 3 cycles',qi_cover:'{n} operations not studied (coverage {v})',qi_missing:'{n} operation(s) not studied',qi_var:'{n} operator(s) with high variation (over 15%)',
-  loadPeople:'Load email list',noPeopleShort:'No email list loaded yet. Tap Load email list.',user:'User',change:'Change',selectName:'Select your name',whoAreYou:'Who are you? Choose your name',searchName:'Search name or email',noMatch:'No match',cancel:'Cancel',sendReport:'Send report to my email',noPeople:'Load the email list first (Home > Load email list).',sendInfo:'Choose OneDrive > reports folder. The Excel report will be emailed to {email} automatically.',badPeople:'No valid name and email found in this file.',
-  exportXlsx:'Export Excel report',exportStudy:'Export data file',exportAll:'Send all new studies to the folder',remark:'Remark (operation situation, optional)',xlsxFail:'Excel export failed:',
+  user:'User',cancel:'Cancel',
+  exportXlsx:'Export Excel report',remark:'Remark (operation situation, optional)',xlsxFail:'Excel export failed:',
   editStudy:'Edit / Continue study',editing:'Editing a saved study',cancelEdit:'Cancel editing',replaceDraft:'Replace the current unsaved draft with this study?',updated:'updated',
   chartTitle:'Line balance: capacity per operation (pcs/hr)',lgBn:'Bottleneck',lgOp:'Operation',lgTgt:'Target',lgCap:'Line capacity',
-  dataFrom:'Data',sampleData:'SAMPLE data. Tap Load data file.',loadData:'Load data file',badFile:'This file is not a valid data file.',exported:'sent',
+  dataFrom:'Data',sampleData:'SAMPLE data. Tap Load data file.',loadData:'Load data file',badFile:'This file is not a valid data file.',noShare:'This phone cannot open the share menu, so the file was downloaded instead.',exported:'sent',
   styleMissing:'Style not found in the synced data',selEmp:'Select employee',noEmp:'No employees found for this line',empCount:'employees on this line',
   selOps:'Tap the operation number(s) this operator does',sam:'SAM',machine:'Machine',totalSam:'Total SAM',
   add:'Add operator to study',addNeed:'Select an employee and at least one operation',
@@ -130,7 +131,7 @@ const T = {
   worker:'Operator',opn:'Op',cap2:'pcs/hr',timed:'operator(s) timed',myWeek:'My studies in the last 7 days',
   dash:'Supervisor dashboard',supTools:'Supervisor tools',roleSup:'Supervisor',roleOff:'IE officer',
   teamLoaded:'Studies loaded',loadTeam:'Load studies from folder',refreshTeam:'Refresh studies',teamHelp:'Pick the folder with the study files (TimeStudy/reports). On a PC with Chrome or Edge it remembers the folder, so Refresh needs one tap.',teamDone:'{n} study file(s) read, {bad} skipped.',
-  noTeam:'No studies loaded yet. Tap "Load studies from folder" and pick the folder with the study files.',
+  noTeam:'No studies yet. They appear here as the IE officers save them.',
   period:'Period',p_7:'Last 7 days',p_30:'Last 30 days',p_month:'This month',p_90:'Last 90 days',p_all:'All time',allLines:'All lines',allIE:'All IE officers',allTypes:'All types',
   standards:'Standards',stdEff:'Standard efficiency %',stdBal:'Minimum balance rate %',
   kStudies:'Studies',kLines:'Lines',kEff:'Avg efficiency (latest per line)',kStatus:'On standard / Watch / Below',kGap:'Avg gap to target',kPot:'Gain possible by balancing',kReview:'Studies to review',
@@ -139,19 +140,19 @@ const T = {
   machTitle:'Bottleneck by machine type',remTitle:'Most frequent operator remarks',covTitle:'Lines not studied in this period',covAll:'All known lines were studied.',ieTitle:'IE officer activity',studiesTitle:'Studies in this period',
   cLine:'Line',cStyle:'Style',cDate:'Date',cIE:'IE officer',cEff:'Eff.',cCap:'Capacity / target',cBal:'Balance',cBn:'Bottleneck',cPot:'+Gain',cQual:'Quality',cRev:'Review',cStudies:'Studies',cOk:'Quality OK',cCyc:'Avg cycles',cLast:'Last study',cBefore:'Before',cAfter:'After',cDEff:'Δ eff.',cDCap:'Δ capacity',
   r_eff:'Efficiency {v} is below the standard {s}',r_cap:'Capacity is {v} of the target',r_bal:'Balance rate {v} is below {s}',potNote:'+{v} possible by balancing',
-  review:'Supervisor review',rv_approved:'Approved',rv_recheck:'Needs recheck',rv_clear:'Clear',rvComment:'Comment for the IE officer',rvSaved:'Review saved on this device.',
+  review:'Supervisor review',rv_approved:'Approved',rv_recheck:'Needs recheck',rv_clear:'Clear',rvComment:'Comment for the IE officer',rvSaved:'Review saved.',
   expSummary:'Export summary (Excel)',copySummary:'Copy summary text',copied:'Summary copied.',readOnly:'Study done by another IE officer (read only).',by:'by',allSent:'Nothing new to send.'},
- vi:{title:'Nghiên cứu thời gian',newStudy:'Nghiên cứu mới',history:'Lịch sử',save:'Lưu nghiên cứu',
+ vi:{title:'Nghiên cứu thời gian',login:'Đăng nhập',loginHelp:'Nhập email và mã PIN do giám sát cấp.',email:'Email',pin:'Mã PIN',logout:'Đăng xuất',syncNow:'Đồng bộ ngay',waiting:'đang chờ gửi',synced:'đã đồng bộ',syncOk:'Đã gửi tất cả.',emailMe:'Gửi báo cáo về email',emailSent:'Đã gửi báo cáo đến {email}.',emailFail:'Không gửi được báo cáo:',notConfigured:'Chưa cài địa chỉ máy chủ trong ứng dụng (API_URL).',refresh:'Làm mới nghiên cứu',updating:'Đang cập nhật...',offline:'Không có mạng. Nghiên cứu được giữ trên điện thoại và sẽ tự gửi sau.',loginFail:'Đăng nhập lỗi:',newStudy:'Nghiên cứu mới',history:'Lịch sử',save:'Lưu nghiên cứu',
   noHistory:'Chưa có nghiên cứu nào.',study:'Chi tiết nghiên cứu',delStudy:'Xóa nghiên cứu này',sure:'Xóa?',
   line:'Chuyền',style:'Mã hàng',ie:'Người làm',target:'Mục tiêu SL/giờ (tùy chọn)',
   cycles:'Số chu kỳ mỗi công nhân',cyclesHint:'Chạm vào một thời gian để loại chu kỳ bất thường (đứt chỉ, chờ hàng...)',cv:'Độ biến động',cvHigh:'Biến động cao: kiểm tra thao tác hoặc loại chu kỳ bất thường',open:'Mở',close:'Đóng',missingOps:'Công đoạn chưa bấm giờ (năng lực chuyền có thể chưa đúng)',
   studyType:'Loại nghiên cứu',ty_routine:'Kiểm tra định kỳ',ty_new:'Mã hàng mới / ban đầu',ty_before:'Trước cải tiến',ty_after:'Sau cải tiến',manpower:'Số lao động của chuyền (tùy chọn)',note:'Đã thay đổi gì / nhận xét (tùy chọn)',needIe:'Nhập "Người làm" để lưu.',
   quality:'Chất lượng nghiên cứu',q_ok:'Đạt',q_check:'Cần kiểm tra',q_review:'Cần xem lại',qi_few:'{n} công nhân bấm ít hơn 3 chu kỳ',qi_cover:'{n} công đoạn chưa nghiên cứu (độ phủ {v})',qi_missing:'{n} công đoạn chưa nghiên cứu',qi_var:'{n} công nhân biến động cao (trên 15%)',
-  loadPeople:'Tải danh sách email',noPeopleShort:'Chưa có danh sách email. Bấm Tải danh sách email.',user:'Người dùng',change:'Đổi',selectName:'Chọn tên của bạn',whoAreYou:'Bạn là ai? Chọn tên của bạn',searchName:'Tìm tên hoặc email',noMatch:'Không tìm thấy',cancel:'Hủy',sendReport:'Gửi báo cáo về email của tôi',noPeople:'Hãy tải danh sách email trước (Trang chính > Tải danh sách email).',sendInfo:'Chọn OneDrive > thư mục reports. Báo cáo Excel sẽ tự động gửi đến {email}.',badPeople:'Không tìm thấy tên và email hợp lệ trong tệp.',
-  exportXlsx:'Xuất báo cáo Excel',exportStudy:'Xuất tệp dữ liệu',exportAll:'Gửi các nghiên cứu mới vào thư mục',remark:'Ghi chú (tình hình công đoạn, tùy chọn)',xlsxFail:'Xuất Excel lỗi:',
+  user:'Người dùng',cancel:'Hủy',
+  exportXlsx:'Xuất báo cáo Excel',remark:'Ghi chú (tình hình công đoạn, tùy chọn)',xlsxFail:'Xuất Excel lỗi:',
   editStudy:'Sửa / Tiếp tục nghiên cứu',editing:'Đang sửa nghiên cứu đã lưu',cancelEdit:'Hủy sửa',replaceDraft:'Thay bản nháp chưa lưu hiện tại bằng nghiên cứu này?',updated:'cập nhật',
   chartTitle:'Cân bằng chuyền: năng lực từng công đoạn (cái/giờ)',lgBn:'Nút cổ chai',lgOp:'Công đoạn',lgTgt:'Mục tiêu',lgCap:'Năng lực chuyền',
-  dataFrom:'Dữ liệu',sampleData:'Dữ liệu MẪU. Bấm Tải tệp dữ liệu.',loadData:'Tải tệp dữ liệu',badFile:'Tệp dữ liệu không hợp lệ.',exported:'đã gửi',
+  dataFrom:'Dữ liệu',sampleData:'Dữ liệu MẪU. Bấm Tải tệp dữ liệu.',loadData:'Tải tệp dữ liệu',badFile:'Tệp dữ liệu không hợp lệ.',noShare:'Điện thoại không mở được menu chia sẻ nên tệp đã được tải xuống.',exported:'đã gửi',
   styleMissing:'Không tìm thấy mã hàng trong dữ liệu',selEmp:'Chọn công nhân',noEmp:'Không có công nhân cho chuyền này',empCount:'công nhân trong chuyền',
   selOps:'Chọn số công đoạn công nhân này làm',sam:'SAM',machine:'Máy',totalSam:'Tổng SAM',
   add:'Thêm công nhân vào nghiên cứu',addNeed:'Chọn công nhân và ít nhất một công đoạn',
@@ -165,7 +166,7 @@ const T = {
   worker:'Công nhân',opn:'CĐ',cap2:'cái/giờ',timed:'công nhân đã bấm giờ',myWeek:'Nghiên cứu của tôi trong 7 ngày qua',
   dash:'Bảng theo dõi của giám sát',supTools:'Công cụ giám sát',roleSup:'Giám sát',roleOff:'IE',
   teamLoaded:'Số nghiên cứu đã tải',loadTeam:'Tải nghiên cứu từ thư mục',refreshTeam:'Làm mới nghiên cứu',teamHelp:'Chọn thư mục chứa các tệp nghiên cứu (TimeStudy/reports). Trên máy tính dùng Chrome hoặc Edge, ứng dụng nhớ thư mục nên chỉ cần bấm Làm mới.',teamDone:'Đã đọc {n} tệp, bỏ qua {bad} tệp.',
-  noTeam:'Chưa tải nghiên cứu nào. Bấm "Tải nghiên cứu từ thư mục" và chọn thư mục chứa các tệp nghiên cứu.',
+  noTeam:'Chưa có nghiên cứu nào. Nghiên cứu sẽ hiện ở đây khi IE lưu.',
   period:'Thời gian',p_7:'7 ngày qua',p_30:'30 ngày qua',p_month:'Tháng này',p_90:'90 ngày qua',p_all:'Tất cả',allLines:'Tất cả chuyền',allIE:'Tất cả IE',allTypes:'Tất cả loại',
   standards:'Tiêu chuẩn',stdEff:'Hiệu suất chuẩn %',stdBal:'Tỷ lệ cân bằng tối thiểu %',
   kStudies:'Nghiên cứu',kLines:'Chuyền',kEff:'Hiệu suất TB (lần mới nhất mỗi chuyền)',kStatus:'Đạt / Theo dõi / Chưa đạt',kGap:'Chênh lệch TB so với mục tiêu',kPot:'Có thể tăng nhờ cân bằng',kReview:'Nghiên cứu cần xem lại',
@@ -174,18 +175,18 @@ const T = {
   machTitle:'Nút cổ chai theo loại máy',remTitle:'Ghi chú công nhân hay gặp nhất',covTitle:'Chuyền chưa được nghiên cứu trong kỳ này',covAll:'Tất cả chuyền đã có nghiên cứu.',ieTitle:'Hoạt động của IE',studiesTitle:'Các nghiên cứu trong kỳ',
   cLine:'Chuyền',cStyle:'Mã hàng',cDate:'Ngày',cIE:'IE',cEff:'HS',cCap:'Năng lực / mục tiêu',cBal:'Cân bằng',cBn:'Nút cổ chai',cPot:'+Tăng',cQual:'Chất lượng',cRev:'Duyệt',cStudies:'Số NC',cOk:'Đạt chất lượng',cCyc:'Chu kỳ TB',cLast:'Lần cuối',cBefore:'Trước',cAfter:'Sau',cDEff:'Δ HS',cDCap:'Δ năng lực',
   r_eff:'Hiệu suất {v} thấp hơn chuẩn {s}',r_cap:'Năng lực đạt {v} so với mục tiêu',r_bal:'Tỷ lệ cân bằng {v} thấp hơn {s}',potNote:'có thể tăng {v} nếu cân bằng',
-  review:'Duyệt của giám sát',rv_approved:'Đã duyệt',rv_recheck:'Cần kiểm tra lại',rv_clear:'Xóa',rvComment:'Nhận xét cho IE',rvSaved:'Đã lưu nhận xét trên thiết bị này.',
+  review:'Duyệt của giám sát',rv_approved:'Đã duyệt',rv_recheck:'Cần kiểm tra lại',rv_clear:'Xóa',rvComment:'Nhận xét cho IE',rvSaved:'Đã lưu nhận xét.',
   expSummary:'Xuất báo cáo tổng hợp (Excel)',copySummary:'Sao chép nội dung tóm tắt',copied:'Đã sao chép.',readOnly:'Nghiên cứu của IE khác (chỉ xem).',by:'bởi',allSent:'Không có gì mới để gửi.'}
 };
 
 // =====================================================================
 // STATE
 // =====================================================================
-const APP_VER = '2.0';
-let S = { lang:'en', line:'G08', style:'PUM25-00054-1301H4', target:'', ie:'', type:'routine', manpower:'', note:'', rows:[], editId:null, me:null, cycles:5, supMode:false,
+const APP_VER = '3.0';
+let S = { lang:'en', line:'G08', style:'PUM25-00054-1301H4', target:'', ie:'', type:'routine', manpower:'', note:'', rows:[], editId:null, me:null, pin:'', since:0, cycles:5, supMode:false,
           sup:{ eff:55, bal:70, period:'30', line:'', ie:'', type:'' } };
 let H = [];                                        // my saved studies
-let TEAM = [], REV = {}, DIRH = null, PEOPLE = [], CHOOSER_CB = null;   // studies of other IEs, supervisor reviews, folder handle, email list
+let TEAM = [], REV = {}, SYNCING = false;      // studies from the server, supervisor reviews
 let screen = 'home', detailId = null, detailBack = 'history', active = -1, live = null;
 let opMap = {}, pick = { emp:'', ops:[] };         // pick = operator being prepared
 function saveDraft() { try { localStorage.setItem('ts_draft', JSON.stringify(S)); } catch(e){} }
@@ -213,6 +214,7 @@ const fmtDay = iso => new Date(iso).toLocaleDateString(S.lang === 'vi' ? 'vi-VN'
 const isSup = () => !!(S.supMode || (S.me && S.me.role === 'supervisor'));
 const findStudy = id => H.find(x => x.id === id) || TEAM.find(x => x.id === id);
 function go(s, id, from) {
+  if (s === 'sup') setTimeout(refreshNow, 0);
   if (s === 'detail') detailBack = from || (screen === 'sup' ? 'sup' : 'history');
   screen = s; detailId = id ?? null; render();
 }
@@ -397,13 +399,13 @@ function saveStudy() {
   const raw = S.rows.filter(r => r.pieces.length).map(r => ({ emp:r.emp, name:r.name, opText:r.opText, pieces:r.pieces, skip:r.skip || [], remark:r.remark || '' }));
   const rec = { line:S.line, style:S.style, target:S.target, ie:S.ie.trim(), type:S.type || 'routine', note:S.note || '', manpower:S.manpower || '', cyclesGoal:cyclesGoal(), raw,
                 opsSnap:[...new Set(live.workers.flatMap(w => w.ops))].sort((a, b) => a - b).map(no => ({ no, sam:opMap[no] ? opMap[no].sam : 0, machine:opMap[no] ? opMap[no].machine : '' })),
-                meta:{ app:APP_VER, defaultAllowance:DEFAULT_ALLOWANCE }, exported:false, result:JSON.parse(JSON.stringify(live)) };
+                meta:{ app:APP_VER, defaultAllowance:DEFAULT_ALLOWANCE }, sent:false, result:JSON.parse(JSON.stringify(live)) };
   rec.quality = AN.quality(rec);
   const ex = S.editId && H.find(h => h.id === S.editId);
   let id;
   if (ex) { Object.assign(ex, rec, { updated:new Date().toISOString() }); id = ex.id; }      // update the same study
   else { id = uid(); H.unshift({ id, date:new Date().toISOString(), ...rec }); }
-  S.rows = []; S.editId = null; S.type = 'routine'; S.note = ''; S.manpower = ''; live = null; saveHist(); saveDraft(); go('detail', id, 'history');
+  S.rows = []; S.editId = null; S.type = 'routine'; S.note = ''; S.manpower = ''; live = null; saveHist(); saveDraft(); go('detail', id, 'history'); pushPending().then(() => { if (screen === 'detail' || screen === 'history') render(); });
 }
 function editStudy(id) {                    // load a saved study back into the New Study screen
   const h = H.find(x => x.id === id); if (!h) return;
@@ -441,19 +443,16 @@ function render() {
   if (screen === 'sup' && y) window.scrollTo(0, y);
 }
 function viewHome() {
-  const week = Date.now() - 7 * 86400000, mine = H.filter(h => new Date(h.date).getTime() >= week).length;
-  const meLine = !PEOPLE.length ? t('noPeopleShort') : S.me
-    ? `${t('user')}: <b>${esc(S.me.name)}</b> (${esc(S.me.email)}) · ${S.me.role === 'supervisor' ? t('roleSup') : t('roleOff')} <button class="sec small" onclick="openChooser()">${t('change')}</button>`
-    : `<button onclick="openChooser()">${t('selectName')}</button>`;
+  const week = Date.now() - 7 * 86400000, mine = H.filter(h => new Date(h.date).getTime() >= week).length, waiting = H.filter(h => !h.sent).length;
+  const who = S.me ? `${t('user')}: <b>${esc(S.me.name)}</b> · ${S.me.role === 'supervisor' ? t('roleSup') : t('roleOff')} <button class="sec small" onclick="logout()">${t('logout')}</button>`
+                   : `<button onclick="openLogin()">${t('login')}</button>`;
   return `<button class="home" onclick="go('new')">+ ${t('newStudy')}</button>
           <button class="home sec" onclick="go('history')">${t('history')} (${H.length})</button>
           ${isSup() ? `<button class="home green" onclick="go('sup')">${t('dash')}</button>` : ''}
           <div class="muted">${t('myWeek')}: <b>${mine}</b></div>
-          <input type="file" id="dataFile" accept=".json,.js,.txt,application/json" style="display:none" onchange="loadDataFile(this)">
-          <button class="sec" onclick="$('dataFile').click()">${t('loadData')}</button>
-          <input type="file" id="peopleFile" accept=".csv,.txt,.json,text/csv,application/json" style="display:none" onchange="loadPeopleFile(this)">
-          <button class="sec" onclick="$('peopleFile').click()">${t('loadPeople')}</button>
-          <div class="muted">${meLine}</div>
+          <div class="muted">${who}</div>
+          ${API_URL ? `<div class="muted">${waiting ? `<span class="warn">⏳ ${waiting} ${t('waiting')}</span>` : '✓ ' + t('syncOk')} <button class="sec small" onclick="syncAll(true)">${t('syncNow')}</button></div>`
+            : `<div class="warn">${t('notConfigured')}</div><input type="file" id="dataFile" accept=".json,.js,.txt,application/json" style="display:none" onchange="loadDataFile(this)"><button class="sec" onclick="$('dataFile').click()">${t('loadData')}</button>`}
           <label class="muted"><input type="checkbox" style="width:auto;margin:6px 6px 0 0" ${S.supMode ? 'checked' : ''} onchange="S.supMode=this.checked;save();render()">${t('supTools')}</label>
           <div class="muted">${DATA_INFO.src === 'sample' ? `<span class="warn">${t('sampleData')}</span>`
             : `${t('dataFrom')}: ${esc(DATA_INFO.generated)} · ${EMP.length} / ${DB.styles().length} ${t('style')}`}</div>`;
@@ -462,9 +461,9 @@ const qBadge = s => { const q = s.quality || AN.quality(s); return `<span class=
 const revBadge = id => REV[id] ? `<span class="badge ${REV[id].status === 'approved' ? 'ok' : 'review'}">${t('rv_' + REV[id].status)}</span>` : '';
 function viewHistory() {
   if (!H.length) return `<div class="card">${t('noHistory')}</div>`;
-  const n = H.filter(h => !h.exported).length;
-  return `<button onclick="exportNew()" ${n ? '' : 'disabled'}>${t('exportAll')} (${n})</button>` + H.map(h => `<div class="card item" onclick="go('detail','${h.id}','history')">
-    <b>${t('line')} ${esc(h.line)}</b> &nbsp; <small>${esc(h.style)}</small> ${qBadge(h)}<br><small>${fmtDate(h.date)} · ${t('ty_' + (h.type || 'routine'))}</small>${h.exported ? ` <small class="muted">✓ ${t('exported')}</small>` : ''}
+  const n = H.filter(h => !h.sent).length;
+  return (API_URL ? `<button ${n ? '' : 'class="sec"'} onclick="syncAll(true)">${n ? t('syncNow') + ' (' + n + ')' : '✓ ' + t('syncOk')}</button>` : '') + H.map(h => `<div class="card item" onclick="go('detail','${h.id}','history')">
+    <b>${t('line')} ${esc(h.line)}</b> &nbsp; <small>${esc(h.style)}</small> ${qBadge(h)} ${revBadge(h.id)}<br><small>${fmtDate(h.date)} · ${t('ty_' + (h.type || 'routine'))}</small>${API_URL ? (h.sent ? ` <small class="muted">✓ ${t('synced')}</small>` : ` <small class="warn">⏳ ${t('waiting')}</small>`) : ''}
     <div>${t('cap')}: <b>${f(h.result.lineCapacity)}</b> &nbsp; ${t('eff')}: <b>${f(h.result.lineEfficiency * 100)}%</b></div></div>`).join('');
 }
 function reviewPanel(h) {
@@ -475,24 +474,28 @@ function reviewPanel(h) {
     <button class="red" onclick="saveReview('${h.id}','recheck')">${t('rv_recheck')}</button>
     <button class="sec" onclick="saveReview('${h.id}','')">${t('rv_clear')}</button></div></div>`;
 }
-async function saveReview(id, status) {
-  if (!status) delete REV[id]; else REV[id] = { status, comment: ($('rvText') || {}).value || '', by: S.me ? S.me.name : '', at: new Date().toISOString() };
-  try { await kv.set('reviews', REV); } catch (e) {}
-  toast(t('rvSaved')); render();
+async function saveReview(id, status) {      // reviews live on the server, so the IE officer sees the comment too
+  const comment = ($('rvText') || {}).value || '';
+  try {
+    await api('review', { studyId: id, status, comment });
+    if (!status) delete REV[id]; else REV[id] = { status, comment, by: S.me ? S.me.name : '', at: new Date().toISOString() };
+    try { await kv.set('reviews', REV); } catch (e) {}
+    toast(t('rvSaved')); render();
+  } catch (e) { toast(e.message); }
 }
 function viewDetail() {
   const h = findStudy(detailId);
   if (!h) return `<div class="card">${t('noHistory')}</div>`;
-  const own = H.some(x => x.id === h.id), q = h.quality || AN.quality(h);
+  const own = H.some(x => x.id === h.id), q = h.quality || AN.quality(h), rv = REV[h.id];
+  const rvCard = rv ? `<div class="card q-${rv.status === 'approved' ? 'ok' : 'review'}"><b>${t('review')}: ${t('rv_' + rv.status)}</b> <small class="muted">${esc(rv.by)}</small>${rv.comment ? `<div>${esc(rv.comment)}</div>` : ''}</div>` : '';
   return `<div class="card"><b>${t('line')} ${esc(h.line)}</b> &nbsp; <small>${esc(h.style)}</small> ${qBadge(h)} ${revBadge(h.id)}<br>
-      <small>${fmtDate(h.date)}${h.ie ? ' · ' + esc(h.ie) : ''}${h.updated ? ' · ' + t('updated') + ' ' + fmtDate(h.updated) : ''}</small>${h.exported ? ` <small class="muted">✓ ${t('exported')}</small>` : ''}
+      <small>${fmtDate(h.date)}${h.ie ? ' · ' + esc(h.ie) : ''}${h.updated ? ' · ' + t('updated') + ' ' + fmtDate(h.updated) : ''}</small>${API_URL && own ? (h.sent ? ` <small class="muted">✓ ${t('synced')}</small>` : ` <small class="warn">⏳ ${t('waiting')}</small>`) : ''}
       <div class="muted">${t('ty_' + (h.type || 'routine'))}${Number(h.manpower) ? ' · ' + t('manpower').replace(' (optional)', '').replace(' (tùy chọn)', '') + ': ' + esc(h.manpower) : ''}</div>
       ${h.note ? `<div>📝 ${esc(h.note)}</div>` : ''}${own ? '' : `<div class="muted">${t('readOnly')}</div>`}</div>`
-    + (q.issues.length ? qualityHtml(q) : '')
+    + rvCard + (q.issues.length ? qualityHtml(q) : '')
     + (own ? `<button onclick="editStudy('${h.id}')">${t('editStudy')}</button>
-              <button onclick="sendReport('${h.id}')">${t('sendReport')}${S.me ? ' → ' + esc(S.me.email) : ''}</button>` : '')
+              <button onclick="emailReport('${h.id}')">${t('emailMe')}${S.me ? ' → ' + esc(S.me.email) : ''}</button>` : '')
     + `<button class="sec" onclick="exportExcel('${h.id}')">${t('exportXlsx')}</button>`
-    + (own ? `<button class="sec" onclick="exportOne('${h.id}')">${t('exportStudy')}</button>` : '')
     + (isSup() ? reviewPanel(h) : '')
     + showResult(h.result, Number(h.target), h.raw)
     + (own ? `<button class="red" onclick="delStudy('${h.id}')">${t('delStudy')}</button>` : '');
@@ -548,33 +551,19 @@ function showResult(r, tgt, raw) {
 // =====================================================================
 const allStudies = () => { const m = new Map(); [...TEAM, ...H].forEach(s => { const c = m.get(s.id); if (!c || AN.when(s) >= AN.when(c)) m.set(s.id, s); }); return [...m.values()]; };
 const setOf = () => ({ eff: (Number(S.sup.eff) || 55) / 100, bal: (Number(S.sup.bal) || 70) / 100 });
-const okStudy = o => o && o.format === 'timestudy-1' && o.id && o.result && o.result.opCap && Array.isArray(o.raw);
-async function loadTeamFiles(files) {
-  const found = []; let bad = 0;
-  for (const file of files) {
-    if (!/\.json$/i.test(file.name)) continue;
-    try { const o = JSON.parse(await file.text()); if (okStudy(o)) found.push(o); else bad++; } catch (e) { bad++; }
-  }
-  const m = new Map(TEAM.map(s => [s.id, s]));
-  found.forEach(s => { const c = m.get(s.id); if (!c || AN.when(s) >= AN.when(c)) m.set(s.id, s); });     // keep the newest version of every study
-  TEAM = [...m.values()];
-  try { await kv.set('team', TEAM); } catch (e) {}
-  toast(tf('teamDone', { n: found.length, bad })); render();
+async function pullTeam() {                  // studies of all IE officers + supervisor reviews, straight from the server
+  if (!S.me || !API_URL) return;
+  const r = await api('list', { since: TEAM.length ? (S.since || 0) : 0 });
+  const m = new Map(TEAM.map(x => [x.id, x]));
+  r.studies.forEach(x => { const c = m.get(x.id); if (!c || AN.when(x) >= AN.when(c)) m.set(x.id, x); });   // keep the newest version of every study
+  TEAM = [...m.values()]; REV = r.reviews || {}; S.since = r.maxReceived || S.since || 0; save();
+  try { await kv.set('team', TEAM); await kv.set('reviews', REV); } catch (e) {}
 }
-async function pickTeamFolder() {
-  if (window.showDirectoryPicker) {
-    try { DIRH = await window.showDirectoryPicker({ id: 'ts-studies' }); try { await kv.set('dirHandle', DIRH); } catch (e) {} await refreshTeam(); }
-    catch (e) { if (!e || e.name !== 'AbortError') toast(String(e)); }
-  } else $('teamFiles').click();                                  // phones / iPad: select all the study files at once
-}
-async function refreshTeam() {
-  if (!DIRH) return pickTeamFolder();
-  try {
-    let p = await DIRH.queryPermission({ mode: 'read' }); if (p !== 'granted') p = await DIRH.requestPermission({ mode: 'read' });
-    if (p !== 'granted') return;
-    const files = []; for await (const [name, h] of DIRH.entries()) if (h.kind === 'file' && /\.json$/i.test(name)) files.push(await h.getFile());
-    await loadTeamFiles(files);
-  } catch (e) { DIRH = null; toast(String(e)); }
+async function refreshNow() {
+  if (!API_URL || !S.me) return;
+  if (!navigator.onLine) { toast(t('offline')); return; }
+  try { await pullTeam(); } catch (e) { toast(e.message); }
+  if (screen === 'sup') render();
 }
 function setSup(k, v) { S.sup[k] = v; save(); render(); }
 function barsH(items, mark) {                 // horizontal bars, e.g. efficiency per line
@@ -613,12 +602,8 @@ function viewSup() {
   const sel = (key, body) => `<select onchange="setSup('${key}',this.value)">${body}</select>`;
   const periods = ['7', '30', 'month', '90', 'all'].map(p => `<option value="${p}" ${f2.period === p ? 'selected' : ''}>${t('p_' + p)}</option>`).join('');
   const types = `<option value="">${t('allTypes')}</option>` + ['routine', 'new', 'before', 'after'].map(v => `<option value="${v}" ${f2.type === v ? 'selected' : ''}>${t('ty_' + v)}</option>`).join('');
-  let h = `<div class="card"><div class="row" style="align-items:center;flex-wrap:wrap">
-      <div>${t('teamLoaded')}: <b>${TEAM.length}</b>${DIRH ? ' 📁' : ''}</div>
-      <button class="small" onclick="${DIRH ? 'refreshTeam()' : 'pickTeamFolder()'}">${DIRH ? t('refreshTeam') : t('loadTeam')}</button>
-      ${DIRH ? `<button class="sec small" onclick="pickTeamFolder()">${t('loadTeam')}</button>` : ''}</div>
-      <div class="muted" style="font-size:12px">${t('teamHelp')}</div>
-      <input type="file" id="teamFiles" accept=".json,application/json" multiple style="display:none" onchange="loadTeamFiles([...this.files])"></div>`;
+  let h = `<div class="card"><div class="row" style="align-items:center;flex-wrap:wrap"><div>${t('teamLoaded')}: <b>${TEAM.length}</b></div>
+      <button class="small" onclick="refreshNow()">${t('refresh')}</button></div></div>`;
   if (!all.length) return h + `<div class="card">${t('noTeam')}</div>`;
   h += `<div class="card"><div class="filters">${sel('period', periods)}${sel('line', opt(lines, f2.line, t('allLines')))}${sel('ie', opt(ies, f2.ie, t('allIE')))}${sel('type', types)}</div>
       <div class="row" style="margin-top:6px"><div><label class="muted">${t('stdEff')}</label><input type="number" min="1" max="100" value="${esc(f2.eff)}" onchange="setSup('eff',this.value)"></div>
@@ -703,80 +688,88 @@ function exportSummary() {
 }
 
 // =====================================================================
-// EMAIL LIST + SEND (the IE officer picks the name once)
+// SERVER: login, sync, e-mail the report  (Google Sheet + Apps Script)
 // =====================================================================
-const fold = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/gi, 'd').toLowerCase();
-const okMail = e => /^[^\s@,;]+@[^\s@,;]+\.[^\s@,;]+$/.test(e);
-const roleOf = v => /sup|giam sat|\bgs\b|manager|truong|lead/.test(fold(v)) ? 'supervisor' : 'officer';
-function parsePeople(txt) {                   // CSV (comma, semicolon or tab) or JSON; columns: name, email, role (optional)
-  txt = String(txt).replace(/^\uFEFF/, '').trim();
-  let rows;
-  if (txt[0] === '{' || txt[0] === '[') {
-    const j = JSON.parse(txt), arr = Array.isArray(j) ? j : (j.people || []);
-    rows = arr.map(p => [p.name, p.email, p.role]);
-  } else {
-    const lines = txt.split(/\r?\n/).filter(l => l.trim());
-    const count = (l, d) => l.split(d).length - 1;
-    const d = [',', ';', '\t'].sort((a, b) => count(lines[0], b) - count(lines[0], a))[0];
-    const split = l => { const o = []; let cur = '', q = false;
-      for (let i = 0; i < l.length; i++) { const c = l[i];
-        if (c === '"') { if (q && l[i + 1] === '"') { cur += '"'; i++; } else q = !q; }
-        else if (c === d && !q) { o.push(cur); cur = ''; } else cur += c; }
-      o.push(cur); return o.map(x => x.trim()); };
-    rows = lines.map(split);
-    const head = rows[0].map(x => fold(x));
-    if (head.some(x => x.includes('mail'))) {                                 // header row: find the columns
-      const ni = Math.max(0, head.findIndex(x => x.includes('name') || x.includes('ten'))), ei = head.findIndex(x => x.includes('mail')),
-            ri = head.findIndex(x => x.includes('role') || x.includes('vai tro') || x.includes('chuc'));
-      rows = rows.slice(1).map(r => [r[ni], r[ei], ri >= 0 ? r[ri] : '']);
-    }
-  }
-  return rows.map(r => ({ name: String(r[0] || '').trim(), email: String(r[1] || '').trim(), role: roleOf(r[2]) }))
-    .filter(p => p.name && okMail(p.email)).sort((a, b) => a.name.localeCompare(b.name, 'vi'));
-}
-async function loadPeopleFile(inp) {
-  const file = inp.files && inp.files[0]; if (!file) return;
+async function api(action, body, ms) {
+  if (!API_URL) throw new Error(t('notConfigured'));
+  const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), ms || 60000);
   try {
-    const list = parsePeople(await file.text());
-    if (!list.length) { alert(t('badPeople')); inp.value = ''; return; }
-    PEOPLE = list; await kv.set('people', list);
-    if (S.me && !list.some(p => p.email === S.me.email)) S.me = null;
-    else if (S.me) S.me.role = list.find(p => p.email === S.me.email).role;
-    save(); render(); if (!S.me) openChooser();
-  } catch (e) { alert(t('badPeople')); }
-  inp.value = '';
+    const r = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, signal: ctl.signal,
+      body: JSON.stringify({ action, email: S.me ? S.me.email : '', pin: S.pin || '', ...(body || {}) }) });
+    const j = await r.json();
+    if (!j.ok) throw new Error(j.error || 'Server error');
+    return j;
+  } finally { clearTimeout(timer); }
 }
-function openChooser(cb) {
-  closeChooser(); CHOOSER_CB = cb || null;
+function closeModal() { const m = $('modal'); if (m) m.remove(); }
+function openLogin(msg) {
+  closeModal();
   const m = document.createElement('div'); m.id = 'modal';
-  m.innerHTML = `<div class="sheet"><b>${t('whoAreYou')}</b><input id="pq" placeholder="${t('searchName')}" autocomplete="off"><div id="plist"></div><button class="sec" onclick="closeChooser()">${t('cancel')}</button></div>`;
+  m.innerHTML = `<div class="sheet"><b>${t('login')}</b><div class="muted">${t('loginHelp')}</div>
+    <input id="lgEmail" type="email" placeholder="${t('email')}" autocomplete="username" value="${esc(S.me ? S.me.email : '')}">
+    <input id="lgPin" type="password" inputmode="numeric" placeholder="${t('pin')}" autocomplete="current-password">
+    <div class="warn" id="lgErr">${esc(msg || '')}</div>
+    <button onclick="doLogin()">${t('login')}</button>${S.me && S.pin ? `<button class="sec" onclick="closeModal()">${t('cancel')}</button>` : ''}</div>`;
   document.body.appendChild(m);
-  const draw = () => { const qs = fold($('pq').value).split(/\s+/).filter(Boolean);          // every typed word must match
-    $('plist').innerHTML = PEOPLE.map((p, i) => [p, i]).filter(([p]) => { const hay = fold(p.name + ' ' + p.email); return qs.every(w => hay.includes(w)); }).slice(0, 100)
-      .map(([p, i]) => `<button class="sec pl" onclick="pickPerson(${i})">${esc(p.name)}<small>${esc(p.email)}</small></button>`).join('') || `<div class="muted">${t('noMatch')}</div>`; };
-  $('pq').oninput = draw; draw();
 }
-function closeChooser() { const m = $('modal'); if (m) m.remove(); }
-function pickPerson(i) {
-  S.me = { name: PEOPLE[i].name, email: PEOPLE[i].email, role: PEOPLE[i].role || 'officer' };
-  if (!S.ie.trim()) S.ie = S.me.name;                              // "Studied by" is filled in automatically
-  save();
-  const cb = CHOOSER_CB; CHOOSER_CB = null; closeChooser();
-  if (cb) cb(); else render();
+async function doLogin() {
+  const email = $('lgEmail').value.trim().toLowerCase(), pin = $('lgPin').value.trim(), keep = { me: S.me, pin: S.pin };
+  $('lgErr').textContent = ''; S.me = { email }; S.pin = pin;
+  try {
+    const r = await api('login'); S.me = r.user;
+    if (!S.ie.trim()) S.ie = S.me.name;
+    save(); closeModal(); render(); syncAll(true);
+  } catch (e) { S.me = keep.me; S.pin = keep.pin; $('lgErr').textContent = t('loginFail') + ' ' + e.message; }
 }
+function logout() { if (!confirm(t('sure'))) return; S.me = null; S.pin = ''; save(); render(); openLogin(); }
 function toast(msg) {
   const old = $('toast'); if (old) old.remove();
   const d = document.createElement('div'); d.id = 'toast'; d.textContent = msg; document.body.appendChild(d);
   setTimeout(() => d.remove(), 9000);
 }
-function sendReport(id) {                     // Excel report (+ data file) -> OneDrive "reports" folder; the flow e-mails the Excel to the address in the file name
-  const h = H.find(x => x.id === id); if (!h) return;
-  if (!PEOPLE.length) { alert(t('noPeople')); return; }
-  if (!S.me) { openChooser(() => sendReport(id)); return; }       // first time only
-  let files;
-  try { files = [studyXlsxFile(h, DB.ops(h.style), LOGO, S.me.email), studyFile(h)]; } catch (e) { alert(t('xlsxFail') + ' ' + e.message); return; }
-  return shareFiles(files).then(ok => { if (ok) { h.exported = true; saveHist(); toast(tf('sendInfo', { email: S.me.email })); } });
+const b64 = u8 => { let x = ''; for (let i = 0; i < u8.length; i += 0x8000) x += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000)); return btoa(x); };
+function studyBody(h) {                       // what is stored on the server (slimmed: the cycle lists are already in "raw")
+  const res = { ...h.result, workers: (h.result.workers || []).map(({ pieces, skip, t0, ...w }) => w) };
+  return { format:'timestudy-1', id:h.id, date:h.date, updated:h.updated || null, line:h.line, style:h.style, target:h.target, ie:h.ie, type:h.type || 'routine',
+           note:h.note || '', manpower:h.manpower || '', cyclesGoal:h.cyclesGoal || null, raw:h.raw, opsSnap:h.opsSnap || [], quality:h.quality || AN.quality(h), meta:h.meta, result:res };
 }
+async function pushPending() {                // send every study that is not on the server yet (called after Save, at start, when the phone comes online)
+  if (!S.me || !API_URL || !navigator.onLine) return 0;
+  let n = 0;
+  for (const h of H.filter(x => !x.sent)) {
+    try { await api('save', { study: studyBody(h) }); h.sent = true; delete h.syncErr; n++; saveHist(); }
+    catch (e) { h.syncErr = e.message; saveHist(); throw e; }
+  }
+  return n;
+}
+async function syncMaster() {                 // employees, styles and SAM from the server; only downloads when they changed
+  if (!S.me || !API_URL) return;
+  const r = await api('master', { have: DATA_INFO.generated || '' }, 120000);
+  if (r.data) { await kv.set('data', r.data); setData(r.data, 'server'); S.style = DB.findStyle(S.style) || DB.styles()[0] || ''; save(); }
+}
+async function syncAll(manual) {
+  if (SYNCING || !API_URL || !S.me) return;
+  if (!navigator.onLine) { if (manual) toast(t('offline')); return; }
+  SYNCING = true;
+  try { await syncMaster(); await pushPending(); await pullTeam(); if (manual) toast(t('syncOk')); }
+  catch (e) {
+    if (/Wrong email or PIN/.test(e.message)) { S.pin = ''; save(); openLogin(e.message); }
+    else if (manual) toast(e.message);
+  } finally { SYNCING = false; if (['home', 'history', 'sup'].includes(screen)) render(); }
+}
+async function emailReport(id) {              // one tap: save the study on the server and e-mail the Excel report to the logged-in user
+  const h = H.find(x => x.id === id); if (!h) return;
+  if (!S.me || !S.pin) { openLogin(); return; }
+  if (!navigator.onLine) { toast(t('offline')); return; }
+  toast(t('updating'));
+  try {
+    const r = await api('save', { study: studyBody(h), emailReport: true, xlsx: { name: studyXlsxName(h), base64: b64(studyXlsxBytes(h, DB.ops(h.style), LOGO)) } }, 120000);
+    h.sent = true; saveHist();
+    toast(r.emailed ? tf('emailSent', { email: r.to }) : t('emailFail') + ' ' + r.emailError);
+  } catch (e) { toast(t('emailFail') + ' ' + e.message); }
+  render();
+}
+window.addEventListener('online', () => syncAll());
 
 // =====================================================================
 // LOAD DATA FILE / EXPORT STUDY FILES  (no sign-in: the phone's file picker and share sheet)
@@ -793,29 +786,20 @@ async function ingestDataText(txt) {          // accepts data.json or data.js
   await kv.set('data', d); setData(d, 'loaded');
   S.style = DB.findStyle(S.style) || DB.styles()[0] || ''; save(); render();
 }
-function studyFile(h) {                       // the data file the supervisor dashboard and Access import read
-  const body = { format:'timestudy-1', id:h.id, date:h.date, updated:h.updated || null, line:h.line, style:h.style, target:h.target, ie:h.ie, type:h.type || 'routine', note:h.note || '', manpower:h.manpower || '',
-                 cyclesGoal:h.cyclesGoal || null, raw:h.raw, opsSnap:h.opsSnap || [], quality:h.quality || AN.quality(h), meta:h.meta, result:h.result };
-  const clean = x => String(x).replace(/[^A-Za-z0-9._-]/g, '_');
-  const stamp = (h.updated || h.date).slice(0, 16).replace(/[-:T]/g, '');          // a changed study gets a new file name
-  const name = `study_${clean(h.line)}_${clean(h.style)}_${stamp}_${h.id.slice(0, 8)}.json`;
-  return new File([JSON.stringify(body)], name, { type:'application/json' });
-}
 function download(file) {
   const a = document.createElement('a'); a.href = URL.createObjectURL(file); a.download = file.name;
   document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
 }
-async function shareFiles(files) {          // phone share sheet (choose OneDrive); normal download as fallback
-  try {
-    if (navigator.canShare && navigator.canShare({ files })) await navigator.share({ files });
-    else files.forEach(download);
-    return true;
-  } catch (e) { if (e && e.name === 'AbortError') return false; files.forEach(download); return true; }
-}
-async function exportStudies(list) {
-  if (!list.length) { toast(t('allSent')); return; }
-  if (!(await shareFiles(list.map(studyFile)))) return;
-  list.forEach(h => h.exported = true); saveHist(); render();
+const asText = f => new File([f], f.name + '.txt', { type:'text/plain' });   // Chrome on Android only shares text, pdf, image, audio and video files
+async function shareFiles(files) {          // returns 'ok' (shared), 'cancel' (user closed the menu) or 'download' (share menu not available)
+  const can = l => { try { return !!(navigator.canShare && navigator.canShare({ files: l })); } catch (e) { return false; } };
+  const attempt = async l => { try { await navigator.share({ files: l }); return 'ok'; } catch (e) { return e && e.name === 'AbortError' ? 'cancel' : 'fail'; } };
+  for (const list of [files, files.map(asText)]) {
+    if (!can(list)) continue;
+    const r = await attempt(list);
+    if (r === 'ok' || r === 'cancel') return r;
+  }
+  toast(t('noShare')); files.forEach(download); return 'download';
 }
 let LOGO = null;                              // optional logo.png from the app folder, loaded at start so sharing stays instant
 async function loadLogo() { try { const r = await fetch('logo.png'); if (r.ok) LOGO = new Uint8Array(await r.arrayBuffer()); } catch (e) {} }
@@ -825,8 +809,6 @@ function exportExcel(id) {                    // Excel report in the company tem
   try { file = studyXlsxFile(h, DB.ops(h.style), LOGO); } catch (e) { alert(t('xlsxFail') + ' ' + e.message); return; }
   return shareFiles([file]);
 }
-const exportOne = id => exportStudies(H.filter(h => h.id === id));
-const exportNew = () => exportStudies(H.filter(h => !h.exported));
 
 // live timer display
 setInterval(() => {
@@ -838,13 +820,12 @@ $('lang').onchange = e => { S.lang = e.target.value; save(); render(); };
 async function boot() {
   if (typeof SYNC !== 'undefined') setData(SYNC, 'file'); else useSample();     // data.js (PC testing) or sample
   try { const d = await kv.get('data'); if (d && (!DATA_INFO.generated || (d.generated || '') >= DATA_INFO.generated)) setData(d, 'loaded'); } catch (e) {}
-  try { const p = await kv.get('people'); if (Array.isArray(p)) PEOPLE = p; } catch (e) {}
-  try { const tm = await kv.get('team'); if (Array.isArray(tm)) TEAM = tm; const rv = await kv.get('reviews'); if (rv && typeof rv === 'object') REV = rv; DIRH = (await kv.get('dirHandle')) || null; } catch (e) {}
+  try { const tm = await kv.get('team'); if (Array.isArray(tm)) TEAM = tm; const rv = await kv.get('reviews'); if (rv && typeof rv === 'object') REV = rv; } catch (e) {}
   if (!S.editId) S.style = DB.findStyle(S.style) || DB.styles()[0] || '';
   if (!S.ie && S.me) S.ie = S.me.name;
   render();
   loadLogo();
-  if (PEOPLE.length && !S.me) openChooser();                  // first start: choose your name once
+  if (API_URL && (!S.me || !S.pin)) openLogin(); else syncAll();
 }
 boot();
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => {});
