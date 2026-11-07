@@ -365,13 +365,14 @@ ${parts.map((p, i) => `<Override PartName="/xl/worksheets/sheet${i + 1}.xml" Con
   root.summaryXlsxBytes = buildSummary;
   root.summaryXlsxFile = (specs, name) => new File([buildSummary(specs)], name, { type: XLSX_MIME });
 
-  function studyXlsxFile(h, styleOps, logo, toEmail) {
-    const d = new Date(h.date), p = x => String(x).padStart(2, '0');
-    const clean = x => String(x).replace(/[^A-Za-z0-9._-]/g, '_');
-    const to = toEmail ? '__TO_' + String(toEmail).replace(/[^A-Za-z0-9@._+-]/g, '') : '';   // the email flow reads the address from here
-    const name = `Capacity_${clean(h.line)}_${clean(h.style)}_${p(d.getDate())}_${p(d.getMonth() + 1)}${to}.xlsx`;
-    return new File([build(h, styleOps, logo)], name, { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  function studyXlsxName(h) {
+    const d = new Date(h.date), p = x => String(x).padStart(2, '0'), clean = x => String(x).replace(/[^A-Za-z0-9._-]/g, '_');
+    return `Capacity_${clean(h.line)}_${clean(h.style)}_${p(d.getDate())}_${p(d.getMonth() + 1)}.xlsx`;
   }
+  function studyXlsxFile(h, styleOps, logo) {
+    return new File([build(h, styleOps, logo)], studyXlsxName(h), { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  }
+  root.studyXlsxName = studyXlsxName;
   root.studyXlsxBytes = build;
   root.studyXlsxFile = studyXlsxFile;
   if (typeof module !== 'undefined') module.exports = { build, studyXlsxFile };
