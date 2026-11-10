@@ -3,58 +3,74 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Time Study</title>
 <style>
-body{font-family:system-ui,sans-serif;margin:0;background:#f4f5f7;color:#1c1c1e}
-header{display:flex;gap:8px;align-items:center;padding:12px 16px;background:#1f4e79;color:#fff}
-header b{flex:1}
+:root{--bg:#f3f4f6;--panel:#fff;--text:#1d2330;--muted:#6b7280;--line:#e2e5ea;--accent:#1f6feb;--accent-tx:#fff;
+--ok:#15803d;--okbg:#e7f6ec;--warn:#9a6700;--warnbg:#fff5d6;--bad:#c4202b;--badbg:#fde8e8;--info:#0b5cad;--infobg:#e6f0ff;--sel:#eaf1ff}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1218;--panel:#181c24;--text:#e6e9ef;--muted:#9aa3b2;--line:#2b313d;--accent:#4c8dff;--accent-tx:#0b0f17;
+--ok:#56d364;--okbg:#12301b;--warn:#e3b341;--warnbg:#3a2d0b;--bad:#ff7b72;--badbg:#3d1416;--info:#79b8ff;--infobg:#132a46;--sel:#1c2a40;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 "Segoe UI",Roboto,Arial,sans-serif}
+header{display:flex;gap:8px;align-items:center;padding:8px 16px;background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+header b{flex:1;font-size:16px}
 header select,header button{width:auto;margin:0;padding:6px 10px}
-header button{background:#ffffff33}
+header button{background:var(--sel);color:var(--accent);border-color:transparent;font-weight:600}
 main{padding:12px;max-width:640px;margin:auto}main.wide{max-width:1000px}
-.card{background:#fff;border-radius:12px;padding:12px;margin-bottom:12px;box-shadow:0 1px 3px #0002}
-input,select,button,textarea{font-family:inherit;font-size:16px;padding:10px;border-radius:8px;border:1px solid #ccc;width:100%;box-sizing:border-box;margin:4px 0}
-button{background:#1f4e79;color:#fff;border:0}
-button:disabled{opacity:.4}
-button.sec{background:#e5e7eb;color:#111}
-button.red{background:#b91c1c}
-button.green{background:#15803d}
-button.big{font-size:22px;padding:18px}
-button.home{font-size:22px;padding:34px 18px;margin:10px 0}
-button.small{width:auto;padding:5px 12px;font-size:14px;margin:2px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:12px}
+.card h3{margin:0 0 8px;font-size:14px;display:flex;gap:8px;align-items:center}
+.num{display:inline-flex;width:22px;height:22px;border-radius:50%;background:var(--accent);color:var(--accent-tx);align-items:center;justify-content:center;font-size:12px}
+input,select,button,textarea{font:inherit;font-size:15px;padding:8px 10px;border-radius:8px;border:1px solid var(--line);width:100%;margin:4px 0;background:var(--panel);color:var(--text)}
+button{background:var(--accent);color:var(--accent-tx);border-color:var(--accent);cursor:pointer;width:100%}
+button:hover:not(:disabled){filter:brightness(1.08)}
+button:disabled{opacity:.4;cursor:not-allowed}
+button.sec{background:var(--panel);color:var(--text);border-color:var(--line)}
+button.sec:hover:not(:disabled){border-color:var(--accent);filter:none}
+button.red{background:var(--bad);border-color:var(--bad);color:#fff}
+button.green{background:var(--ok);border-color:var(--ok);color:var(--accent-tx)}
+button.big{font-size:22px;padding:16px}
+button.home{font-size:20px;padding:30px 18px;margin:10px 0}
+button.small{width:auto;padding:4px 12px;font-size:13px;margin:2px}
 .row{display:flex;gap:8px}.row>*{flex:1}
 .time{font-size:34px;text-align:center;font-variant-numeric:tabular-nums}
-table{width:100%;border-collapse:collapse;font-size:14px}
-td,th{padding:4px;border-bottom:1px solid #eee;text-align:right}
+table{width:100%;border-collapse:collapse;font-size:13px}
+td,th{padding:5px 8px;border-bottom:1px solid var(--line);text-align:right;vertical-align:top}
+th{color:var(--muted);font-weight:600;font-size:12px}
 th:first-child,td:first-child{text-align:left}
 td.l,th.l{text-align:left}
-.bn{background:#fde2e2}.warn{color:#b45309}.kpi{font-size:18px;margin:4px 0}
-.item{cursor:pointer}.item small,.muted{color:#555}
-.chips{display:flex;flex-wrap:wrap;gap:6px;max-height:130px;overflow:auto;margin:6px 0}
-.chip{width:auto;margin:0;padding:8px 12px;background:#e5e7eb;color:#111;border-radius:16px}
-.chip.on{background:#1f4e79;color:#fff}
-.info{background:#eef4fa;border-radius:8px;padding:8px;font-size:14px;margin:6px 0}
+.bn{background:var(--badbg)}.warn{color:var(--warn)}.kpi{font-size:17px;margin:4px 0}
+.item{cursor:pointer}.item small,.muted{color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;max-height:170px;overflow:auto;margin:6px 0}
+.chip{width:auto;margin:0;padding:6px 11px;background:var(--panel);color:var(--text);border-color:var(--line);border-radius:16px}
+.chip.on{background:var(--accent);color:var(--accent-tx);border-color:var(--accent)}
+.chip.cov{box-shadow:inset 0 0 0 2px var(--ok)}
+.info{background:var(--infobg);color:var(--info);border-radius:8px;padding:8px;font-size:13px;margin:6px 0}
 .metrics{display:flex;gap:8px;margin:6px 0}
-.metrics div{flex:1;background:#eef4fa;border-radius:8px;padding:6px;text-align:center;font-size:13px}
-.metrics b{display:block;font-size:20px}
-.legend{font-size:12px;color:#555;margin-top:4px}.legend i{display:inline-block;width:12px;height:8px;margin:0 4px 0 8px;vertical-align:middle}
-.qr{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 6px}.qr button{width:auto;margin:0;padding:5px 10px;font-size:13px;border-radius:14px;background:#eef4fa;color:#1f4e79;border:1px solid #c9d9ea}
-.pl{display:block;text-align:left;margin:4px 0}.pl small{display:block;color:#555;font-size:12px}
-#modal{position:fixed;inset:0;background:#0007;z-index:20;display:flex;align-items:flex-end;justify-content:center}
-#modal .sheet{background:#fff;border-radius:16px 16px 0 0;padding:14px;width:100%;max-width:640px;max-height:80vh;overflow:auto;box-sizing:border-box}
-#plist{max-height:45vh;overflow:auto}
-#toast{position:fixed;left:12px;right:12px;bottom:80px;background:#1f2937;color:#fff;padding:12px;border-radius:10px;z-index:30;font-size:14px}
-.cyc{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0}.cy{width:auto;margin:0;padding:6px 10px;font-size:14px;border-radius:14px;background:#e5e7eb;color:#111}
-.cy.off{text-decoration:line-through;opacity:.45}.done{border-left:5px solid #16a34a}.ok{color:#16a34a;font-weight:600}
-.savebar{position:sticky;bottom:0;background:#fff;border-radius:12px;padding:10px;box-shadow:0 -2px 8px #0003;margin-top:8px}
+.metrics div{flex:1;background:var(--sel);border-radius:8px;padding:6px;text-align:center;font-size:12px}
+.metrics b{display:block;font-size:19px}
+.legend{font-size:12px;color:var(--muted);margin-top:4px}.legend i{display:inline-block;width:12px;height:8px;margin:0 4px 0 8px;vertical-align:middle}
+.qr{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 6px}.qr button{width:auto;margin:0;padding:4px 10px;font-size:12px;border-radius:14px;background:var(--sel);color:var(--accent);border-color:transparent}
+.pl{display:block;text-align:left;margin:4px 0}.pl small{display:block;color:var(--muted);font-size:12px}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:20;display:flex;align-items:flex-end;justify-content:center}
+#modal .sheet{background:var(--panel);border-radius:12px 12px 0 0;padding:16px;width:100%;max-width:640px;max-height:80vh;overflow:auto}
+#toast{position:fixed;left:12px;right:12px;bottom:80px;background:var(--panel);color:var(--text);border:1px solid var(--line);border-left:4px solid var(--accent);padding:10px 12px;border-radius:8px;z-index:30;font-size:13px;box-shadow:0 2px 10px rgba(0,0,0,.2);white-space:pre-wrap}
+.cyc{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0}.cy{width:auto;margin:0;padding:5px 10px;font-size:13px;border-radius:14px;background:var(--panel);color:var(--text);border-color:var(--line)}
+.cy.off{text-decoration:line-through;opacity:.45}.done{border-left:4px solid var(--ok)}.carried{border-left:4px solid var(--info)}.ok{color:var(--ok);font-weight:600}
+.savebar{position:sticky;bottom:0;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px;box-shadow:0 -2px 8px rgba(0,0,0,.12);margin-top:8px}
 .dot{display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:middle;margin-right:4px}
-.dot.green{background:#16a34a}.dot.amber{background:#f59e0b}.dot.red{background:#dc2626}
-.q-ok{border-left:5px solid #16a34a}.q-check{border-left:5px solid #f59e0b}.q-review{border-left:5px solid #dc2626}
+.dot.green{background:var(--ok)}.dot.amber{background:var(--warn)}.dot.red{background:var(--bad)}
+.q-ok{border-left:4px solid var(--ok)}.q-check{border-left:4px solid var(--warn)}.q-review{border-left:4px solid var(--bad)}
 .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:12px}
-.tile{background:#fff;border-radius:12px;padding:10px;box-shadow:0 1px 3px #0002}.tile small{color:#555;display:block;font-size:12px}.tile b{font-size:22px}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px}.tile small{color:var(--muted);display:block;font-size:12px}.tile b{font-size:22px}
 .scroll{overflow-x:auto}.scroll table{min-width:620px}
-tr.go{cursor:pointer}tr.go:hover{background:#f3f7fb}
-.badge{display:inline-block;border-radius:10px;padding:1px 8px;font-size:12px;background:#e5e7eb;color:#111}
-.badge.ok{background:#dcfce7;color:#166534}.badge.check{background:#fef3c7;color:#92400e}.badge.review{background:#fee2e2;color:#991b1b}
-.filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
-h3{margin:4px 0 8px;font-size:16px}
+tr.go{cursor:pointer}tr.go:hover{background:var(--sel)}
+.badge,.tag{display:inline-block;border-radius:10px;padding:1px 8px;font-size:12px;white-space:nowrap;background:var(--sel);color:var(--text)}
+.badge.ok,.t-ok{background:var(--okbg);color:var(--ok)}.badge.check,.t-warn{background:var(--warnbg);color:var(--warn)}.badge.review,.t-bad{background:var(--badbg);color:var(--bad)}.t-info{background:var(--infobg);color:var(--info)}
+.filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}
+.seg{display:flex;gap:6px}.seg button{flex:1;margin:4px 0;background:var(--panel);color:var(--text);border-color:var(--line)}.seg button.on{background:var(--accent);color:var(--accent-tx);border-color:var(--accent)}
+.wlist{max-height:300px;overflow:auto;border:1px solid var(--line);border-radius:8px;margin-top:6px}
+.wrow{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 10px;border-bottom:1px solid var(--line);cursor:pointer}
+.wrow:last-child{border-bottom:0}.wrow:hover{background:var(--sel)}
+h3{margin:4px 0 8px;font-size:14px}
+.sa{fill:var(--accent)}.sb{fill:var(--bad)}.sk{fill:var(--ok)}.sw{fill:var(--warn)}.st{fill:var(--text)}.sm{fill:var(--muted)}
+.lb{stroke:var(--bad)}.lk{stroke:var(--ok)}.la{stroke:var(--accent)}.ll{stroke:var(--line)}
 </style></head>
 <body>
 <header><button id="back" onclick="goBack()">&larr;</button><b id="title"></b>
@@ -65,17 +81,28 @@ h3{margin:4px 0 8px;font-size:16px}
 <script src="analytics.js"></script>
 <script src="xlsx_export.js"></script>
 <script>
-const API_URL = 'https://script.google.com/macros/s/AKfycbyafQWajBhJ2RBrktypUh5YJgBAUHZdBed70SUbwjxUiNrJS42sC-j3nSNftyF7XcLV/exec';   // paste the Apps Script web app address here (ends with /exec)
+const API_URL ='https://script.google.com/macros/s/AKfycbyafQWajBhJ2RBrktypUh5YJgBAUHZdBed70SUbwjxUiNrJS42sC-j3nSNftyF7XcLV/exec';   // paste the Apps Script web app address here (ends with /exec)
 // =====================================================================
 // DATA LAYER  (sample data until a data file is loaded; the UI only uses DB.*)
 // =====================================================================
 const SAMPLE_EMP = [['000001','Sample Employee 1'],['000002','Sample Employee 2'],['000003','Sample Employee 3'],['000004','Sample Employee 4']]
   .map(([code,name]) => ({ code, name, line:'G08' }));
 const SAMPLE_SAM = {31:.1998,32:.3601,33:.259,34:.3661,35:.8977,36:1.5361,37:.3528,38:.705,39:.5543,40:.7047,41:.2764,42:.2412,43:.1779,44:.4709,45:.1969,46:.5363,47:.1386,48:.2716,49:.2389,50:.1808,97:.3576};
-let EMP = [], OPS = {}, DATA_INFO = { src:'sample', generated:'' };
-function setData(d, src) { EMP = d.employees; OPS = d.ops; DATA_INFO = { src, generated:d.generated || '' }; }
+const OP_MIN = 31, OP_MAX = 116, NOPU = '—';           // only operations 31 to 116 are studied
+const K = s => String(s || '').trim().toUpperCase();
+const fold = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/gi, 'd').toLowerCase();
+const isDummy = n => /dumm?y/.test(fold(n));          // "Dummy", "DUMMY 3", "dumy" are placeholder workers
+let EMP = [], OPS = {}, LM = {}, DATA_INFO = { src:'sample', generated:'' };
+const baseLine = s => { s = K(s); const m = s.match(/^[^\-_ (]+/); return m ? m[0] : s; };       // L03_B -> L03, S11 (S23) -> S11
+const puOf = line => LM[K(line)] || LM[baseLine(line)] || '';
+function setData(d, src) {
+  EMP = (d.employees || []).filter(e => !isDummy(e.name) && !isDummy(e.code));
+  OPS = d.ops || {}; LM = {};
+  (d.lineMap || []).forEach(x => { if (x.line && x.pu) LM[K(x.line)] = K(x.pu); });
+  DATA_INFO = { src, generated:d.generated || '' };
+}
 function useSample() {
-  setData({ employees:SAMPLE_EMP, ops:{ 'PUM25-00054-1301H4': Object.keys(SAMPLE_SAM).map(n => ({ no:Number(n), code:'', sam:SAMPLE_SAM[n], machine:'SNLS' })) } }, 'sample');
+  setData({ employees:SAMPLE_EMP, lineMap:[{ line:'G08', pu:'PU2' }], ops:{ 'PUM25-00054-1301H4': Object.keys(SAMPLE_SAM).map(n => ({ no:Number(n), code:'', sam:SAMPLE_SAM[n], machine:'SNLS' })) } }, 'sample');
 }
 // small key-value store (IndexedDB, falls back to localStorage)
 const kv = (() => {
@@ -94,12 +121,14 @@ const kv = (() => {
   };
 })();
 const norm = s => String(s || '').trim().toUpperCase();
+const puKey = line => puOf(line) || NOPU;
 const DB = {
-  lines:     () => [...new Set(EMP.map(e => e.line))].sort(),
+  pus:       () => [...new Set(EMP.map(e => puKey(e.line)))].sort((a, b) => (a === NOPU) - (b === NOPU) || a.localeCompare(b)),
+  lines:     pu => [...new Set(EMP.filter(e => !pu || puKey(e.line) === pu).map(e => e.line))].sort(),
   employees: line => EMP.filter(e => norm(e.line) === norm(line)),
   styles:    () => Object.keys(OPS).sort(),
   findStyle: v => Object.keys(OPS).find(k => norm(k) === norm(v)) || '',
-  ops:       style => (OPS[style] || []).slice().sort((a, b) => a.no - b.no)   // {no, code, sam, machine}
+  ops:       style => (OPS[style] || []).filter(o => o.no >= OP_MIN && o.no <= OP_MAX).sort((a, b) => a.no - b.no)   // {no, code, sam, machine}
 };
 const mkOpMap = style => { const m = {}; DB.ops(style).forEach(o => m[o.no] = { sam:o.sam, machine:o.machine }); return m; };
 
@@ -107,11 +136,11 @@ const mkOpMap = style => { const m = {}; DB.ops(style).forEach(o => m[o.no] = { 
 // TEXT
 // =====================================================================
 const T = {
- en:{title:'Time Study',login:'Log in',loginHelp:'Enter the email and PIN your supervisor gave you.',email:'Email',pin:'PIN',logout:'Log out',syncNow:'Sync now',waiting:'waiting to send',synced:'synced',syncOk:'Everything is sent.',emailMe:'Email me the report',emailSent:'Report emailed to {email}.',emailFail:'Could not email the report:',notConfigured:'The server address is not set in the app (API_URL).',refresh:'Refresh studies',updating:'Updating...',offline:'No connection. Studies stay on this phone and are sent automatically later.',loginFail:'Login failed:',newStudy:'New Study',history:'History',save:'Save study',
+ en:{title:'Time Study',setup:'Study setup',selPU:'Select PU',noPU:'No PU',selLine:'Select line',selLineFirst:'Select a PU and a line to see the workers.',workers:'Workers',searchWorker:'Search worker (name or code)',chooseOps:'Choose the operation(s) this worker does (31-116). Green ring = already timed.',confirmOps:'Confirm operations',changeOps:'Change operations',dupOp:'Another operation for this worker',retime:'Re-time',fromPrev:'from previous study',prevStudy:'Previous study to re-study',pickPrev:'Select the previous study',noPrev:'No previous study on this line yet.',clearRows:'This clears the workers entered so far. Continue?',needBase:'Select the previous study to re-study.',prevTime:'Previous',sessions:'timings',login:'Log in',loginHelp:'Enter the email and PIN your supervisor gave you.',email:'Email',pin:'PIN',logout:'Log out',syncNow:'Sync now',waiting:'waiting to send',synced:'synced',syncOk:'Everything is sent.',emailMe:'Email me the report',emailSent:'Report emailed to {email}.',emailFail:'Could not email the report:',notConfigured:'The server address is not set in the app (API_URL).',refresh:'Refresh studies',updating:'Updating...',offline:'No connection. Studies stay on this phone and are sent automatically later.',loginFail:'Login failed:',newStudy:'New Study',history:'History',save:'Save study',
   noHistory:'No studies saved yet.',study:'Study detail',delStudy:'Delete this study',sure:'Delete?',
   line:'Line',style:'Style',ie:'Studied by',target:'Target pcs/hr (optional)',
   cycles:'Cycles per operator',cyclesHint:'Tap a time to exclude an abnormal cycle (thread break, waiting...)',cv:'Variation',cvHigh:'High variation: check the method or exclude abnormal cycles',open:'Open',close:'Close',missingOps:'Operations not studied yet (line capacity may be wrong)',
-  studyType:'Study type',ty_routine:'Routine check',ty_new:'New style / baseline',ty_before:'Before improvement',ty_after:'After improvement',manpower:'Line manpower (optional)',note:'What was changed / observations (optional)',needIe:'Enter "Studied by" to save.',
+  studyType:'Study type',ty_new:'New study',ty_qco:'QCO',ty_restudy:'Re-study',ty_routine:'Routine check (old)',ty_before:'Before improvement (old)',ty_after:'After improvement (old)',manpower:'Line manpower (optional)',note:'What was changed / observations (optional)',needIe:'Enter "Studied by" to save.',
   quality:'Study quality',q_ok:'OK',q_check:'Check',q_review:'Needs review',qi_few:'{n} operator(s) with fewer than 3 cycles',qi_cover:'{n} operations not studied (coverage {v})',qi_missing:'{n} operation(s) not studied',qi_var:'{n} operator(s) with high variation (over 15%)',
   user:'User',cancel:'Cancel',
   exportXlsx:'Export Excel report',remark:'Remark (operation situation, optional)',xlsxFail:'Excel export failed:',
@@ -132,21 +161,21 @@ const T = {
   dash:'Supervisor dashboard',supTools:'Supervisor tools',roleSup:'Supervisor',roleOff:'IE officer',
   teamLoaded:'Studies loaded',loadTeam:'Load studies from folder',refreshTeam:'Refresh studies',teamHelp:'Pick the folder with the study files (TimeStudy/reports). On a PC with Chrome or Edge it remembers the folder, so Refresh needs one tap.',teamDone:'{n} study file(s) read, {bad} skipped.',
   noTeam:'No studies yet. They appear here as the IE officers save them.',
-  period:'Period',p_7:'Last 7 days',p_30:'Last 30 days',p_month:'This month',p_90:'Last 90 days',p_all:'All time',allLines:'All lines',allIE:'All IE officers',allTypes:'All types',
+  period:'Period',p_7:'Last 7 days',p_30:'Last 30 days',p_month:'This month',p_90:'Last 90 days',p_all:'All time',allPU:'All PU',allLines:'All lines',allIE:'All IE officers',allTypes:'All types',
   standards:'Standards',stdEff:'Standard efficiency %',stdBal:'Minimum balance rate %',
   kStudies:'Studies',kLines:'Lines',kEff:'Avg efficiency (latest per line)',kStatus:'On standard / Watch / Below',kGap:'Avg gap to target',kPot:'Gain possible by balancing',kReview:'Studies to review',
   needAtt:'Needs attention',allGood:'All studied lines are on standard.',linesTitle:'Latest study per line',effByLine:'Efficiency by line (latest study)',trendTitle:'Efficiency trend',trendWeek:'weekly average, all lines',
-  impTitle:'Improvement tracker (before → after)',noImp:'No before/after pairs yet. Mark studies as "Before improvement" and "After improvement" on the same line and style.',
+  impTitle:'Re-study results (previous → new)',noImp:'No re-studies yet.',
   machTitle:'Bottleneck by machine type',remTitle:'Most frequent operator remarks',covTitle:'Lines not studied in this period',covAll:'All known lines were studied.',ieTitle:'IE officer activity',studiesTitle:'Studies in this period',
-  cLine:'Line',cStyle:'Style',cDate:'Date',cIE:'IE officer',cEff:'Eff.',cCap:'Capacity / target',cBal:'Balance',cBn:'Bottleneck',cPot:'+Gain',cQual:'Quality',cRev:'Review',cStudies:'Studies',cOk:'Quality OK',cCyc:'Avg cycles',cLast:'Last study',cBefore:'Before',cAfter:'After',cDEff:'Δ eff.',cDCap:'Δ capacity',
+  cPU:'PU',cLine:'Line',cStyle:'Style',cDate:'Date',cIE:'IE officer',cEff:'Eff.',cCap:'Capacity / target',cBal:'Balance',cBn:'Bottleneck',cPot:'+Gain',cQual:'Quality',cRev:'Review',cStudies:'Studies',cOk:'Quality OK',cCyc:'Avg cycles',cLast:'Last study',cBefore:'Before',cAfter:'After',cDEff:'Δ eff.',cDCap:'Δ capacity',
   r_eff:'Efficiency {v} is below the standard {s}',r_cap:'Capacity is {v} of the target',r_bal:'Balance rate {v} is below {s}',potNote:'+{v} possible by balancing',
   review:'Supervisor review',rv_approved:'Approved',rv_recheck:'Needs recheck',rv_clear:'Clear',rvComment:'Comment for the IE officer',rvSaved:'Review saved.',
   expSummary:'Export summary (Excel)',copySummary:'Copy summary text',copied:'Summary copied.',readOnly:'Study done by another IE officer (read only).',by:'by',allSent:'Nothing new to send.'},
- vi:{title:'Nghiên cứu thời gian',login:'Đăng nhập',loginHelp:'Nhập email và mã PIN do giám sát cấp.',email:'Email',pin:'Mã PIN',logout:'Đăng xuất',syncNow:'Đồng bộ ngay',waiting:'đang chờ gửi',synced:'đã đồng bộ',syncOk:'Đã gửi tất cả.',emailMe:'Gửi báo cáo về email',emailSent:'Đã gửi báo cáo đến {email}.',emailFail:'Không gửi được báo cáo:',notConfigured:'Chưa cài địa chỉ máy chủ trong ứng dụng (API_URL).',refresh:'Làm mới nghiên cứu',updating:'Đang cập nhật...',offline:'Không có mạng. Nghiên cứu được giữ trên điện thoại và sẽ tự gửi sau.',loginFail:'Đăng nhập lỗi:',newStudy:'Nghiên cứu mới',history:'Lịch sử',save:'Lưu nghiên cứu',
+ vi:{title:'Nghiên cứu thời gian',setup:'Thiết lập nghiên cứu',selPU:'Chọn PU',noPU:'Chưa có PU',selLine:'Chọn chuyền',selLineFirst:'Chọn PU và chuyền để xem danh sách công nhân.',workers:'Công nhân',searchWorker:'Tìm công nhân (tên hoặc mã)',chooseOps:'Chọn công đoạn công nhân này làm (31-116). Viền xanh = đã bấm giờ.',confirmOps:'Xác nhận công đoạn',changeOps:'Đổi công đoạn',dupOp:'Công đoạn khác của công nhân này',retime:'Bấm lại',fromPrev:'từ nghiên cứu trước',prevStudy:'Nghiên cứu trước để làm lại',pickPrev:'Chọn nghiên cứu trước',noPrev:'Chuyền này chưa có nghiên cứu trước.',clearRows:'Thao tác này xóa các công nhân đã nhập. Tiếp tục?',needBase:'Chọn nghiên cứu trước để làm lại.',prevTime:'Trước',sessions:'lần bấm',login:'Đăng nhập',loginHelp:'Nhập email và mã PIN do giám sát cấp.',email:'Email',pin:'Mã PIN',logout:'Đăng xuất',syncNow:'Đồng bộ ngay',waiting:'đang chờ gửi',synced:'đã đồng bộ',syncOk:'Đã gửi tất cả.',emailMe:'Gửi báo cáo về email',emailSent:'Đã gửi báo cáo đến {email}.',emailFail:'Không gửi được báo cáo:',notConfigured:'Chưa cài địa chỉ máy chủ trong ứng dụng (API_URL).',refresh:'Làm mới nghiên cứu',updating:'Đang cập nhật...',offline:'Không có mạng. Nghiên cứu được giữ trên điện thoại và sẽ tự gửi sau.',loginFail:'Đăng nhập lỗi:',newStudy:'Nghiên cứu mới',history:'Lịch sử',save:'Lưu nghiên cứu',
   noHistory:'Chưa có nghiên cứu nào.',study:'Chi tiết nghiên cứu',delStudy:'Xóa nghiên cứu này',sure:'Xóa?',
   line:'Chuyền',style:'Mã hàng',ie:'Người làm',target:'Mục tiêu SL/giờ (tùy chọn)',
   cycles:'Số chu kỳ mỗi công nhân',cyclesHint:'Chạm vào một thời gian để loại chu kỳ bất thường (đứt chỉ, chờ hàng...)',cv:'Độ biến động',cvHigh:'Biến động cao: kiểm tra thao tác hoặc loại chu kỳ bất thường',open:'Mở',close:'Đóng',missingOps:'Công đoạn chưa bấm giờ (năng lực chuyền có thể chưa đúng)',
-  studyType:'Loại nghiên cứu',ty_routine:'Kiểm tra định kỳ',ty_new:'Mã hàng mới / ban đầu',ty_before:'Trước cải tiến',ty_after:'Sau cải tiến',manpower:'Số lao động của chuyền (tùy chọn)',note:'Đã thay đổi gì / nhận xét (tùy chọn)',needIe:'Nhập "Người làm" để lưu.',
+  studyType:'Loại nghiên cứu',ty_new:'Nghiên cứu mới',ty_qco:'QCO',ty_restudy:'Nghiên cứu lại',ty_routine:'Kiểm tra định kỳ (cũ)',ty_before:'Trước cải tiến (cũ)',ty_after:'Sau cải tiến (cũ)',manpower:'Số lao động của chuyền (tùy chọn)',note:'Đã thay đổi gì / nhận xét (tùy chọn)',needIe:'Nhập "Người làm" để lưu.',
   quality:'Chất lượng nghiên cứu',q_ok:'Đạt',q_check:'Cần kiểm tra',q_review:'Cần xem lại',qi_few:'{n} công nhân bấm ít hơn 3 chu kỳ',qi_cover:'{n} công đoạn chưa nghiên cứu (độ phủ {v})',qi_missing:'{n} công đoạn chưa nghiên cứu',qi_var:'{n} công nhân biến động cao (trên 15%)',
   user:'Người dùng',cancel:'Hủy',
   exportXlsx:'Xuất báo cáo Excel',remark:'Ghi chú (tình hình công đoạn, tùy chọn)',xlsxFail:'Xuất Excel lỗi:',
@@ -167,13 +196,13 @@ const T = {
   dash:'Bảng theo dõi của giám sát',supTools:'Công cụ giám sát',roleSup:'Giám sát',roleOff:'IE',
   teamLoaded:'Số nghiên cứu đã tải',loadTeam:'Tải nghiên cứu từ thư mục',refreshTeam:'Làm mới nghiên cứu',teamHelp:'Chọn thư mục chứa các tệp nghiên cứu (TimeStudy/reports). Trên máy tính dùng Chrome hoặc Edge, ứng dụng nhớ thư mục nên chỉ cần bấm Làm mới.',teamDone:'Đã đọc {n} tệp, bỏ qua {bad} tệp.',
   noTeam:'Chưa có nghiên cứu nào. Nghiên cứu sẽ hiện ở đây khi IE lưu.',
-  period:'Thời gian',p_7:'7 ngày qua',p_30:'30 ngày qua',p_month:'Tháng này',p_90:'90 ngày qua',p_all:'Tất cả',allLines:'Tất cả chuyền',allIE:'Tất cả IE',allTypes:'Tất cả loại',
+  period:'Thời gian',p_7:'7 ngày qua',p_30:'30 ngày qua',p_month:'Tháng này',p_90:'90 ngày qua',p_all:'Tất cả',allPU:'Tất cả PU',allLines:'Tất cả chuyền',allIE:'Tất cả IE',allTypes:'Tất cả loại',
   standards:'Tiêu chuẩn',stdEff:'Hiệu suất chuẩn %',stdBal:'Tỷ lệ cân bằng tối thiểu %',
   kStudies:'Nghiên cứu',kLines:'Chuyền',kEff:'Hiệu suất TB (lần mới nhất mỗi chuyền)',kStatus:'Đạt / Theo dõi / Chưa đạt',kGap:'Chênh lệch TB so với mục tiêu',kPot:'Có thể tăng nhờ cân bằng',kReview:'Nghiên cứu cần xem lại',
   needAtt:'Cần chú ý',allGood:'Tất cả chuyền đã nghiên cứu đều đạt chuẩn.',linesTitle:'Nghiên cứu mới nhất của từng chuyền',effByLine:'Hiệu suất theo chuyền (lần mới nhất)',trendTitle:'Xu hướng hiệu suất',trendWeek:'trung bình theo tuần, tất cả chuyền',
-  impTitle:'Theo dõi cải tiến (trước → sau)',noImp:'Chưa có cặp trước/sau. Hãy đánh dấu nghiên cứu là "Trước cải tiến" và "Sau cải tiến" cùng chuyền và mã hàng.',
+  impTitle:'Kết quả nghiên cứu lại (trước → sau)',noImp:'Chưa có nghiên cứu lại.',
   machTitle:'Nút cổ chai theo loại máy',remTitle:'Ghi chú công nhân hay gặp nhất',covTitle:'Chuyền chưa được nghiên cứu trong kỳ này',covAll:'Tất cả chuyền đã có nghiên cứu.',ieTitle:'Hoạt động của IE',studiesTitle:'Các nghiên cứu trong kỳ',
-  cLine:'Chuyền',cStyle:'Mã hàng',cDate:'Ngày',cIE:'IE',cEff:'HS',cCap:'Năng lực / mục tiêu',cBal:'Cân bằng',cBn:'Nút cổ chai',cPot:'+Tăng',cQual:'Chất lượng',cRev:'Duyệt',cStudies:'Số NC',cOk:'Đạt chất lượng',cCyc:'Chu kỳ TB',cLast:'Lần cuối',cBefore:'Trước',cAfter:'Sau',cDEff:'Δ HS',cDCap:'Δ năng lực',
+  cPU:'PU',cLine:'Chuyền',cStyle:'Mã hàng',cDate:'Ngày',cIE:'IE',cEff:'HS',cCap:'Năng lực / mục tiêu',cBal:'Cân bằng',cBn:'Nút cổ chai',cPot:'+Tăng',cQual:'Chất lượng',cRev:'Duyệt',cStudies:'Số NC',cOk:'Đạt chất lượng',cCyc:'Chu kỳ TB',cLast:'Lần cuối',cBefore:'Trước',cAfter:'Sau',cDEff:'Δ HS',cDCap:'Δ năng lực',
   r_eff:'Hiệu suất {v} thấp hơn chuẩn {s}',r_cap:'Năng lực đạt {v} so với mục tiêu',r_bal:'Tỷ lệ cân bằng {v} thấp hơn {s}',potNote:'có thể tăng {v} nếu cân bằng',
   review:'Duyệt của giám sát',rv_approved:'Đã duyệt',rv_recheck:'Cần kiểm tra lại',rv_clear:'Xóa',rvComment:'Nhận xét cho IE',rvSaved:'Đã lưu nhận xét.',
   expSummary:'Xuất báo cáo tổng hợp (Excel)',copySummary:'Sao chép nội dung tóm tắt',copied:'Đã sao chép.',readOnly:'Nghiên cứu của IE khác (chỉ xem).',by:'bởi',allSent:'Không có gì mới để gửi.'}
@@ -182,19 +211,19 @@ const T = {
 // =====================================================================
 // STATE
 // =====================================================================
-const APP_VER = '3.0';
-let S = { lang:'en', line:'G08', style:'PUM25-00054-1301H4', target:'', ie:'', type:'routine', manpower:'', note:'', rows:[], editId:null, me:null, pin:'', since:0, cycles:5, supMode:false,
-          sup:{ eff:55, bal:70, period:'30', line:'', ie:'', type:'' } };
+const APP_VER = '4.0';
+let S = { lang:'en', pu:'', line:'G08', style:'PUM25-00054-1301H4', target:'', ie:'', type:'new', baseId:'', manpower:'', note:'', rows:[], editId:null, me:null, pin:'', since:0, cycles:5, supMode:false,
+          sup:{ eff:55, bal:70, period:'30', pu:'', line:'', ie:'', type:'' } };
 let H = [];                                        // my saved studies
 let TEAM = [], REV = {}, SYNCING = false;      // studies from the server, supervisor reviews
 let screen = 'home', detailId = null, detailBack = 'history', active = -1, live = null;
-let opMap = {}, pick = { emp:'', ops:[] };         // pick = operator being prepared
+let opMap = {};
 function saveDraft() { try { localStorage.setItem('ts_draft', JSON.stringify(S)); } catch(e){} }
 function saveHist()  { try { localStorage.setItem('ts_hist', JSON.stringify(H)); } catch(e){} }
 const save = saveDraft;
 try {
   Object.assign(S, JSON.parse(localStorage.getItem('ts_draft') || '{}'));
-  S.sup = Object.assign({ eff:55, bal:70, period:'30', line:'', ie:'', type:'' }, S.sup || {});
+  S.sup = Object.assign({ eff:55, bal:70, period:'30', pu:'', line:'', ie:'', type:'' }, S.sup || {});
   H = JSON.parse(localStorage.getItem('ts_hist') || '[]');
   const old = JSON.parse(localStorage.getItem('ts') || 'null');            // migrate version 0.2 data
   if (old) { H = (old.history || []).map(x => ({ ...x, id:String(x.id) })); delete old.history;
@@ -223,32 +252,53 @@ function goBack() { go(screen === 'detail' ? detailBack : 'home'); }
 // =====================================================================
 // NEW STUDY SCREEN  (built once; only the parts that change are redrawn)
 // =====================================================================
+const TYPES3 = ['new', 'qco', 'restudy'];
+const same = (a, b) => String(a) === String(b);
+function fixSel() {                          // keep PU / line / style consistent with the data
+  if (!S.pu && S.line) S.pu = puKey(S.line) !== NOPU || DB.employees(S.line).length ? puKey(S.line) : '';
+  if (S.pu && !DB.pus().includes(S.pu)) S.pu = '';
+  if (!S.pu && DB.pus().length === 1) S.pu = DB.pus()[0];
+  if (S.line && !DB.lines(S.pu).includes(S.line)) S.line = '';
+  if (!TYPES3.includes(S.type)) S.type = 'new';
+}
+function mergeRows(rows) {                    // several timings of one worker on the same operation are pooled for the calculation (QCO)
+  const m = new Map();
+  rows.forEach(r => {
+    const k = r.emp + '|' + r.opText; let x = m.get(k);
+    if (!x) { x = { emp:r.emp, name:r.name, opText:r.opText, pieces:[], skip:[], remarks:[], sessions:0, carried:true }; m.set(k, x); }
+    (r.skip || []).forEach(i => x.skip.push(x.pieces.length + i));
+    x.pieces.push(...r.pieces); x.sessions++;
+    if (r.remark) x.remarks.push(r.remark);
+    if (!r.carried) x.carried = false;
+  });
+  return [...m.values()].map(x => ({ emp:x.emp, name:x.name, opText:x.opText, pieces:x.pieces, skip:x.skip, remark:[...new Set(x.remarks)].join('; '), sessions:x.sessions, carried:x.carried }));
+}
+const calcRows = () => mergeRows(S.rows.filter(r => r.opText && r.pieces.length));
+const coveredOps = () => new Set(calcRows().flatMap(r => parseOps(r.opText)));
+const nameOfType = k => t('ty_' + (k || 'new'));
+
 function viewNewSkeleton() {
-  const lines = DB.lines().map(l => `<option value="${esc(l)}">`).join('');
+  const pus = DB.pus().map(p => `<option value="${esc(p)}" ${S.pu === p ? 'selected' : ''}>${esc(p === NOPU ? t('noPU') : p)}</option>`).join('');
   const styles = DB.styles().map(x => `<option value="${esc(x)}">`).join('');
   const banner = S.editId ? `<div class="card info">${t('editing')} <button class="sec" onclick="cancelEdit()">${t('cancelEdit')}</button></div>` : '';
-  const types = ['routine', 'new', 'before', 'after'].map(k => `<option value="${k}" ${S.type === k ? 'selected' : ''}>${t('ty_' + k)}</option>`).join('');
-  return banner + `<div class="card">
-      <div class="row"><div><label>${t('line')}</label>
-        <input id="line" list="lineList" value="${esc(S.line)}" oninput="onLine(this.value)" autocomplete="off">
-        <datalist id="lineList">${lines}</datalist></div>
-      <div><label>${t('style')}</label><input id="style" list="styleList" value="${esc(S.style)}" oninput="onStyle(this.value)" autocomplete="off">
-        <datalist id="styleList">${styles}</datalist></div></div>
+  const seg = TYPES3.map(k => `<button class="${S.type === k ? 'on' : ''}" onclick="setType('${k}')">${t('ty_' + k)}</button>`).join('');
+  return banner + `<div class="card"><h3><span class="num">1</span>${t('setup')}</h3>
+      <div class="row"><div><label>PU</label><select id="pu" onchange="onPU(this.value)"><option value="">${t('selPU')}</option>${pus}</select></div>
+      <div><label>${t('line')}</label><select id="line" onchange="onLine(this.value)"></select></div></div>
+      <label>${t('style')}</label><input id="style" list="styleList" value="${esc(S.style)}" oninput="onStyle(this.value)" autocomplete="off">
+      <datalist id="styleList">${styles}</datalist>
       <div class="warn" id="styleWarn"></div>
+      <label>${t('studyType')}</label><div class="seg">${seg}</div>
+      <div id="baseBox"></div>
       <div class="row"><div><label>${t('ie')}</label><input id="ie" value="${esc(S.ie)}" oninput="S.ie=this.value;save();updateAnalysis()"></div>
       <div><label>${t('target')}</label><input id="target" type="number" value="${esc(S.target)}" oninput="S.target=this.value;save();updateAnalysis()"></div></div>
-      <div class="row"><div><label>${t('studyType')}</label><select id="type" onchange="S.type=this.value;save()">${types}</select></div>
-      <div><label>${t('manpower')}</label><input id="manpower" type="number" min="0" value="${esc(S.manpower)}" oninput="S.manpower=this.value;save()"></div></div>
-      <label>${t('cycles')}</label><input id="cycles" type="number" min="1" max="20" value="${esc(S.cycles || 5)}" oninput="S.cycles=this.value;save();updateCards()">
+      <div class="row"><div><label>${t('manpower')}</label><input id="manpower" type="number" min="0" value="${esc(S.manpower)}" oninput="S.manpower=this.value;save()"></div>
+      <div><label>${t('cycles')}</label><input id="cycles" type="number" min="1" max="20" value="${esc(S.cycles || 5)}" oninput="S.cycles=this.value;save();updateCards()"></div></div>
       <textarea id="note" rows="2" placeholder="${t('note')}" oninput="S.note=this.value;save()">${esc(S.note)}</textarea>
     </div>
-    <div class="card">
-      <select id="empSel" onchange="pick.emp=this.value;refreshAdd()"></select>
-      <div class="muted" id="empCount"></div>
-      <div class="chips" id="chips"></div>
-      <div class="info" id="opInfo"></div>
-      <button id="addBtn" onclick="addOp()">${t('add')}</button>
-    </div>
+    <div class="card"><h3><span class="num">2</span>${t('workers')} <span class="muted" id="wCount"></span></h3>
+      <input id="wq" placeholder="${t('searchWorker')}" oninput="paintWorkers()" autocomplete="off">
+      <div class="wlist" id="wlist"></div></div>
     <div id="cards"></div>
     <div id="quality"></div>
     <div id="analysis"></div>
@@ -256,59 +306,91 @@ function viewNewSkeleton() {
       <button id="saveBtn" onclick="saveStudy()">${t('save')}</button></div>`;
 }
 function buildNew() {
+  fixSel();
   $('app').innerHTML = viewNewSkeleton();
   opMap = mkOpMap(S.style);
   active = S.rows.findIndex(r => r.t0 !== null);
   $('styleWarn').textContent = (S.style && !DB.findStyle(S.style)) ? t('styleMissing') : '';
-  buildEmp(); buildOps(); refreshAdd(); updateCards(); updateAnalysis();
+  paintLineSel(); paintBase(); paintWorkers(); updateCards(); updateAnalysis();
 }
-function onLine(v) { S.line = v; save(); buildEmp(); }
+function paintLineSel() {
+  const ls = S.pu ? DB.lines(S.pu) : [];
+  $('line').innerHTML = `<option value="">${t('selLine')}</option>` + ls.map(l => `<option value="${esc(l)}" ${l === S.line ? 'selected' : ''}>${esc(l)}</option>`).join('');
+}
+const askClear = () => !S.rows.length || confirm(t('clearRows'));
+function clearRows() { S.rows = []; S.baseId = ''; active = -1; openCard.clear(); }
+function onPU(v) { if (!askClear()) { $('pu').value = S.pu; return; } clearRows(); S.pu = v; S.line = ''; save(); paintLineSel(); paintBase(); paintWorkers(); updateCards(); updateAnalysis(); }
+function onLine(v) { if (!askClear()) { $('line').value = S.line; return; } clearRows(); S.line = v; save(); paintBase(); paintWorkers(); updateCards(); updateAnalysis(); }
 function onStyle(v) {
   const found = DB.findStyle(v);
-  S.style = found; save(); opMap = mkOpMap(found); pick.ops = [];
+  if (S.rows.length && found !== S.style && !confirm(t('clearRows'))) { $('style').value = S.style; return; }
+  if (found !== S.style) clearRows();
+  S.style = found; save(); opMap = mkOpMap(found);
   $('styleWarn').textContent = (!found && v.trim()) ? t('styleMissing') : '';
-  buildOps(); refreshAdd(); updateCards(); updateAnalysis();
+  paintWorkers(); updateCards(); updateAnalysis();
 }
-function buildEmp() {                       // employee dropdown = employees of the typed line
-  const list = DB.employees(S.line);
-  $('empSel').innerHTML = `<option value="">${list.length ? t('selEmp') : t('noEmp')}</option>`
-    + list.map(e => `<option value="${esc(e.code)}">${esc(e.code)} – ${esc(e.name)}${S.rows.some(r => r.emp === e.code) ? ' ✓' : ''}</option>`).join('');
-  $('empCount').textContent = list.length ? `${list.length} ${t('empCount')}` : '';
-  pick.emp = ''; refreshAdd();
+function setType(k) {
+  if (k === S.type) return;
+  if (!askClear()) return;
+  clearRows(); S.type = k; save(); buildNew();
 }
-function buildOps() {                       // operation chips of the selected style
-  const box = $('chips'), sc = box.scrollTop;
-  box.innerHTML = DB.ops(S.style).map(o =>
-    `<button class="chip ${pick.ops.includes(o.no) ? 'on' : ''}" onclick="toggleOp(${o.no})">${o.no}</button>`).join('');
-  box.scrollTop = sc;
+// ---- Re-study: start from a previous study of the same line
+const prevStudies = () => allStudies().filter(x => same(x.line, S.line)).sort((a, b) => AN.at(b) - AN.at(a)).slice(0, 40);
+function paintBase() {
+  const box = $('baseBox'); if (!box) return;
+  if (S.type !== 'restudy') { box.innerHTML = ''; return; }
+  const list = S.line ? prevStudies() : [];
+  box.innerHTML = `<label>${t('prevStudy')}</label>` + (S.line && !list.length ? `<div class="warn">${t('noPrev')}</div>` :
+    `<select id="baseSel" onchange="pickBase(this.value)"><option value="">${t('pickPrev')}</option>` + list.map(x =>
+      `<option value="${esc(x.id)}" ${x.id === S.baseId ? 'selected' : ''}>${fmtDay(x.date)} · ${esc(x.style)} · ${nameOfType(x.type)} · ${P(x.result.lineEfficiency, 0)} · ${esc(x.ie)}</option>`).join('') + '</select>');
 }
-function toggleOp(no) {
-  pick.ops = pick.ops.includes(no) ? pick.ops.filter(x => x !== no) : [...pick.ops, no];
-  buildOps(); refreshAdd();
+function pickBase(id) {
+  const b = allStudies().find(x => x.id === id);
+  if (!b) return;
+  if (S.rows.length && !confirm(t('clearRows'))) { $('baseSel').value = S.baseId; return; }
+  S.baseId = id; S.style = b.style; if (b.target) S.target = b.target; if (b.manpower) S.manpower = b.manpower;
+  opMap = mkOpMap(S.style);
+  S.rows = (b.raw || []).map(r => { const used = usedCycles(r);
+    return { emp:r.emp, name:r.name, opText:r.opText, sel:[], pieces:(r.pieces || []).slice(), skip:(r.skip || []).slice(), remark:r.remark || '', t0:null, carried:true, prevSec:mean(used) }; });
+  active = -1; save(); buildNew();
 }
-function opDetails(ops) {                   // SAM + machine required for chosen operations
-  const sel = ops.slice().sort((a, b) => a - b), rows = DB.ops(S.style).filter(o => sel.includes(o.no));
-  const total = rows.reduce((s, o) => s + o.sam, 0);
-  const machines = [...new Set(rows.map(o => o.machine).filter(Boolean))];
-  return { rows, total, machines };
+function retime(i) {                          // re-time a worker of the previous study: its old time stays as a reference
+  const r = S.rows[i]; r.carried = false; r.pieces = []; r.skip = []; r.t0 = null; save(); updateCards(); updateAnalysis();
 }
-function refreshAdd() {
-  const d = opDetails(pick.ops);
-  $('opInfo').innerHTML = d.rows.length
-    ? d.rows.map(o => `<div>${t('opn')} <b>${o.no}</b>${o.code ? ' · ' + esc(o.code) : ''} · ${t('sam')} ${f(o.sam, 4)} · ${t('machine')}: <b>${esc(o.machine || '-')}</b></div>`).join('')
-      + (d.rows.length > 1 ? `<div>${t('totalSam')}: <b>${f(d.total, 4)}</b> · ${t('machine')}: ${esc(d.machines.join(', ') || '-')}</div>` : '')
-    : t('selOps');
-  const ok = pick.emp && pick.ops.length;
-  $('addBtn').disabled = !ok;
-  $('addBtn').textContent = ok ? t('add') : t('addNeed');
+// ---- workers
+function paintWorkers() {
+  const box = $('wlist'); if (!box) return;
+  const all = S.line ? DB.employees(S.line) : [];
+  const qs = fold(($('wq') || {}).value || '').split(/\s+/).filter(Boolean);
+  const list = all.filter(e => qs.every(w => fold(e.code + ' ' + e.name).includes(w)));
+  $('wCount').textContent = S.line ? `(${all.length})` : '';
+  box.innerHTML = !S.line ? `<div class="muted" style="padding:10px">${t('selLineFirst')}</div>` : !list.length ? `<div class="muted" style="padding:10px">${t('noEmp')}</div>` :
+    list.map(e => {
+      const mine = S.rows.filter(r => same(r.emp, e.code) && r.opText && r.pieces.length);
+      const tags = [...new Set(mine.map(r => (r.carried ? '' : '✓ ') + r.opText))].map(o => `<span class="tag ${o.startsWith('✓') ? 't-ok' : 't-info'}">${esc(o)}</span>`).join(' ');
+      return `<div class="wrow" onclick="pickWorker('${String(e.code).replace(/'/g, "\\'")}')"><div><b>${esc(e.name)}</b> <small class="muted">${esc(e.code)}</small></div><div>${tags}</div></div>`;
+    }).join('');
 }
-function addOp() {
-  if (!pick.emp || !pick.ops.length) return;
-  const e = DB.employees(S.line).find(x => x.code === pick.emp);
-  S.rows.push({ emp:e.code, name:e.name, opText:pick.ops.slice().sort((a, b) => a - b).join('+'), pieces:[], skip:[], remark:'', t0:null });
-  pick = { emp:'', ops:[] };
-  save(); buildEmp(); buildOps(); refreshAdd(); updateCards(); updateAnalysis();
+function addEntry(e) {                        // new entry for a worker, placed right after the worker's other entries
+  const r = { emp:e.code, name:e.name, opText:'', sel:[], pieces:[], skip:[], remark:'', t0:null };
+  let at = -1; S.rows.forEach((x, k) => { if (same(x.emp, e.code)) at = k; });
+  if (at < 0) { S.rows.push(r); return S.rows.length - 1; }
+  S.rows.splice(at + 1, 0, r); return at + 1;
 }
+function focusCard(i) { active = S.rows.findIndex(r => r.t0 !== null); const el = $('card' + i); if (el && el.scrollIntoView) el.scrollIntoView({ behavior:'smooth', block:'start' }); }
+function pickWorker(code) {
+  const e = DB.employees(S.line).find(x => same(x.code, code)); if (!e) return;
+  let i = S.rows.findIndex(r => same(r.emp, e.code) && !r.carried && !r.pieces.length);       // an empty entry of this worker is reused
+  if (i < 0) i = addEntry(e);
+  save(); updateCards(); updateAnalysis(); focusCard(i);
+}
+function dupWorker(i) {                       // same worker, another operation (or another timing in QCO)
+  const r = S.rows[i], j = addEntry({ code:r.emp, name:r.name });
+  save(); updateCards(); updateAnalysis(); focusCard(j);
+}
+function toggleSel(i, no) { const r = S.rows[i]; r.sel = (r.sel || []).includes(no) ? r.sel.filter(x => x !== no) : [...(r.sel || []), no]; save(); updateCards(); }
+function confirmOps(i) { const r = S.rows[i]; if (!(r.sel || []).length) return; r.opText = r.sel.slice().sort((a, b) => a - b).join('+'); r.sel = []; save(); updateCards(); updateAnalysis(); focusCard(i); }
+function changeOps(i) { const r = S.rows[i]; r.sel = parseOps(r.opText); r.opText = ''; r.t0 = null; save(); updateCards(); updateAnalysis(); }
 
 // ---------- remarks ----------
 const QUICK = ['chất lượng chưa ổn định', 'k đủ hàng làm', 'thao tác chậm, điều chỉnh lâu', 'nhảy công đoạn', 'Đi HT', 'mới học'];
@@ -319,11 +401,11 @@ function addRemark(i, txt) {                // tap a quick remark: it is added t
 
 // ---------- stopwatch ----------
 const MIN_CYCLE = 1.5;                        // seconds: a faster second tap is treated as an accidental double tap
-const openCard = new Set();                   // finished cards the IE opened again
+const openCard = new Set();
 const cyclesGoal = () => Math.max(1, Number(S.cycles) || 5);
 const nUsed = r => usedCycles(r).length;
-function nextToTime(i) {                      // next operator that still needs cycles
-  for (let k = 1; k <= S.rows.length; k++) { const j = (i + k) % S.rows.length; if (nUsed(S.rows[j]) < cyclesGoal()) return j; }
+function nextToTime(i) {                      // next entry that still needs cycles
+  for (let k = 1; k <= S.rows.length; k++) { const j = (i + k) % S.rows.length, x = S.rows[j]; if (x.opText && !x.carried && nUsed(x) < cyclesGoal()) return j; }
   return -1;
 }
 function tap(i, ev) {                         // Start, then every tap = one piece done
@@ -348,19 +430,36 @@ function toggleCycle(i, k) {                  // exclude / include an abnormal c
 }
 function stop(i) { S.rows[i].t0 = null; active = -1; save(); updateCards(); }
 function undo(i) { const r = S.rows[i]; r.pieces.pop(); r.skip = (r.skip || []).filter(k => k < r.pieces.length); r.t0 = null; save(); updateCards(); updateAnalysis(); }
-function del(i) { S.rows.splice(i, 1); active = -1; openCard.clear(); save(); buildEmp(); updateCards(); updateAnalysis(); }
+function del(i) { S.rows.splice(i, 1); active = S.rows.findIndex(r => r.t0 !== null); openCard.clear(); save(); updateCards(); updateAnalysis(); }
 
 function updateCards() {
-  const tg = cyclesGoal();
+  const tg = cyclesGoal(), cov = coveredOps(), opsList = DB.ops(S.style);
   $('cards').innerHTML = S.rows.map((r, i) => {
-    const c = calcOperator(r, opMap), d = opDetails(c.ops), n = c.n, done = n >= tg && r.t0 === null;
+    const head = `<b>${esc(r.name)}</b> <small class="muted">${esc(r.emp)}</small>`;
+    if (r.carried) {                          // from the previous study (Re-study)
+      const c = calcOperator(r, opMap);
+      return `<div class="card carried" id="card${i}">${head} &nbsp; ${t('opn')} <b>${esc(r.opText)}</b> <span class="tag t-info">${t('fromPrev')}</span>
+        <div class="muted">${t('avg')} ${f(c.sec)} · ${f(c.capacity)} ${t('pcsHr')} · ${f(c.eff * 100)}%</div>
+        <div class="row"><button onclick="retime(${i})">${t('retime')}</button><button class="sec" onclick="del(${i})">${t('del')}</button></div></div>`;
+    }
+    if (!r.opText) {                          // choose the operations of this worker
+      const sel = r.sel || [], rows = opsList.filter(o => sel.includes(o.no));
+      const chips = opsList.map(o => `<button class="chip ${sel.includes(o.no) ? 'on' : ''} ${cov.has(o.no) ? 'cov' : ''}" onclick="toggleSel(${i},${o.no})">${o.no}</button>`).join('');
+      const info = rows.length ? rows.map(o => `${t('opn')} <b>${o.no}</b> · ${t('sam')} ${f(o.sam, 4)} · ${t('machine')}: <b>${esc(o.machine || '-')}</b>`).join('<br>')
+          + (rows.length > 1 ? `<br>${t('totalSam')}: <b>${f(rows.reduce((a, o) => a + o.sam, 0), 4)}</b>` : '') : (opsList.length ? t('selOps') : t('styleMissing'));
+      return `<div class="card" id="card${i}">${head}<div class="muted">${t('chooseOps')}</div><div class="chips">${chips}</div><div class="info">${info}</div>
+        <div class="row"><button ${sel.length ? '' : 'disabled'} onclick="confirmOps(${i})">${t('confirmOps')}</button><button class="sec" onclick="del(${i})">${t('del')}</button></div></div>`;
+    }
+    const c = calcOperator(r, opMap), d = opsList.filter(o => c.ops.includes(o.no)), n = c.n, done = n >= tg && r.t0 === null;
+    const machines = [...new Set(d.map(o => o.machine).filter(Boolean))];
     const stat = n ? `${t('avg')} <b>${f(c.sec)}</b> · ${f(c.capacity)} ${t('pcsHr')} · ${f(c.eff * 100)}% · ${t('cv')} ${f(c.cv * 100)}%` : '';
     const warnCv = n >= 3 && c.cv > 0.15 ? `<div class="warn">⚠ ${t('cvHigh')}</div>` : '';
-    if (done && !openCard.has(i)) return `<div class="card done" id="card${i}"><b>${esc(r.name)}</b> <small class="muted">${esc(r.emp)}</small> &nbsp; ${t('opn')} <b>${esc(r.opText)}</b> <span class="ok">✓ ${n}/${tg}</span>
-      <div class="muted">${stat}</div>${warnCv}${r.remark ? `<div class="muted">📝 ${esc(r.remark)}</div>` : ''}
-      <button class="sec" onclick="openCard.add(${i});updateCards()">${t('open')}</button></div>`;
-    return `<div class="card${done ? ' done' : ''}" id="card${i}"><b>${esc(r.name)}</b> <small class="muted">${esc(r.emp)}</small> &nbsp; ${t('opn')} <b>${esc(r.opText)}</b> <span class="${done ? 'ok' : 'muted'}">${n}/${tg}</span>
-      <div class="muted">${t('sam')} ${f(c.sam, 4)} · ${t('machine')}: ${esc(d.machines.join(', ') || '-')}</div>
+    const prev = r.prevSec ? `<div class="muted">${t('prevTime')}: ${f(r.prevSec)} s</div>` : '';
+    if (done && !openCard.has(i)) return `<div class="card done" id="card${i}">${head} &nbsp; ${t('opn')} <b>${esc(r.opText)}</b> <span class="ok">✓ ${n}/${tg}</span>
+      <div class="muted">${stat}</div>${prev}${warnCv}${r.remark ? `<div class="muted">📝 ${esc(r.remark)}</div>` : ''}
+      <div class="row"><button class="sec" onclick="openCard.add(${i});updateCards()">${t('open')}</button><button class="sec" onclick="dupWorker(${i})">${t('dupOp')}</button></div></div>`;
+    return `<div class="card${done ? ' done' : ''}" id="card${i}">${head} &nbsp; ${t('opn')} <b>${esc(r.opText)}</b> <span class="${done ? 'ok' : 'muted'}">${n}/${tg}</span>
+      <div class="muted">${t('sam')} ${f(c.sam, 4)} · ${t('machine')}: ${esc(machines.join(', ') || '-')}</div>${prev}
       <div class="time" id="tm${i}">${r.t0 === null ? '0.0' : ''}</div>
       <button class="big" onpointerdown="tap(${i},event)">${r.t0 === null ? t('start') : t('piece')}</button>
       ${r.pieces.length ? `<div class="cyc">${r.pieces.map((p, k) => `<button class="cy ${(r.skip || []).includes(k) ? 'off' : ''}" onclick="toggleCycle(${i},${k})">${f(p)}</button>`).join('')}</div><div class="muted" style="font-size:12px">${t('cyclesHint')}</div>` : ''}
@@ -370,34 +469,37 @@ function updateCards() {
       <div class="qr">${QUICK.map((q, k) => `<button class="sec" onclick="addRemark(${i},QUICK[${k}])">+ ${esc(q)}</button>`).join('')}</div>
       <div class="row"><button class="sec" onclick="stop(${i})">${t('stop')}</button>
       <button class="sec" onclick="undo(${i})">${t('undo')}</button>
-      <button class="sec" onclick="del(${i})">${t('del')}</button>${done ? `<button class="sec" onclick="openCard.delete(${i});updateCards()">${t('close')}</button>` : ''}</div></div>`;
+      <button class="sec" onclick="del(${i})">${t('del')}</button>${done ? `<button class="sec" onclick="openCard.delete(${i});updateCards()">${t('close')}</button>` : ''}</div>
+      <div class="row"><button class="sec" onclick="dupWorker(${i})">${t('dupOp')}</button>${r.pieces.length ? '' : `<button class="sec" onclick="changeOps(${i})">${t('changeOps')}</button>`}</div></div>`;
   }).join('');
   keepAwake(S.rows.some(r => r.t0 !== null));
+  paintWorkers();
 }
 function liveStudy() {                      // the study as it would be saved now
-  return { raw: S.rows.filter(r => r.pieces.length).map(r => ({ emp:r.emp, name:r.name, opText:r.opText, pieces:r.pieces, skip:r.skip || [], remark:r.remark || '' })),
-           result: live, target: S.target, opsSnap: [] };
+  return { raw: calcRows(), result: live, target: S.target, opsSnap: [] };
 }
 function qualityHtml(q) {
   const txt = i => tf('qi_' + i.k, { n: i.n, v: i.v != null ? P(i.v, 0) : '' });
   return `<div class="card q-${q.status}"><b>${t('quality')}: ${t('q_' + q.status)}</b> <span class="muted">· ${f(q.avgCycles)} ${t('cycles').toLowerCase()}</span>${q.issues.map(i => `<div class="warn">⚠ ${esc(txt(i))}</div>`).join('')}</div>`;
 }
 function updateAnalysis() {                 // live: recomputed after every piece, no Analyze button
-  const rows = S.rows.filter(r => r.pieces.length);
+  const rows = calcRows();
   if (!rows.length) { live = null; $('analysis').innerHTML = `<div class="card muted">${t('timeFirst')}</div>`; $('quality').innerHTML = ''; }
   else { live = analyze(rows, opMap); live.unknownOps = [];
          live.missingOps = DB.ops(S.style).map(o => o.no).filter(no => live.opCap[no] === undefined);
          $('quality').innerHTML = qualityHtml(AN.quality(liveStudy()));
          $('analysis').innerHTML = showResult(live, Number(S.target)); }
-  const ready = live && S.ie.trim() && DB.findStyle(S.style);
+  const needBase = S.type === 'restudy' && !S.baseId;
+  const ready = live && S.ie.trim() && DB.findStyle(S.style) && S.line && !needBase;
   $('saveBtn').disabled = !ready;
-  $('saveStatus').textContent = !live ? t('timeFirst') : !S.ie.trim() ? t('needIe') : !DB.findStyle(S.style) ? t('styleMissing')
+  $('saveStatus').textContent = !live ? t('timeFirst') : !S.line ? t('selLineFirst') : needBase ? t('needBase') : !S.ie.trim() ? t('needIe') : !DB.findStyle(S.style) ? t('styleMissing')
     : `${rows.length} ${t('timed')} · ${f(live.lineCapacity)} ${t('pcsHr')} · ${f(live.lineEfficiency * 100)}%`;
 }
 function saveStudy() {
-  updateAnalysis(); if (!live || !S.ie.trim()) return;
-  const raw = S.rows.filter(r => r.pieces.length).map(r => ({ emp:r.emp, name:r.name, opText:r.opText, pieces:r.pieces, skip:r.skip || [], remark:r.remark || '' }));
-  const rec = { line:S.line, style:S.style, target:S.target, ie:S.ie.trim(), type:S.type || 'routine', note:S.note || '', manpower:S.manpower || '', cyclesGoal:cyclesGoal(), raw,
+  updateAnalysis(); if (!live || !S.ie.trim() || !S.line) return;
+  const raw = calcRows();
+  const rec = { pu:(S.pu === NOPU ? '' : S.pu) || puOf(S.line), line:S.line, style:S.style, target:S.target, ie:S.ie.trim(), type:S.type, baseId:S.type === 'restudy' ? S.baseId : '',
+                note:S.note || '', manpower:S.manpower || '', cyclesGoal:cyclesGoal(), raw,
                 opsSnap:[...new Set(live.workers.flatMap(w => w.ops))].sort((a, b) => a - b).map(no => ({ no, sam:opMap[no] ? opMap[no].sam : 0, machine:opMap[no] ? opMap[no].machine : '' })),
                 meta:{ app:APP_VER, defaultAllowance:DEFAULT_ALLOWANCE }, sent:false, result:JSON.parse(JSON.stringify(live)) };
   rec.quality = AN.quality(rec);
@@ -405,14 +507,15 @@ function saveStudy() {
   let id;
   if (ex) { Object.assign(ex, rec, { updated:new Date().toISOString() }); id = ex.id; }      // update the same study
   else { id = uid(); H.unshift({ id, date:new Date().toISOString(), ...rec }); }
-  S.rows = []; S.editId = null; S.type = 'routine'; S.note = ''; S.manpower = ''; live = null; saveHist(); saveDraft(); go('detail', id, 'history'); pushPending().then(() => { if (screen === 'detail' || screen === 'history') render(); });
+  S.rows = []; S.editId = null; S.baseId = ''; S.note = ''; S.manpower = ''; live = null; saveHist(); saveDraft(); go('detail', id, 'history'); pushPending().then(() => { if (screen === 'detail' || screen === 'history') render(); });
 }
 function editStudy(id) {                    // load a saved study back into the New Study screen
   const h = H.find(x => x.id === id); if (!h) return;
   if (S.rows.length && S.editId !== id && !confirm(t('replaceDraft'))) return;
   if (S.editId !== id) {
-    S.rows = h.raw.map(r => ({ emp:r.emp, name:r.name, opText:r.opText, pieces:r.pieces.slice(), skip:(r.skip || []).slice(), remark:r.remark || '', t0:null }));
-    S.line = h.line; S.style = h.style; S.target = h.target || ''; S.ie = h.ie || ''; S.type = h.type || 'routine'; S.note = h.note || ''; S.manpower = h.manpower || ''; S.editId = id;
+    S.rows = h.raw.map(r => ({ emp:r.emp, name:r.name, opText:r.opText, sel:[], pieces:r.pieces.slice(), skip:(r.skip || []).slice(), remark:r.remark || '', t0:null, carried:!!r.carried }));
+    S.pu = h.pu || puKey(h.line); S.line = h.line; S.style = h.style; S.target = h.target || ''; S.ie = h.ie || ''; S.type = TYPES3.includes(h.type) ? h.type : 'new';
+    S.baseId = h.baseId || ''; S.note = h.note || ''; S.manpower = h.manpower || ''; S.editId = id;
   }
   save(); go('new');
 }
@@ -463,7 +566,7 @@ function viewHistory() {
   if (!H.length) return `<div class="card">${t('noHistory')}</div>`;
   const n = H.filter(h => !h.sent).length;
   return (API_URL ? `<button ${n ? '' : 'class="sec"'} onclick="syncAll(true)">${n ? t('syncNow') + ' (' + n + ')' : '✓ ' + t('syncOk')}</button>` : '') + H.map(h => `<div class="card item" onclick="go('detail','${h.id}','history')">
-    <b>${t('line')} ${esc(h.line)}</b> &nbsp; <small>${esc(h.style)}</small> ${qBadge(h)} ${revBadge(h.id)}<br><small>${fmtDate(h.date)} · ${t('ty_' + (h.type || 'routine'))}</small>${API_URL ? (h.sent ? ` <small class="muted">✓ ${t('synced')}</small>` : ` <small class="warn">⏳ ${t('waiting')}</small>`) : ''}
+    <b>${t('line')} ${esc(h.line)}</b> &nbsp; <small>${esc(h.style)}</small> ${qBadge(h)} ${revBadge(h.id)}<br><small>${fmtDate(h.date)} · ${nameOfType(h.type)}</small>${API_URL ? (h.sent ? ` <small class="muted">✓ ${t('synced')}</small>` : ` <small class="warn">⏳ ${t('waiting')}</small>`) : ''}
     <div>${t('cap')}: <b>${f(h.result.lineCapacity)}</b> &nbsp; ${t('eff')}: <b>${f(h.result.lineEfficiency * 100)}%</b></div></div>`).join('');
 }
 function reviewPanel(h) {
@@ -490,7 +593,7 @@ function viewDetail() {
   const rvCard = rv ? `<div class="card q-${rv.status === 'approved' ? 'ok' : 'review'}"><b>${t('review')}: ${t('rv_' + rv.status)}</b> <small class="muted">${esc(rv.by)}</small>${rv.comment ? `<div>${esc(rv.comment)}</div>` : ''}</div>` : '';
   return `<div class="card"><b>${t('line')} ${esc(h.line)}</b> &nbsp; <small>${esc(h.style)}</small> ${qBadge(h)} ${revBadge(h.id)}<br>
       <small>${fmtDate(h.date)}${h.ie ? ' · ' + esc(h.ie) : ''}${h.updated ? ' · ' + t('updated') + ' ' + fmtDate(h.updated) : ''}</small>${API_URL && own ? (h.sent ? ` <small class="muted">✓ ${t('synced')}</small>` : ` <small class="warn">⏳ ${t('waiting')}</small>`) : ''}
-      <div class="muted">${t('ty_' + (h.type || 'routine'))}${Number(h.manpower) ? ' · ' + t('manpower').replace(' (optional)', '').replace(' (tùy chọn)', '') + ': ' + esc(h.manpower) : ''}</div>
+      <div class="muted">${nameOfType(h.type)}${Number(h.manpower) ? ' · ' + t('manpower').replace(' (optional)', '').replace(' (tùy chọn)', '') + ': ' + esc(h.manpower) : ''}</div>
       ${h.note ? `<div>📝 ${esc(h.note)}</div>` : ''}${own ? '' : `<div class="muted">${t('readOnly')}</div>`}</div>`
     + rvCard + (q.issues.length ? qualityHtml(q) : '')
     + (own ? `<button onclick="editStudy('${h.id}')">${t('editStudy')}</button>
@@ -509,19 +612,19 @@ function balanceChart(r, tgt) {              // inline SVG: capacity per operati
   const y = v => top + (Ht - top - bottom) * (1 - v / max);
   let g = `<svg viewBox="0 0 ${W} ${Ht}" width="${W}" height="${Ht}" role="img">`;
   [0, .5, 1].forEach(k => { const v = base * k;
-    g += `<line x1="${left}" x2="${W}" y1="${y(v)}" y2="${y(v)}" stroke="#e5e7eb"/><text x="${left - 4}" y="${y(v) + 4}" font-size="10" text-anchor="end" fill="#555">${Math.round(v)}</text>`; });
+    g += `<line class="ll" x1="${left}" x2="${W}" y1="${y(v)}" y2="${y(v)}"/><text class="sm" x="${left - 4}" y="${y(v) + 4}" font-size="10" text-anchor="end">${Math.round(v)}</text>`; });
   ops.forEach((o, i) => {
     const x = left + i * (bw + gap) + gap / 2, v = r.opCap[o], bn = r.bottleneckOps.includes(o);
-    g += `<rect x="${x}" y="${y(v)}" width="${bw}" height="${Math.max(0, y(0) - y(v))}" rx="3" fill="${bn ? '#dc2626' : '#1f4e79'}"/>`
-       + `<text x="${x + bw / 2}" y="${y(v) - 3}" font-size="9" text-anchor="middle" fill="#222">${Math.round(v)}</text>`
-       + `<text x="${x + bw / 2}" y="${Ht - 8}" font-size="10" text-anchor="middle" fill="#222">${o}</text>`;
+    g += `<rect class="${bn ? 'sb' : 'sa'}" x="${x}" y="${y(v)}" width="${bw}" height="${Math.max(0, y(0) - y(v))}" rx="3"/>`
+       + `<text class="st" x="${x + bw / 2}" y="${y(v) - 3}" font-size="9" text-anchor="middle">${Math.round(v)}</text>`
+       + `<text class="st" x="${x + bw / 2}" y="${Ht - 8}" font-size="10" text-anchor="middle">${o}</text>`;
   });
-  g += `<line x1="${left}" x2="${W}" y1="${y(r.lineCapacity)}" y2="${y(r.lineCapacity)}" stroke="#dc2626" stroke-dasharray="4 3"/>`;
-  if (tgt) g += `<line x1="${left}" x2="${W}" y1="${y(tgt)}" y2="${y(tgt)}" stroke="#16a34a" stroke-width="2" stroke-dasharray="6 3"/>`
-              + `<text x="${W - 2}" y="${y(tgt) - 3}" font-size="10" text-anchor="end" fill="#16a34a">${t('lgTgt')} ${tgt}</text>`;
+  g += `<line class="lb" x1="${left}" x2="${W}" y1="${y(r.lineCapacity)}" y2="${y(r.lineCapacity)}" stroke-dasharray="4 3"/>`;
+  if (tgt) g += `<line class="lk" x1="${left}" x2="${W}" y1="${y(tgt)}" y2="${y(tgt)}" stroke-width="2" stroke-dasharray="6 3"/>`
+              + `<text class="sk" x="${W - 2}" y="${y(tgt) - 3}" font-size="10" text-anchor="end">${t('lgTgt')} ${tgt}</text>`;
   g += '</svg>';
   return `<div class="card"><b>${t('chartTitle')}</b><div style="overflow-x:auto">${g}</div>
-    <div class="legend"><i style="background:#1f4e79"></i>${t('lgOp')}<i style="background:#dc2626"></i>${t('lgBn')} / ${t('lgCap')}${tgt ? `<i style="background:#16a34a"></i>${t('lgTgt')}` : ''}</div></div>`;
+    <div class="legend"><i style="background:var(--accent)"></i>${t('lgOp')}<i style="background:var(--bad)"></i>${t('lgBn')} / ${t('lgCap')}${tgt ? `<i style="background:var(--ok)"></i>${t('lgTgt')}` : ''}</div></div>`;
 }
 function showResult(r, tgt, raw) {
   let h = `<div class="card"><div class="kpi">${t('cap')}: <b>${f(r.lineCapacity)}</b>${tgt ? ` / ${tgt}` : ''}</div>
@@ -550,6 +653,7 @@ function showResult(r, tgt, raw) {
 // SUPERVISOR: load the studies of all IE officers, dashboard, reports
 // =====================================================================
 const allStudies = () => { const m = new Map(); [...TEAM, ...H].forEach(s => { const c = m.get(s.id); if (!c || AN.when(s) >= AN.when(c)) m.set(s.id, s); }); return [...m.values()]; };
+const studyPU = x => x.pu || puOf(x.line);
 const setOf = () => ({ eff: (Number(S.sup.eff) || 55) / 100, bal: (Number(S.sup.bal) || 70) / 100 });
 async function pullTeam() {                  // studies of all IE officers + supervisor reviews, straight from the server
   if (!S.me || !API_URL) return;
@@ -565,15 +669,15 @@ async function refreshNow() {
   try { await pullTeam(); } catch (e) { toast(e.message); }
   if (screen === 'sup') render();
 }
-function setSup(k, v) { S.sup[k] = v; save(); render(); }
+function setSup(k, v) { S.sup[k] = v; if (k === 'pu') S.sup.line = ''; save(); render(); }
 function barsH(items, mark) {                 // horizontal bars, e.g. efficiency per line
   if (!items.length) return '';
   const rowH = 26, left = 56, W = 360, right = 40, top = 6, maxV = Math.max(...items.map(i => i.value), mark || 0, 0.01) * 1.1;
   const H2 = top + items.length * rowH + 16, x = v => left + (W - left - right) * v / maxV;
   let g = `<svg viewBox="0 0 ${W} ${H2}" width="100%" role="img">`;
   items.forEach((it, k) => { const y = top + k * rowH;
-    g += `<text x="${left - 6}" y="${y + 16}" font-size="12" text-anchor="end" fill="#222">${esc(it.label)}</text><rect x="${left}" y="${y + 3}" width="${Math.max(1, x(it.value) - left)}" height="16" rx="3" fill="${it.color}"/><text x="${x(it.value) + 4}" y="${y + 16}" font-size="11" fill="#222">${P(it.value, 0)}</text>`; });
-  if (mark) g += `<line x1="${x(mark)}" x2="${x(mark)}" y1="${top}" y2="${H2 - 14}" stroke="#16a34a" stroke-width="2" stroke-dasharray="5 3"/><text x="${x(mark)}" y="${H2 - 3}" font-size="10" text-anchor="middle" fill="#16a34a">${P(mark, 0)}</text>`;
+    g += `<text class="st" x="${left - 6}" y="${y + 16}" font-size="12" text-anchor="end">${esc(it.label)}</text><rect class="${it.cls}" x="${left}" y="${y + 3}" width="${Math.max(1, x(it.value) - left)}" height="16" rx="3"/><text class="st" x="${x(it.value) + 4}" y="${y + 16}" font-size="11">${P(it.value, 0)}</text>`; });
+  if (mark) g += `<line class="lk" x1="${x(mark)}" x2="${x(mark)}" y1="${top}" y2="${H2 - 14}" stroke-width="2" stroke-dasharray="5 3"/><text class="sk" x="${x(mark)}" y="${H2 - 3}" font-size="10" text-anchor="middle">${P(mark, 0)}</text>`;
   return g + '</svg>';
 }
 function trendSvg(pts, mark) {                // efficiency over time
@@ -581,36 +685,36 @@ function trendSvg(pts, mark) {                // efficiency over time
   const W = Math.max(320, 50 + pts.length * 46), Ht = 160, l = 36, tp = 16, b = 26, maxV = Math.max(...pts.map(p => p.value), mark || 0, 0.01) * 1.15;
   const x = i => pts.length === 1 ? l + (W - l - 10) / 2 : l + (W - l - 16) * i / (pts.length - 1), y = v => tp + (Ht - tp - b) * (1 - v / maxV);
   let g = `<svg viewBox="0 0 ${W} ${Ht}" width="${W}" height="${Ht}" role="img">`;
-  [0, .5, 1].forEach(k => { const v = maxV / 1.15 * k; g += `<line x1="${l}" x2="${W}" y1="${y(v)}" y2="${y(v)}" stroke="#e5e7eb"/><text x="${l - 4}" y="${y(v) + 4}" font-size="10" text-anchor="end" fill="#555">${P(v, 0)}</text>`; });
-  if (mark) g += `<line x1="${l}" x2="${W}" y1="${y(mark)}" y2="${y(mark)}" stroke="#16a34a" stroke-width="2" stroke-dasharray="6 3"/>`;
-  g += `<polyline fill="none" stroke="#1f4e79" stroke-width="2" points="${pts.map((p, i) => x(i) + ',' + y(p.value)).join(' ')}"/>`;
-  pts.forEach((p, i) => { g += `<circle cx="${x(i)}" cy="${y(p.value)}" r="3.5" fill="#1f4e79"/><text x="${x(i)}" y="${y(p.value) - 7}" font-size="10" text-anchor="middle" fill="#222">${P(p.value, 0)}</text><text x="${x(i)}" y="${Ht - 8}" font-size="10" text-anchor="middle" fill="#555">${p.label}</text>`; });
+  [0, .5, 1].forEach(k => { const v = maxV / 1.15 * k; g += `<line class="ll" x1="${l}" x2="${W}" y1="${y(v)}" y2="${y(v)}"/><text class="sm" x="${l - 4}" y="${y(v) + 4}" font-size="10" text-anchor="end">${P(v, 0)}</text>`; });
+  if (mark) g += `<line class="lk" x1="${l}" x2="${W}" y1="${y(mark)}" y2="${y(mark)}" stroke-width="2" stroke-dasharray="6 3"/>`;
+  g += `<polyline class="la" fill="none" stroke-width="2" points="${pts.map((p, i) => x(i) + ',' + y(p.value)).join(' ')}"/>`;
+  pts.forEach((p, i) => { g += `<circle class="sa" cx="${x(i)}" cy="${y(p.value)}" r="3.5"/><text class="st" x="${x(i)}" y="${y(p.value) - 7}" font-size="10" text-anchor="middle">${P(p.value, 0)}</text><text class="sm" x="${x(i)}" y="${Ht - 8}" font-size="10" text-anchor="middle">${p.label}</text>`; });
   return g + '</svg>';
 }
 function reasonText(r, set) { return tf('r_' + r.k, { v: P(r.v, 0), s: P(r.k === 'bal' ? set.bal : set.eff, 0) }); }
 function supModel() {                         // everything the dashboard and the Excel summary show
   const set = setOf(), f2 = S.sup, all = allStudies();
-  const list = AN.filterStudies(all, { from: AN.periodFrom(f2.period), line: f2.line, ie: f2.ie, type: f2.type });
+  const list = AN.filterStudies(all, { from: AN.periodFrom(f2.period), pu: f2.pu, puOf, line: f2.line, ie: f2.ie, type: f2.type });
   const last = AN.latestPerLine(list).map(s => ({ s, r: AN.rag(s, set), b: AN.bottleneck(s), pot: AN.potential(s), q: s.quality || AN.quality(s) }))
     .sort((a, b) => b.r.level - a.r.level || a.s.result.lineEfficiency - b.s.result.lineEfficiency);
-  return { set, all, list, last, k: AN.kpis(list, set), imp: AN.improvements(list), mach: AN.machineStats(list), rem: AN.remarkStats(list, 8), off: AN.officerStats(list, set) };
+  return { set, all, list, last, k: AN.kpis(list, set), imp: AN.improvements(list, all), mach: AN.machineStats(list), rem: AN.remarkStats(list, 8), off: AN.officerStats(list, set) };
 }
 function viewSup() {
   const f2 = S.sup, m = supModel(), { set, all, list, last, k } = m;
   const opt = (arr, cur, ph) => `<option value="">${ph}</option>` + arr.map(v => `<option value="${esc(v)}" ${v === cur ? 'selected' : ''}>${esc(v)}</option>`).join('');
-  const lines = [...new Set(all.map(s => s.line))].sort(), ies = [...new Set(all.map(s => s.ie).filter(Boolean))].sort();
+  const pusAll = [...new Set(all.map(studyPU).filter(Boolean))].sort(), lines = [...new Set(all.filter(x => !f2.pu || studyPU(x) === f2.pu).map(x => x.line))].sort(), ies = [...new Set(all.map(s => s.ie).filter(Boolean))].sort();
   const sel = (key, body) => `<select onchange="setSup('${key}',this.value)">${body}</select>`;
   const periods = ['7', '30', 'month', '90', 'all'].map(p => `<option value="${p}" ${f2.period === p ? 'selected' : ''}>${t('p_' + p)}</option>`).join('');
-  const types = `<option value="">${t('allTypes')}</option>` + ['routine', 'new', 'before', 'after'].map(v => `<option value="${v}" ${f2.type === v ? 'selected' : ''}>${t('ty_' + v)}</option>`).join('');
+  const types = `<option value="">${t('allTypes')}</option>` + TYPES3.map(v => `<option value="${v}" ${f2.type === v ? 'selected' : ''}>${t('ty_' + v)}</option>`).join('');
   let h = `<div class="card"><div class="row" style="align-items:center;flex-wrap:wrap"><div>${t('teamLoaded')}: <b>${TEAM.length}</b></div>
       <button class="small" onclick="refreshNow()">${t('refresh')}</button></div></div>`;
   if (!all.length) return h + `<div class="card">${t('noTeam')}</div>`;
-  h += `<div class="card"><div class="filters">${sel('period', periods)}${sel('line', opt(lines, f2.line, t('allLines')))}${sel('ie', opt(ies, f2.ie, t('allIE')))}${sel('type', types)}</div>
+  h += `<div class="card"><div class="filters">${sel('period', periods)}${sel('pu', opt(pusAll, f2.pu, t('allPU')))}${sel('line', opt(lines, f2.line, t('allLines')))}${sel('ie', opt(ies, f2.ie, t('allIE')))}${sel('type', types)}</div>
       <div class="row" style="margin-top:6px"><div><label class="muted">${t('stdEff')}</label><input type="number" min="1" max="100" value="${esc(f2.eff)}" onchange="setSup('eff',this.value)"></div>
       <div><label class="muted">${t('stdBal')}</label><input type="number" min="1" max="100" value="${esc(f2.bal)}" onchange="setSup('bal',this.value)"></div></div></div>`;
   if (!list.length) return h + `<div class="card">${t('noHistory')}</div>`;
   const tile = (l, v) => `<div class="tile"><small>${l}</small><b>${v}</b></div>`;
-  h += `<div class="tiles">${tile(t('kStudies'), k.studies)}${tile(t('kLines'), k.lines)}${tile(t('kEff'), `<span style="color:${k.avgEff >= set.eff ? '#16a34a' : '#dc2626'}">${P(k.avgEff)}</span>`)}
+  h += `<div class="tiles">${tile(t('kStudies'), k.studies)}${tile(t('kLines'), k.lines)}${tile(t('kEff'), `<span style="color:${k.avgEff >= set.eff ? 'var(--ok)' : 'var(--bad)'}">${P(k.avgEff)}</span>`)}
     ${tile(t('kStatus'), `<span class="dot green"></span>${k.green} <span class="dot amber"></span>${k.amber} <span class="dot red"></span>${k.red}`)}
     ${tile(t('kGap'), k.avgGap == null ? '–' : (k.avgGap >= 0 ? '+' : '') + P(k.avgGap, 0))}${tile(t('kPot'), '+' + P(k.potential, 0))}${tile(t('kReview'), k.review)}</div>`;
   // needs attention
@@ -622,11 +726,11 @@ function viewSup() {
       ${x.pot > 0.03 ? `<div class="ok">${tf('potNote', { v: P(x.pot, 0) })}</div>` : ''}</div>`).join('') : `<div class="ok">${t('allGood')}</div>`) + '</div>';
   // lines table + charts
   h += `<div class="card"><h3>${t('linesTitle')}</h3><div class="scroll"><table><tr><th class="l"></th><th class="l">${t('cLine')}</th><th class="l">${t('cStyle')}</th><th>${t('cDate')}</th><th class="l">${t('cIE')}</th><th>${t('cEff')}</th><th>${t('cCap')}</th><th>${t('cBal')}</th><th class="l">${t('cBn')}</th><th>${t('cPot')}</th><th>${t('cQual')}</th><th>${t('cRev')}</th></tr>`
-    + last.map(x => `<tr class="go" onclick="go('detail','${x.s.id}','sup')"><td class="l"><span class="dot ${x.r.name}"></span></td><td class="l"><b>${esc(x.s.line)}</b></td><td class="l">${esc(x.s.style)}</td><td>${fmtDay(x.s.date)}</td><td class="l">${esc(x.s.ie)}</td>
+    + last.map(x => `<tr class="go" onclick="go('detail','${x.s.id}','sup')"><td class="l"><span class="dot ${x.r.name}"></span></td><td class="l"><b>${esc(x.s.line)}</b> <small class="muted">${esc(studyPU(x.s))}</small></td><td class="l">${esc(x.s.style)}</td><td>${fmtDay(x.s.date)}</td><td class="l">${esc(x.s.ie)}</td>
       <td><b>${P(x.s.result.lineEfficiency)}</b></td><td>${f(x.s.result.lineCapacity, 0)}${Number(x.s.target) ? ' / ' + esc(x.s.target) : ''}</td><td>${P(x.s.result.balanceRate, 0)}</td>
       <td class="l">${x.b.ops.join(', ')}${x.b.machines.length ? ' · ' + esc(x.b.machines.join(', ')) : ''}</td><td>${x.pot > 0.01 ? '+' + P(x.pot, 0) : ''}</td><td>${qBadge(x.s)}</td><td>${revBadge(x.s.id)}</td></tr>`).join('')
     + '</table></div></div>';
-  h += `<div class="card"><h3>${t('effByLine')}</h3>${barsH(last.map(x => ({ label: x.s.line, value: x.s.result.lineEfficiency, color: ['#16a34a', '#f59e0b', '#dc2626'][x.r.level] })), set.eff)}</div>`;
+  h += `<div class="card"><h3>${t('effByLine')}</h3>${barsH(last.map(x => ({ label: x.s.line, value: x.s.result.lineEfficiency, cls: ['sk', 'sw', 'sb'][x.r.level] })), set.eff)}</div>`;
   const pts = f2.line ? AN.trend(list, f2.line).map(p => ({ value: p.eff, label: fmtDay(p.date).slice(0, 5) })) : AN.weekly(list).map(p => ({ value: p.eff, label: fmtDay(p.date).slice(0, 5) }));
   h += `<div class="card"><h3>${t('trendTitle')} ${f2.line ? esc(f2.line) : '(' + t('trendWeek') + ')'}</h3><div class="scroll">${trendSvg(pts, set.eff)}</div></div>`;
   // improvements
@@ -635,11 +739,8 @@ function viewSup() {
       <td class="${x.dEff >= 0 ? 'ok' : 'warn'}">${x.dEff >= 0 ? '+' : ''}${(x.dEff * 100).toFixed(1)} pts</td><td class="${x.dCap >= 0 ? 'ok' : 'warn'}">${x.dCap >= 0 ? '+' : ''}${P(x.dCap, 0)}</td></tr>`).join('') + '</table></div>' : `<div class="muted">${t('noImp')}</div>`) + '</div>';
   // machines + remarks
   const maxN = Math.max(1, ...m.mach.map(x => x.n));
-  h += `<div class="card"><h3>${t('machTitle')}</h3>${m.mach.map(x => `<div style="display:flex;align-items:center;gap:8px;margin:3px 0"><span style="width:90px">${esc(x.machine)}</span><div style="background:#1f4e79;height:14px;border-radius:3px;width:${Math.round(x.n / maxN * 60)}%"></div><b>${x.n}</b></div>`).join('')}</div>`;
+  h += `<div class="card"><h3>${t('machTitle')}</h3>${m.mach.map(x => `<div style="display:flex;align-items:center;gap:8px;margin:3px 0"><span style="width:90px">${esc(x.machine)}</span><div style="background:var(--accent);height:14px;border-radius:3px;width:${Math.round(x.n / maxN * 60)}%"></div><b>${x.n}</b></div>`).join('')}</div>`;
   h += `<div class="card"><h3>${t('remTitle')}</h3>${m.rem.length ? m.rem.map(x => `<div>${x.n} × ${esc(x.text)}</div>`).join('') : '–'}</div>`;
-  // coverage
-  const done = new Set(list.map(s => s.line)), miss = DB.lines().filter(l => !done.has(l));
-  h += `<div class="card"><h3>${t('covTitle')}</h3>${miss.length ? miss.map(l => `<span class="badge">${esc(l)}</span> `).join('') : `<span class="ok">${t('covAll')}</span>`}</div>`;
   // officers
   h += `<div class="card"><h3>${t('ieTitle')}</h3><div class="scroll"><table><tr><th class="l">${t('cIE')}</th><th>${t('cStudies')}</th><th>${t('cOk')}</th><th>${t('cCyc')}</th><th>${t('cLast')}</th></tr>`
     + m.off.map(o => `<tr><td class="l">${esc(o.ie)}</td><td>${o.studies}</td><td>${P(o.okPct, 0)}</td><td>${f(o.avgCycles)}</td><td>${o.last ? fmtDay(new Date(o.last).toISOString()) : ''}</td></tr>`).join('') + '</table></div></div>';
@@ -665,13 +766,13 @@ function summarySpecs() {                     // sheets of the supervisor's Exce
     cols: [{ h: 'Indicator', w: 44, t: 't' }, c('Value', 18)],
     rows: [['Studies', { v: k.studies }], ['Lines studied', { v: k.lines }], ['Average efficiency (latest study per line)', { v: P(k.avgEff) }], ['Lines on standard', { v: k.green }], ['Lines to watch', { v: k.amber }], ['Lines below standard', { v: k.red }],
       ['Average gap to target capacity', { v: k.avgGap == null ? '' : P(k.avgGap, 0) }], ['Average gain possible by balancing', { v: P(k.potential, 0) }], ['Studies that need review', { v: k.review }]] };
-  const lines = { name: 'Lines', title: 'Latest study per line', cols: [c('Status', 10), c('Line', 8), { h: 'Style', w: 22, t: 't' }, c('Date', 12), { h: 'IE officer', w: 16, t: 't' }, { h: 'Efficiency', w: 11, t: 'p' }, { h: 'Capacity (pcs/hr)', w: 12, t: 'n' }, { h: 'Target (pcs/hr)', w: 12, t: 'n' }, { h: 'Balance rate', w: 11, t: 'p' }, c('Bottleneck op', 14), { h: 'Bottleneck machine', w: 16, t: 't' }, { h: 'Gain by balancing', w: 12, t: 'p' }, c('Quality', 12), c('Review', 14), { h: 'Why', w: 46, t: 't' }],
-    rows: last.map(x => [{ v: stName(x.r.level), st: stCls(x.r.level) }, x.s.line, x.s.style, fmtDay(x.s.date), x.s.ie, x.s.result.lineEfficiency, x.s.result.lineCapacity, Number(x.s.target) || '', x.s.result.balanceRate, x.b.ops.join(', '), x.b.machines.join(', '), x.pot,
+  const lines = { name: 'Lines', title: 'Latest study per line', cols: [c('Status', 10), c('PU', 8), c('Line', 8), { h: 'Style', w: 22, t: 't' }, c('Date', 12), { h: 'IE officer', w: 16, t: 't' }, { h: 'Efficiency', w: 11, t: 'p' }, { h: 'Capacity (pcs/hr)', w: 12, t: 'n' }, { h: 'Target (pcs/hr)', w: 12, t: 'n' }, { h: 'Balance rate', w: 11, t: 'p' }, c('Bottleneck op', 14), { h: 'Bottleneck machine', w: 16, t: 't' }, { h: 'Gain by balancing', w: 12, t: 'p' }, c('Quality', 12), c('Review', 14), { h: 'Why', w: 46, t: 't' }],
+    rows: last.map(x => [{ v: stName(x.r.level), st: stCls(x.r.level) }, studyPU(x.s), x.s.line, x.s.style, fmtDay(x.s.date), x.s.ie, x.s.result.lineEfficiency, x.s.result.lineCapacity, Number(x.s.target) || '', x.s.result.balanceRate, x.b.ops.join(', '), x.b.machines.join(', '), x.pot,
       en('q_' + x.q.status), REV[x.s.id] ? en('rv_' + REV[x.s.id].status) : '', x.r.reasons.map(r => tfEn('r_' + r.k, { v: P(r.v, 0), s: P(r.k === 'bal' ? set.bal : set.eff, 0) })).join('; ')]) };
-  const studies = { name: 'Studies', title: 'All studies in the period', cols: [c('Date', 12), c('Line', 8), { h: 'Style', w: 22, t: 't' }, { h: 'IE officer', w: 16, t: 't' }, { h: 'Type', w: 22, t: 't' }, { h: 'Operators', w: 10, t: 'i' }, { h: 'Manpower', w: 10, t: 'i' }, { h: 'Capacity (pcs/hr)', w: 12, t: 'n' }, { h: 'Target (pcs/hr)', w: 12, t: 'n' }, { h: 'Efficiency', w: 11, t: 'p' }, { h: 'Balance rate', w: 11, t: 'p' }, c('Bottleneck op', 14), { h: 'Bottleneck machine', w: 16, t: 't' }, { h: 'Gain by balancing', w: 12, t: 'p' }, c('Quality', 12), c('Review', 14), { h: 'Review comment', w: 30, t: 't' }, { h: 'Note / change made', w: 40, t: 't' }],
+  const studies = { name: 'Studies', title: 'All studies in the period', cols: [c('Date', 12), c('PU', 8), c('Line', 8), { h: 'Style', w: 22, t: 't' }, { h: 'IE officer', w: 16, t: 't' }, { h: 'Type', w: 22, t: 't' }, { h: 'Operators', w: 10, t: 'i' }, { h: 'Manpower', w: 10, t: 'i' }, { h: 'Capacity (pcs/hr)', w: 12, t: 'n' }, { h: 'Target (pcs/hr)', w: 12, t: 'n' }, { h: 'Efficiency', w: 11, t: 'p' }, { h: 'Balance rate', w: 11, t: 'p' }, c('Bottleneck op', 14), { h: 'Bottleneck machine', w: 16, t: 't' }, { h: 'Gain by balancing', w: 12, t: 'p' }, c('Quality', 12), c('Review', 14), { h: 'Review comment', w: 30, t: 't' }, { h: 'Note / change made', w: 40, t: 't' }],
     rows: [...list].sort((a, b) => AN.at(b) - AN.at(a)).map(s => { const b = AN.bottleneck(s), q = s.quality || AN.quality(s), rv = REV[s.id] || {};
-      return [fmtDay(s.date), s.line, s.style, s.ie, en('ty_' + (s.type || 'routine')), (s.raw || []).length, Number(s.manpower) || '', s.result.lineCapacity, Number(s.target) || '', s.result.lineEfficiency, s.result.balanceRate, b.ops.join(', '), b.machines.join(', '), AN.potential(s), en('q_' + q.status), rv.status ? en('rv_' + rv.status) : '', rv.comment || '', s.note || '']; }) };
-  const imp = { name: 'Improvements', title: 'Improvement tracker (before / after)', cols: [c('Line', 8), { h: 'Style', w: 22, t: 't' }, { h: 'Efficiency before', w: 14, t: 'p' }, { h: 'Efficiency after', w: 14, t: 'p' }, { h: 'Change (points)', w: 14, t: 'n' }, { h: 'Capacity change', w: 14, t: 'p' }, { h: 'What was changed', w: 50, t: 't' }],
+      return [fmtDay(s.date), studyPU(s), s.line, s.style, s.ie, T.en['ty_' + (s.type || 'new')], (s.raw || []).length, Number(s.manpower) || '', s.result.lineCapacity, Number(s.target) || '', s.result.lineEfficiency, s.result.balanceRate, b.ops.join(', '), b.machines.join(', '), AN.potential(s), en('q_' + q.status), rv.status ? en('rv_' + rv.status) : '', rv.comment || '', s.note || '']; }) };
+  const imp = { name: 'Improvements', title: 'Re-study results (previous / new)', cols: [c('Line', 8), { h: 'Style', w: 22, t: 't' }, { h: 'Efficiency previous', w: 14, t: 'p' }, { h: 'Efficiency re-study', w: 14, t: 'p' }, { h: 'Change (points)', w: 14, t: 'n' }, { h: 'Capacity change', w: 14, t: 'p' }, { h: 'What was changed', w: 50, t: 't' }],
     rows: m.imp.map(x => [x.line, x.style, x.before.result.lineEfficiency, x.after.result.lineEfficiency, x.dEff * 100, x.dCap, x.after.note || '']) };
   const mach = { name: 'Bottlenecks', title: 'How often each machine type holds the bottleneck', cols: [{ h: 'Machine type', w: 24, t: 't' }, { h: 'Studies', w: 12, t: 'i' }], rows: m.mach.map(x => [x.machine, x.n]) };
   const rem = { name: 'Remarks', title: 'Most frequent operator remarks', cols: [{ h: 'Remark', w: 60, t: 't' }, { h: 'Times', w: 10, t: 'i' }], rows: AN.remarkStats(list, 30).map(x => [x.text, x.n]) };
@@ -730,7 +831,7 @@ function toast(msg) {
 const b64 = u8 => { let x = ''; for (let i = 0; i < u8.length; i += 0x8000) x += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000)); return btoa(x); };
 function studyBody(h) {                       // what is stored on the server (slimmed: the cycle lists are already in "raw")
   const res = { ...h.result, workers: (h.result.workers || []).map(({ pieces, skip, t0, ...w }) => w) };
-  return { format:'timestudy-1', id:h.id, date:h.date, updated:h.updated || null, line:h.line, style:h.style, target:h.target, ie:h.ie, type:h.type || 'routine',
+  return { format:'timestudy-1', id:h.id, date:h.date, updated:h.updated || null, line:h.line, style:h.style, target:h.target, ie:h.ie, type:h.type || 'new', pu:h.pu || '', baseId:h.baseId || '',
            note:h.note || '', manpower:h.manpower || '', cyclesGoal:h.cyclesGoal || null, raw:h.raw, opsSnap:h.opsSnap || [], quality:h.quality || AN.quality(h), meta:h.meta, result:res };
 }
 async function pushPending() {                // send every study that is not on the server yet (called after Save, at start, when the phone comes online)
@@ -745,7 +846,7 @@ async function pushPending() {                // send every study that is not on
 async function syncMaster() {                 // employees, styles and SAM from the server; only downloads when they changed
   if (!S.me || !API_URL) return;
   const r = await api('master', { have: DATA_INFO.generated || '' }, 120000);
-  if (r.data) { await kv.set('data', r.data); setData(r.data, 'server'); S.style = DB.findStyle(S.style) || DB.styles()[0] || ''; save(); }
+  if (r.data) { await kv.set('data', r.data); setData(r.data, 'server'); S.style = DB.findStyle(S.style) || DB.styles()[0] || ''; fixSel(); save(); }
 }
 async function syncAll(manual) {
   if (SYNCING || !API_URL || !S.me) return;
@@ -784,7 +885,7 @@ async function ingestDataText(txt) {          // accepts data.json or data.js
   const d = JSON.parse(txt.slice(i, k + 1));
   if (!Array.isArray(d.employees) || typeof d.ops !== 'object') throw new Error('bad');
   await kv.set('data', d); setData(d, 'loaded');
-  S.style = DB.findStyle(S.style) || DB.styles()[0] || ''; save(); render();
+  S.style = DB.findStyle(S.style) || DB.styles()[0] || ''; fixSel(); save(); render();
 }
 function download(file) {
   const a = document.createElement('a'); a.href = URL.createObjectURL(file); a.download = file.name;
@@ -822,6 +923,7 @@ async function boot() {
   try { const d = await kv.get('data'); if (d && (!DATA_INFO.generated || (d.generated || '') >= DATA_INFO.generated)) setData(d, 'loaded'); } catch (e) {}
   try { const tm = await kv.get('team'); if (Array.isArray(tm)) TEAM = tm; const rv = await kv.get('reviews'); if (rv && typeof rv === 'object') REV = rv; } catch (e) {}
   if (!S.editId) S.style = DB.findStyle(S.style) || DB.styles()[0] || '';
+  fixSel();
   if (!S.ie && S.me) S.ie = S.me.name;
   render();
   loadLogo();

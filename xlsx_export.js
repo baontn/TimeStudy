@@ -169,7 +169,7 @@ ${line(1, 'D', 'Line capacity', caps.line, 'DC2626', 22225)}${hasTgt ? line(2, '
   // ---------------- the workbook ----------------
   const NS = 'xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"';
   const REL = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships';
-  const TYPES = { routine: 'Routine check', new: 'New style / baseline', before: 'Before improvement', after: 'After improvement' };
+  const TYPES = { new: 'New study', qco: 'QCO', restudy: 'Re-study', routine: 'Routine check (old)', before: 'Before improvement (old)', after: 'After improvement (old)' };
   const dmy = d => `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
 
   function build(h, styleOps, logo) {
@@ -187,7 +187,7 @@ ${line(1, 'D', 'Line capacity', caps.line, 'DC2626', 22225)}${hasTgt ? line(2, '
     s1.put(0, 1, { s: ST.title, v: `LINE CAPACITY STUDY\nBảng nghiên cứu năng lực chuyền\nMã hàng/ Style: ${h.style}` });
     s1.merges.push('A1:J5');
     const effTxt = (num(R.lineEfficiency) * 100).toFixed(1), capTxt = Math.round(num(R.lineCapacity));
-    s1.put(0, 6, { s: ST.title, v: `Line: ${h.line}\nNgày: ${dmy(date)}\nHiệu suất (%): ${effTxt}%\nSL/giờ/chuyền (chiếc): ${capTxt} pcs /h` });
+    s1.put(0, 6, { s: ST.title, v: `Line: ${h.line}${h.pu ? ' (' + h.pu + ')' : ''}\nNgày: ${dmy(date)}\nHiệu suất (%): ${effTxt}%\nSL/giờ/chuyền (chiếc): ${capTxt} pcs /h` });
     s1.put(1, 6, { s: ST.box }); s1.merges.push('A6:B6');
     s1.put(2, 6, { s: ST.hdr }); s1.put(3, 6, { s: ST.box }); s1.put(4, 6, { s: ST.box }); s1.merges.push('C6:E6');
     s1.put(5, 6, { s: ST.sBy, v: 'Studied by:\nNgười làm: ' });
@@ -241,6 +241,7 @@ ${line(1, 'D', 'Line capacity', caps.line, 'DC2626', 22225)}${hasTgt ? line(2, '
     s2.put(0, 1, { s: ST.aTitle, v: 'Line balancing analysis / Phân tích cân bằng chuyền' });
     s2.put(0, 2, { s: ST.aBold, v: 'Line' }); s2.put(1, 2, { s: ST.aValTxt, v: String(h.line) });
     s2.put(2, 2, { s: ST.aBold, v: 'Style' }); s2.put(3, 2, { s: ST.aValTxt, v: String(h.style) });
+    s2.put(0, 4, { s: ST.aBold, v: 'PU' }); s2.put(1, 4, { s: ST.aValTxt, v: h.pu || '' });
     s2.put(0, 3, { s: ST.aBold, v: 'Date' }); s2.put(1, 3, { s: ST.aValTxt, v: dmy(date) });
     s2.put(2, 3, { s: ST.aBold, v: 'Studied by' }); s2.put(3, 3, { s: ST.aValTxt, v: h.ie || '' });
     const kp = [['Line capacity (pcs/hr)', lineCap, ST.aVal], ['Line efficiency', num(R.lineEfficiency), ST.aValPct],
@@ -248,7 +249,7 @@ ${line(1, 'D', 'Line capacity', caps.line, 'DC2626', 22225)}${hasTgt ? line(2, '
       ['Bottleneck operation(s)', R.bottleneckOps.join(', '), ST.aValTxt], ['Target (pcs/hr)', tgt || '', tgt ? ST.aVal : ST.aValTxt],
       ['Gap to target (pcs/hr)', tgt ? lineCap - tgt : '', tgt ? ST.aVal : ST.aValTxt],
       ['Operations not studied', (R.missingOps || []).join(', '), ST.aValTxt],
-      ['Study type', TYPES[h.type || 'routine'] || '', ST.aValTxt], ['Line manpower', Number(h.manpower) || '', Number(h.manpower) ? ST.aVal : ST.aValTxt],
+      ['Study type', TYPES[h.type || 'new'] || '', ST.aValTxt], ['Line manpower', Number(h.manpower) || '', Number(h.manpower) ? ST.aVal : ST.aValTxt],
       ['Note / change made', h.note || '', ST.aValTxt]];
     kp.forEach((k, i) => { s2.put(0, 5 + i, { s: ST.aBold, v: k[0] }); s2.put(1, 5 + i, { s: k[2], v: k[1] }); });
     const th = 16;                               // table header row

@@ -84,8 +84,8 @@ function analyze(rows, opMap, table = ALLOWANCE) {
   const bottleneckOps = requiredOps.filter(o => Math.abs(opCap[o] - capacity) < 1e-9);
   return {
     workers, opCap, lineCapacity: capacity, bottleneckOps,
-    lineEfficiency: totalMin > 0 ? totalSam / totalMin : 0,   // total SAM / total actual time
-    balanceRate: capacity > 0 ? capacity / avgCap : 0,        // bottleneck / average op capacity
+    lineEfficiency: totalMin > 0 ? totalSam / totalMin : 0,
+    balanceRate: capacity > 0 ? capacity / avgCap : 0,   // bottleneck / average op capacity
     suggestion: suggestMoves(active, requiredOps)
   };
 }

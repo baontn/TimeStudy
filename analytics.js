@@ -52,7 +52,8 @@
   // ---- filtering and grouping
   function filterStudies(list, f) {
     f = f || {};
-    return list.filter(s => (!f.from || at(s) >= f.from) && (!f.line || s.line === f.line) && (!f.ie || s.ie === f.ie) && (!f.type || (s.type || 'routine') === f.type));
+    const puOf = f.puOf || (() => '');
+    return list.filter(s => (!f.from || at(s) >= f.from) && (!f.pu || (s.pu || puOf(s.line)) === f.pu) && (!f.line || s.line === f.line) && (!f.ie || s.ie === f.ie) && (!f.type || (s.type || 'new') === f.type));
   }
   function latestPerLine(list) {
     const m = new Map(); list.forEach(s => { const c = m.get(s.line); if (!c || at(s) > at(c) || (at(s) === at(c) && when(s) > when(c))) m.set(s.line, s); });
@@ -68,15 +69,12 @@
       const k = d.getTime(); (m.get(k) || m.set(k, []).get(k)).push(num(s.result.lineEfficiency)); });
     return [...m.entries()].sort((a, b) => a[0] - b[0]).map(([k, v]) => ({ date: new Date(k).toISOString(), eff: mean(v), n: v.length }));
   }
-  function improvements(list) {                                        // before -> after pairs on the same line and style
-    const groups = new Map(); list.forEach(s => { const k = s.line + '|' + s.style; (groups.get(k) || groups.set(k, []).get(k)).push(s); });
-    const out = [];
-    groups.forEach(arr => { arr.sort((a, b) => at(a) - at(b));
-      const after = [...arr].reverse().find(s => s.type === 'after'); if (!after) return;
-      const before = [...arr].reverse().find(s => s.type === 'before' && at(s) <= at(after)); if (!before) return;
-      const e0 = num(before.result.lineEfficiency), e1 = num(after.result.lineEfficiency), c0 = num(before.result.lineCapacity), c1 = num(after.result.lineCapacity);
-      out.push({ line: after.line, style: after.style, before, after, dEff: e1 - e0, dCap: c0 ? c1 / c0 - 1 : 0 }); });
-    return out.sort((a, b) => b.dEff - a.dEff);
+  function improvements(list, all) {                                   // re-study vs the study it started from (baseId)
+    const byId = new Map((all || list).map(s => [s.id, s])), out = [];
+    list.forEach(s => { if (s.type !== 'restudy' || !s.baseId) return; const b = byId.get(s.baseId); if (!b) return;
+      const e0 = num(b.result.lineEfficiency), e1 = num(s.result.lineEfficiency), c0 = num(b.result.lineCapacity), c1 = num(s.result.lineCapacity);
+      out.push({ line: s.line, style: s.style, before: b, after: s, dEff: e1 - e0, dCap: c0 ? c1 / c0 - 1 : 0 }); });
+    return out.sort((x, y) => y.dEff - x.dEff);
   }
   function machineStats(list) {                                        // which machine types hold the bottleneck most often
     const m = new Map(); list.forEach(s => { const ms = bottleneck(s).machines; (ms.length ? ms : ['(manual)']).forEach(x => m.set(x, (m.get(x) || 0) + 1)); });
