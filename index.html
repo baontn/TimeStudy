@@ -136,7 +136,7 @@ const mkOpMap = style => { const m = {}; DB.ops(style).forEach(o => m[o.no] = { 
 // TEXT
 // =====================================================================
 const T = {
- en:{title:'Time Study',lap:'Lap',resume:'Resume',reset:'Reset lap',lapTime:'Lap time',total:'Total',pcsLap:'Pieces in this lap',goalPcs:'Pieces to study',pcs:'pcs',spc:'s/pc',lapsTitle:'Laps',exclLap:'Exclude',undoLap:'Undo last lap',addWorker:'+ Add worker manually',mwName:'Worker name',mwCode:'Code (optional)',mwNeed:'Enter the worker name.',mwDup:'This code already exists on the line.',manual:'manual',rmWorker:'Remove this worker and the studies entered for him/her?',setup:'Study setup',selPU:'Select PU',noPU:'No PU',selLine:'Select line',selLineFirst:'Select a PU and a line to see the workers.',workers:'Workers',searchWorker:'Search worker (name or code)',chooseOps:'Choose the operation(s) this worker does (31-116). Green ring = already timed.',confirmOps:'Confirm operations',changeOps:'Change operations',dupOp:'Another operation for this worker',retime:'Re-time',fromPrev:'from previous study',prevStudy:'Previous study to re-study',pickPrev:'Select the previous study',noPrev:'No previous study on this line yet.',clearRows:'This clears the workers entered so far. Continue?',needBase:'Select the previous study to re-study.',prevTime:'Previous',sessions:'timings',login:'Log in',loginHelp:'Enter the email and PIN your supervisor gave you.',email:'Email',pin:'PIN',logout:'Log out',syncNow:'Sync now',waiting:'waiting to send',synced:'synced',syncOk:'Everything is sent.',emailMe:'Email me the report',emailSent:'Report emailed to {email}.',emailFail:'Could not email the report:',notConfigured:'The server address is not set in the app (API_URL).',refresh:'Refresh studies',updating:'Updating...',offline:'No connection. Studies stay on this phone and are sent automatically later.',loginFail:'Login failed:',newStudy:'New Study',history:'History',save:'Save study',
+ en:{title:'Time Study',lap:'Lap',resume:'Resume',reset:'Reset lap',lapTime:'Lap time',total:'Total',pcsLap:'Pieces in this lap',goalPcs:'Pieces to study',pcs:'pcs',spc:'s/pc',lapsTitle:'Laps',exclLap:'Exclude',undoLap:'Undo last lap',addWorker:'+ Add worker manually',mwName:'Worker name',mwCode:'Code (optional)',mwNeed:'Enter the worker name.',mwDup:'This code already exists on the line.',manual:'manual',rmWorker:'Remove this worker and the studies entered for him/her?',setup:'Study setup',selPU:'Select PU',noPU:'No PU',selLine:'Select line',selLineFirst:'Select a PU and a line to see the workers.',workers:'Workers',searchWorker:'Search worker (name or code)',chooseOps:'Choose the operation(s) this worker does (31-116). Green ring = already timed.',confirmOps:'Confirm operations',changeOps:'Change operations',dupOp:'Another operation for this worker',retime:'Re-time',fromPrev:'from previous study',prevStudy:'Previous study to re-study',pickPrev:'Select the previous study',noPrev:'No previous study on this line yet.',clearRows:'This clears the workers entered so far. Continue?',needBase:'Select the previous study to re-study.',prevTime:'Previous',sessions:'timings',login:'Log in',loginHelp:'Enter the email and PIN your supervisor gave you.',email:'Email',pin:'PIN',logout:'Log out',syncNow:'Sync now',waiting:'waiting to send (tap Sync now)',synced:'synced',syncOk:'Everything is sent.',emailMe:'Email me the report',emailSent:'Report emailed to {email}.',emailFail:'Could not email the report:',notConfigured:'The server address is not set in the app (API_URL).',refresh:'Refresh studies',updating:'Updating...',offline:'No connection. Studies stay on this phone and are sent automatically later.',loginFail:'Login failed:',newStudy:'New Study',history:'History',save:'Save study',
   noHistory:'No studies saved yet.',study:'Study detail',delStudy:'Delete this study',sure:'Delete?',
   line:'Line',style:'Style',ie:'Studied by',target:'Target pcs/hr (optional)',
   cycles:'Default pieces per operator',cyclesHint:'Tap ✕ to exclude an abnormal lap (thread break, waiting...). − / + changes the pieces of a lap.',cv:'Variation',cvHigh:'High variation: check the method or exclude abnormal cycles',open:'Open',close:'Close',missingOps:'Operations not studied yet (line capacity may be wrong)',
@@ -171,7 +171,7 @@ const T = {
   r_eff:'Efficiency {v} is below the standard {s}',r_cap:'Capacity is {v} of the target',r_bal:'Balance rate {v} is below {s}',potNote:'+{v} possible by balancing',
   review:'Supervisor review',rv_approved:'Approved',rv_recheck:'Needs recheck',rv_clear:'Clear',rvComment:'Comment for the IE officer',rvSaved:'Review saved.',
   expSummary:'Export summary (Excel)',copySummary:'Copy summary text',copied:'Summary copied.',readOnly:'Study done by another IE officer (read only).',by:'by',allSent:'Nothing new to send.'},
- vi:{title:'Nghiên cứu thời gian',lap:'Vòng',resume:'Tiếp tục',reset:'Xóa vòng đang chạy',lapTime:'Thời gian vòng',total:'Tổng',pcsLap:'Số cái trong vòng này',goalPcs:'Số cái cần bấm',pcs:'cái',spc:'giây/cái',lapsTitle:'Các vòng',exclLap:'Loại',undoLap:'Hoàn tác vòng cuối',addWorker:'+ Thêm công nhân thủ công',mwName:'Tên công nhân',mwCode:'Mã (tùy chọn)',mwNeed:'Nhập tên công nhân.',mwDup:'Mã này đã có trong chuyền.',manual:'thêm tay',rmWorker:'Xóa công nhân này và các nghiên cứu đã nhập?',setup:'Thiết lập nghiên cứu',selPU:'Chọn PU',noPU:'Chưa có PU',selLine:'Chọn chuyền',selLineFirst:'Chọn PU và chuyền để xem danh sách công nhân.',workers:'Công nhân',searchWorker:'Tìm công nhân (tên hoặc mã)',chooseOps:'Chọn công đoạn công nhân này làm (31-116). Viền xanh = đã bấm giờ.',confirmOps:'Xác nhận công đoạn',changeOps:'Đổi công đoạn',dupOp:'Công đoạn khác của công nhân này',retime:'Bấm lại',fromPrev:'từ nghiên cứu trước',prevStudy:'Nghiên cứu trước để làm lại',pickPrev:'Chọn nghiên cứu trước',noPrev:'Chuyền này chưa có nghiên cứu trước.',clearRows:'Thao tác này xóa các công nhân đã nhập. Tiếp tục?',needBase:'Chọn nghiên cứu trước để làm lại.',prevTime:'Trước',sessions:'lần bấm',login:'Đăng nhập',loginHelp:'Nhập email và mã PIN do giám sát cấp.',email:'Email',pin:'Mã PIN',logout:'Đăng xuất',syncNow:'Đồng bộ ngay',waiting:'đang chờ gửi',synced:'đã đồng bộ',syncOk:'Đã gửi tất cả.',emailMe:'Gửi báo cáo về email',emailSent:'Đã gửi báo cáo đến {email}.',emailFail:'Không gửi được báo cáo:',notConfigured:'Chưa cài địa chỉ máy chủ trong ứng dụng (API_URL).',refresh:'Làm mới nghiên cứu',updating:'Đang cập nhật...',offline:'Không có mạng. Nghiên cứu được giữ trên điện thoại và sẽ tự gửi sau.',loginFail:'Đăng nhập lỗi:',newStudy:'Nghiên cứu mới',history:'Lịch sử',save:'Lưu nghiên cứu',
+ vi:{title:'Nghiên cứu thời gian',lap:'Vòng',resume:'Tiếp tục',reset:'Xóa vòng đang chạy',lapTime:'Thời gian vòng',total:'Tổng',pcsLap:'Số cái trong vòng này',goalPcs:'Số cái cần bấm',pcs:'cái',spc:'giây/cái',lapsTitle:'Các vòng',exclLap:'Loại',undoLap:'Hoàn tác vòng cuối',addWorker:'+ Thêm công nhân thủ công',mwName:'Tên công nhân',mwCode:'Mã (tùy chọn)',mwNeed:'Nhập tên công nhân.',mwDup:'Mã này đã có trong chuyền.',manual:'thêm tay',rmWorker:'Xóa công nhân này và các nghiên cứu đã nhập?',setup:'Thiết lập nghiên cứu',selPU:'Chọn PU',noPU:'Chưa có PU',selLine:'Chọn chuyền',selLineFirst:'Chọn PU và chuyền để xem danh sách công nhân.',workers:'Công nhân',searchWorker:'Tìm công nhân (tên hoặc mã)',chooseOps:'Chọn công đoạn công nhân này làm (31-116). Viền xanh = đã bấm giờ.',confirmOps:'Xác nhận công đoạn',changeOps:'Đổi công đoạn',dupOp:'Công đoạn khác của công nhân này',retime:'Bấm lại',fromPrev:'từ nghiên cứu trước',prevStudy:'Nghiên cứu trước để làm lại',pickPrev:'Chọn nghiên cứu trước',noPrev:'Chuyền này chưa có nghiên cứu trước.',clearRows:'Thao tác này xóa các công nhân đã nhập. Tiếp tục?',needBase:'Chọn nghiên cứu trước để làm lại.',prevTime:'Trước',sessions:'lần bấm',login:'Đăng nhập',loginHelp:'Nhập email và mã PIN do giám sát cấp.',email:'Email',pin:'Mã PIN',logout:'Đăng xuất',syncNow:'Đồng bộ ngay',waiting:'đang chờ gửi (bấm Đồng bộ ngay)',synced:'đã đồng bộ',syncOk:'Đã gửi tất cả.',emailMe:'Gửi báo cáo về email',emailSent:'Đã gửi báo cáo đến {email}.',emailFail:'Không gửi được báo cáo:',notConfigured:'Chưa cài địa chỉ máy chủ trong ứng dụng (API_URL).',refresh:'Làm mới nghiên cứu',updating:'Đang cập nhật...',offline:'Không có mạng. Nghiên cứu được giữ trên điện thoại và sẽ tự gửi sau.',loginFail:'Đăng nhập lỗi:',newStudy:'Nghiên cứu mới',history:'Lịch sử',save:'Lưu nghiên cứu',
   noHistory:'Chưa có nghiên cứu nào.',study:'Chi tiết nghiên cứu',delStudy:'Xóa nghiên cứu này',sure:'Xóa?',
   line:'Chuyền',style:'Mã hàng',ie:'Người làm',target:'Mục tiêu SL/giờ (tùy chọn)',
   cycles:'Số cái mặc định mỗi công nhân',cyclesHint:'Bấm ✕ để loại vòng bất thường (đứt chỉ, chờ hàng...). − / + đổi số cái của vòng.',cv:'Độ biến động',cvHigh:'Biến động cao: kiểm tra thao tác hoặc loại chu kỳ bất thường',open:'Mở',close:'Đóng',missingOps:'Công đoạn chưa bấm giờ (năng lực chuyền có thể chưa đúng)',
@@ -211,7 +211,7 @@ const T = {
 // =====================================================================
 // STATE
 // =====================================================================
-const APP_VER = '4.1';
+const APP_VER = '4.3';
 let S = { lang:'en', pu:'', line:'G08', style:'PUM25-00054-1301H4', target:'', ie:'', type:'new', baseId:'', manpower:'', note:'', rows:[], extra:[], editId:null, me:null, pin:'', since:0, cycles:5, supMode:false,
           sup:{ eff:55, bal:70, period:'30', pu:'', line:'', ie:'', type:'' } };
 let H = [];                                        // my saved studies
@@ -560,7 +560,7 @@ function saveStudy() {
   let id;
   if (ex) { Object.assign(ex, rec, { updated:new Date().toISOString() }); id = ex.id; }      // update the same study
   else { id = uid(); H.unshift({ id, date:new Date().toISOString(), ...rec }); }
-  S.rows = []; S.editId = null; S.baseId = ''; S.note = ''; S.manpower = ''; live = null; saveHist(); saveDraft(); go('detail', id, 'history'); pushPending().then(() => { if (screen === 'detail' || screen === 'history') render(); });
+  S.rows = []; S.editId = null; S.baseId = ''; S.note = ''; S.manpower = ''; live = null; saveHist(); saveDraft(); go('detail', id, 'history'); pushPending().then(() => { if (screen === 'detail' || screen === 'history' || screen === 'home') render(); });
 }
 function editStudy(id) {                    // load a saved study back into the New Study screen
   const h = H.find(x => x.id === id); if (!h) return;
@@ -887,7 +887,7 @@ function studyBody(h) {                       // what is stored on the server (s
   return { format:'timestudy-1', id:h.id, date:h.date, updated:h.updated || null, line:h.line, style:h.style, target:h.target, ie:h.ie, type:h.type || 'new', pu:h.pu || '', baseId:h.baseId || '',
            note:h.note || '', manpower:h.manpower || '', cyclesGoal:h.cyclesGoal || null, raw:h.raw, opsSnap:h.opsSnap || [], quality:h.quality || AN.quality(h), meta:h.meta, result:res };
 }
-async function pushPending() {                // send every study that is not on the server yet (called after Save, at start, when the phone comes online)
+async function pushPending() {                // send every study that is not on the server yet (runs after Save, after Email, and on manual Sync now)
   if (!S.me || !API_URL || !navigator.onLine) return 0;
   let n = 0;
   for (const h of H.filter(x => !x.sent)) {
@@ -923,7 +923,6 @@ async function emailReport(id) {              // one tap: save the study on the 
   } catch (e) { toast(t('emailFail') + ' ' + e.message); }
   render();
 }
-window.addEventListener('online', () => syncAll());
 
 // =====================================================================
 // LOAD DATA FILE / EXPORT STUDY FILES  (no sign-in: the phone's file picker and share sheet)
@@ -981,7 +980,7 @@ async function boot() {
   if (!S.ie && S.me) S.ie = S.me.name;
   render();
   loadLogo();
-  if (API_URL && (!S.me || !S.pin)) openLogin(); else syncAll();
+  if (API_URL && (!S.me || !S.pin)) openLogin();   // sync happens on login, Save, Email, and Sync now - never automatically on open/reconnect
 }
 boot();
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => {});
