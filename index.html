@@ -161,7 +161,7 @@ const T = {
   firstHint:'Tap Start. Tap Lap each time the pieces are finished (after cutting, if the worker sews a chain). Set the pieces of the lap first.',
   timeFirst:'Time at least one operator (Start, then Piece done) to see the line analysis and save.',
   cap:'Line capacity (pcs/hr)',eff:'Line efficiency',bal:'Balance rate',bn:'Bottleneck op',
-  opcap:'Operation capacity',moves:'Suggested moves',none:'No improving move found',
+  opcap:'Operation capacity',moves:'Suggested moves',none:'No improving move found',people:'Operators timed',ppl:'people',mpLess:'Line manpower is {mp}: {n} person(s) not timed yet.',mpMore:'More people timed ({n}) than the line manpower ({mp}).',stTitle:'Operators needed for the target',stOp:'Op',stHave:'Have',stNeed:'Need',stGap:'Gap',stShort:'short',stSpare:'spare',stTotal:'To make {t} pcs/hr the line needs {need} operators; you have {have}.',stNoTgt:'Enter the target (pcs/hr) to see how many operators each operation needs.',stMove:'Op {o} is short {g} operator: give it {x} of the time of op {from} (same machine {m}).',stHire:'Op {o} is short {g} operator and no {m} operation has spare time: add / train an operator or improve the method.',stOk:'Every operation has enough operators for the target.',stSplit:'Ops {ops} are short ({g} operator) because {name} sews all of them: give one of these operations to another operator.',stHelp:'Need = target × operators ÷ capacity of the operation. Gap below 0 = this operation cannot reach the target.',shared:'shares time between ops {ops}: {p} on this one',
   pieces:'Pieces',unknown:'Not in style data',move:'Move',from:'from',to:'to',now:'capacity becomes',
   worker:'Operator',opn:'Op',cap2:'pcs/hr',timed:'operator(s) timed',myWeek:'My studies in the last 7 days',
   dash:'Supervisor dashboard',supTools:'Supervisor tools',roleSup:'Supervisor',roleOff:'IE officer',
@@ -196,7 +196,7 @@ const T = {
   firstHint:'Bấm Bắt đầu. Bấm Vòng mỗi khi xong số cái (sau khi cắt, nếu công nhân may chuyền). Chọn số cái của vòng trước.',
   timeFirst:'Bấm giờ ít nhất một công nhân (Bắt đầu, rồi Xong 1 cái) để xem phân tích và lưu.',
   cap:'Năng lực chuyền (cái/giờ)',eff:'Hiệu suất chuyền',bal:'Tỷ lệ cân bằng',bn:'Công đoạn nút cổ chai',
-  opcap:'Năng lực từng công đoạn',moves:'Đề xuất điều chuyển',none:'Không có đề xuất cải thiện',
+  opcap:'Năng lực từng công đoạn',moves:'Đề xuất điều chuyển',none:'Không có đề xuất cải thiện',people:'Số người đã bấm giờ',ppl:'người',mpLess:'Lao động của chuyền là {mp}: còn {n} người chưa bấm giờ.',mpMore:'Số người đã bấm giờ ({n}) nhiều hơn lao động của chuyền ({mp}).',stTitle:'Số lao động cần cho mục tiêu',stOp:'CĐ',stHave:'Có',stNeed:'Cần',stGap:'Chênh lệch',stShort:'thiếu',stSpare:'dư',stTotal:'Để đạt {t} cái/giờ chuyền cần {need} lao động; hiện có {have}.',stNoTgt:'Nhập mục tiêu (cái/giờ) để xem mỗi công đoạn cần bao nhiêu lao động.',stMove:'Công đoạn {o} thiếu {g} lao động: chuyển {x} thời gian từ công đoạn {from} (cùng máy {m}).',stHire:'Công đoạn {o} thiếu {g} lao động và không có công đoạn máy {m} nào dư: thêm / đào tạo người hoặc cải tiến thao tác.',stOk:'Tất cả công đoạn đủ lao động cho mục tiêu.',stSplit:'Các CĐ {ops} thiếu ({g} lao động) vì {name} làm tất cả: giao một trong các CĐ này cho người khác.',stHelp:'Cần = mục tiêu × số lao động ÷ năng lực của công đoạn. Chênh lệch dưới 0 = công đoạn không đạt mục tiêu.',shared:'chia thời gian cho các CĐ {ops}: {p} cho CĐ này',
   pieces:'Số cái',unknown:'Không có trong dữ liệu mã hàng',move:'Chuyển',from:'từ',to:'sang',now:'năng lực thành',
   worker:'Công nhân',opn:'CĐ',cap2:'cái/giờ',timed:'công nhân đã bấm giờ',myWeek:'Nghiên cứu của tôi trong 7 ngày qua',
   dash:'Bảng theo dõi của giám sát',supTools:'Công cụ giám sát',roleSup:'Giám sát',roleOff:'IE',
@@ -236,6 +236,16 @@ try {
              Object.assign(S, old); localStorage.removeItem('ts'); saveDraft(); saveHist(); }
 } catch(e){}
 S.rows.forEach(normRow);
+function upgradeCalc(s) {                     // studies saved before the shared-time fix: recalculate only if a person was timed on 2+ separate operations
+  const R = s && s.result;
+  if (!R || R.calc >= 2 || !Array.isArray(s.raw) || !(s.opsSnap || []).length) return s;
+  const n = {}; s.raw.forEach(r => { if (r.opText) { const k = String(r.emp || r.name); n[k] = (n[k] || 0) + 1; } });
+  if (!Object.values(n).some(c => c > 1)) return s;
+  const m = {}; s.opsSnap.forEach(o => m[o.no] = { sam: o.sam, machine: o.machine });
+  try { s.result = Object.assign(analyze(s.raw, m), { missingOps: R.missingOps || [], unknownOps: R.unknownOps || [] }); s.quality = AN.quality(s); } catch (e) {}
+  return s;
+}
+H.forEach(upgradeCalc);
 try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch(e){}
 const uid = () => (crypto.randomUUID ? crypto.randomUUID() : 'id' + Date.now() + Math.random().toString(36).slice(2));
 const t = k => (T[S.lang][k] !== undefined ? T[S.lang][k] : k);
@@ -547,12 +557,12 @@ function updateAnalysis() {                 // live: recomputed after every piec
   else { live = analyze(rows, opMap); live.unknownOps = [];
          live.missingOps = DB.ops(S.style).map(o => o.no).filter(no => live.opCap[no] === undefined);
          $('quality').innerHTML = qualityHtml(AN.quality(liveStudy()));
-         $('analysis').innerHTML = showResult(live, Number(S.target)); }
+         $('analysis').innerHTML = showResult(live, Number(S.target), null, Number(S.manpower)); }
   const needBase = S.type === 'restudy' && !S.baseId;
   const ready = live && S.ie.trim() && DB.findStyle(S.style) && S.line && !needBase;
   $('saveBtn').disabled = !ready;
   $('saveStatus').textContent = !live ? t('timeFirst') : !S.line ? t('selLineFirst') : needBase ? t('needBase') : !S.ie.trim() ? t('needIe') : !DB.findStyle(S.style) ? t('styleMissing')
-    : `${rows.length} ${t('timed')} · ${f(live.lineCapacity)} ${t('pcsHr')} · ${f(live.lineEfficiency * 100)}%`;
+    : `${live.people} ${t('timed')} · ${f(live.lineCapacity)} ${t('pcsHr')} · ${f(live.lineEfficiency * 100)}%`;
 }
 function saveStudy() {
   updateAnalysis(); if (!live || !S.ie.trim() || !S.line) return;
@@ -659,7 +669,7 @@ function viewDetail() {
               <button onclick="emailReport('${h.id}')">${t('emailMe')}${S.me ? ' → ' + esc(S.me.email) : ''}</button>` : '')
     + `<button class="sec" onclick="exportExcel('${h.id}')">${t('exportXlsx')}</button>`
     + (isSup() ? reviewPanel(h) : '')
-    + showResult(h.result, Number(h.target), h.raw)
+    + showResult(h.result, Number(h.target), h.raw, Number(h.manpower), h.opsSnap)
     + (own ? `<button class="red" onclick="delStudy('${h.id}')">${t('delStudy')}</button>` : '');
 }
 function balanceChart(r, tgt) {              // inline SVG: capacity per operation, bottleneck in red
@@ -685,20 +695,64 @@ function balanceChart(r, tgt) {              // inline SVG: capacity per operati
   return `<div class="card"><b>${t('chartTitle')}</b><div style="overflow-x:auto">${g}</div>
     <div class="legend"><i style="background:var(--accent)"></i>${t('lgOp')}<i style="background:var(--bad)"></i>${t('lgBn')} / ${t('lgCap')}${tgt ? `<i style="background:var(--ok)"></i>${t('lgTgt')}` : ''}</div></div>`;
 }
-function showResult(r, tgt, raw) {
+function staffing(r, tgt, snap) {             // operators needed per operation to reach the target, worst first
+  const mach = o => (r.opMachine || {})[o] || ((snap || []).find(x => x.no === o) || {}).machine || '';
+  const rows = Object.keys(r.opCap).map(Number).map(o => {
+    const have = r.workers.filter(w => w.min > 0 && (w.ops || []).includes(o)).reduce((a, w) => a + (w.share == null ? 1 : w.share), 0);
+    const cap = r.opCap[o], need = cap > 0 ? tgt * have / cap : 0;
+    return { o, m: mach(o), cap, have, need, gap: have - need };
+  }).sort((a, b) => a.gap - b.gap);
+  const spare = rows.filter(x => x.gap > 0).map(x => ({ ...x, left: x.gap })), acts = [], done = new Set();
+  const pk = w => String(w.emp || w.name);
+  rows.filter(x => x.gap < -0.05).forEach(x => {           // one person sews several short operations: split them first
+    const p = r.workers.find(w => w.min > 0 && w.share < 0.995 && (w.ops || []).includes(x.o));
+    if (!p || done.has(pk(p))) return;
+    const mine = r.workers.filter(w => w.min > 0 && pk(w) === pk(p)), ops = mine.map(w => w.opText);
+    const short = rows.filter(y => y.gap < -0.05 && mine.some(w => (w.ops || []).includes(y.o)));
+    short.forEach(y => done.add(y.o)); done.add(pk(p));
+    acts.push(tf('stSplit', { ops: ops.join(' + '), g: f(-Math.min(...short.map(y => y.gap)), 1), name: p.name || p.emp }));
+  });
+  rows.filter(x => x.gap < -0.05 && !done.has(x.o)).forEach(x => {           // a short operation takes time from a spare operation on the same machine
+    let need = -x.gap;
+    spare.filter(y => y.left >= 0.1 && (!x.m || y.m === x.m)).sort((a, b) => b.left - a.left).forEach(y => {
+      if (need < 0.05) return; const g = Math.min(need, y.left); y.left -= g; need -= g;
+      acts.push(tf('stMove', { o: x.o, g: f(-x.gap, 1), x: f(g, 1), from: y.o, m: y.m || '-' }));
+    });
+    if (need >= 0.05) acts.push(tf('stHire', { o: x.o, g: f(need, 1), m: x.m || '-' }));
+  });
+  return { rows, acts, need: rows.reduce((a, x) => a + x.need, 0), have: rows.reduce((a, x) => a + x.have, 0) };
+}
+function staffingHtml(r, tgt, snap) {
+  if (!tgt) return `<div class="card"><b>${t('stTitle')}</b><div class="muted">${t('stNoTgt')}</div></div>`;
+  const st = staffing(r, tgt, snap);
+  return `<div class="card"><b>${t('stTitle')}</b>
+    <div style="margin:6px 0">${tf('stTotal', { t: tgt, need: f(st.need, 1), have: f(st.have, 1) })}</div>
+    ${st.acts.length ? st.acts.map(a => `<div class="warn">→ ${esc(a)}</div>`).join('') : `<div class="ok">✓ ${t('stOk')}</div>`}
+    <table><tr><th>${t('stOp')}</th><th class="l">${t('machine')}</th><th>${t('stHave')}</th><th>${t('stNeed')}</th><th>${t('stGap')}</th></tr>`
+    + st.rows.map(x => `<tr class="${x.gap < -0.05 ? 'bn' : ''}"><td><b>${x.o}</b></td><td class="l">${esc(x.m)}</td><td>${f(x.have, 1)}</td><td>${f(x.need, 1)}</td>
+      <td class="${x.gap < -0.05 ? 'warn' : 'ok'}"><b>${x.gap >= 0 ? '+' : ''}${f(x.gap, 1)}</b> <small>${x.gap < -0.05 ? t('stShort') : x.gap > 0.05 ? t('stSpare') : ''}</small></td></tr>`).join('')
+    + `</table><div class="muted" style="font-size:12px">${t('stHelp')}</div></div>`;
+}
+function showResult(r, tgt, raw, mp, snap) {
   let h = `<div class="card"><div class="kpi">${t('cap')}: <b>${f(r.lineCapacity)}</b>${tgt ? ` / ${tgt}` : ''}</div>
    <div class="kpi">${t('eff')}: <b>${f(r.lineEfficiency * 100)}%</b></div>
    <div class="kpi">${t('bal')}: <b>${f(r.balanceRate * 100)}%</b></div>
    <div class="kpi">${t('bn')}: <b>${r.bottleneckOps.join(', ')}</b>${(() => { const who = r.workers.filter(w => w.ops.some(o => r.bottleneckOps.includes(o))).map(w => `${w.name || w.emp} (${f(w.sec)} s)`).join(', '); return who ? ` <span class="muted">— ${esc(who)}</span>` : ''; })()}</div>`;
+  const people = r.people || new Set(r.workers.filter(w => w.min > 0).map(w => String(w.emp || w.name))).size;
+  h += `<div class="kpi">${t('people')}: <b>${people}</b> ${t('ppl')}${mp ? ` / ${mp}` : ''}</div>`;
+  if (mp && people < mp) h += `<div class="warn">⚠ ${tf('mpLess', { mp, n: mp - people })}</div>`;
+  if (mp && people > mp) h += `<div class="warn">⚠ ${tf('mpMore', { mp, n: people })}</div>`;
   if (r.missingOps && r.missingOps.length) h += `<div class="warn">⚠ ${t('missingOps')}: ${r.missingOps.join(', ')}</div>`;
   if (r.unknownOps && r.unknownOps.length) h += `<div class="warn">${t('unknown')}: ${r.unknownOps.join(', ')}</div>`;
-  h += '</div>' + balanceChart(r, tgt) + `<div class="card"><b>${t('opcap')}</b><table><tr><th>${t('opn')}</th><th>${t('cap2')}</th></tr>`;
+  h += '</div>' + balanceChart(r, tgt) + staffingHtml(r, tgt, snap) + `<div class="card"><b>${t('opcap')}</b><table><tr><th>${t('opn')}</th><th>${t('cap2')}</th></tr>`;
   Object.keys(r.opCap).sort((a, b) => r.opCap[a] - r.opCap[b]).forEach(o =>
     h += `<tr class="${r.bottleneckOps.includes(Number(o)) ? 'bn' : ''}"><td>${o}</td><td>${f(r.opCap[o])}</td></tr>`);
   h += `</table></div><div class="card"><b>${t('worker')}</b><table><tr><th>${t('worker')}</th><th>${t('opn')}</th><th>${t('avg')}</th><th>${t('pcsHr')}</th><th>%</th></tr>`;
   r.workers.forEach((w, i) => {
     const rm = (raw && raw[i] && raw[i].remark) || w.remark || '';
-    h += `<tr><td>${esc(w.name || w.emp)}${w.cv > 0.15 && w.n >= 3 ? ' ⚠' : ''}</td><td>${esc(w.opText)}</td><td>${f(w.sec)}</td><td>${f(w.capacity)}</td><td>${f(w.eff * 100)}</td></tr>`
+    const sh = w.share != null && w.share < 0.995 ? tf('shared', { ops: r.workers.filter(x => x.min > 0 && String(x.emp || x.name) === String(w.emp || w.name)).map(x => x.opText).join(' / '), p: P(w.share, 0) }) : '';
+    h += `<tr><td>${esc(w.name || w.emp)}${w.cv > 0.15 && w.n >= 3 ? ' ⚠' : ''}</td><td>${esc(w.opText)}</td><td>${f(w.sec)}</td><td>${f(sh ? w.lineRate : w.capacity)}${sh ? '*' : ''}</td><td>${f(w.eff * 100)}</td></tr>`
+       + (sh ? `<tr><td colspan="5" class="muted" style="text-align:left">* ${esc(sh)}</td></tr>` : '')
        + (rm ? `<tr><td colspan="5" class="muted" style="text-align:left">📝 ${esc(rm)}</td></tr>` : '');
   });
   h += `</table></div><div class="card"><b>${t('moves')}</b>`;
@@ -719,7 +773,7 @@ async function pullTeam() {                  // studies of all IE officers + sup
   const r = await api('list', { since: TEAM.length ? (S.since || 0) : 0 });
   const m = new Map(TEAM.map(x => [x.id, x]));
   r.studies.forEach(x => { const c = m.get(x.id); if (!c || AN.when(x) >= AN.when(c)) m.set(x.id, x); });   // keep the newest version of every study
-  TEAM = [...m.values()]; REV = r.reviews || {}; S.since = r.maxReceived || S.since || 0; save();
+  TEAM = [...m.values()].map(upgradeCalc); REV = r.reviews || {}; S.since = r.maxReceived || S.since || 0; save();
   try { await kv.set('team', TEAM); await kv.set('reviews', REV); } catch (e) {}
 }
 async function refreshNow() {
@@ -989,7 +1043,7 @@ $('lang').onchange = e => { S.lang = e.target.value; save(); render(); };
 async function boot() {
   if (typeof SYNC !== 'undefined') setData(SYNC, 'file'); else useSample();     // data.js (PC testing) or sample
   try { const d = await kv.get('data'); if (d && (!DATA_INFO.generated || (d.generated || '') >= DATA_INFO.generated)) setData(d, 'loaded'); } catch (e) {}
-  try { const tm = await kv.get('team'); if (Array.isArray(tm)) TEAM = tm; const rv = await kv.get('reviews'); if (rv && typeof rv === 'object') REV = rv; } catch (e) {}
+  try { const tm = await kv.get('team'); if (Array.isArray(tm)) TEAM = tm.map(upgradeCalc); const rv = await kv.get('reviews'); if (rv && typeof rv === 'object') REV = rv; } catch (e) {}
   if (!S.editId) S.style = DB.findStyle(S.style) || DB.styles()[0] || '';
   fixSel();
   if (!S.ie && S.me) S.ie = S.me.name;
