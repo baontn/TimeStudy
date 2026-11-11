@@ -44,11 +44,19 @@ function calcOperator(row, opMap, table = ALLOWANCE) {
            pcs: piecesUsed(row), capacity: min > 0 ? 60 / min : 0, eff: min > 0 ? sam / min : 0 };
 }
 
-// capacity of each operation = sum of 60/min of every worker covering it
+// One person can be timed on several separate operations (e.g. back-neck topstitch AND care label on every garment).
+// Her hour is shared: she finishes one set every (sum of her minutes) minutes, so she adds 60 / that to each of her operations.
+const personKey = w => String(w.emp || w.name || '');
+function personMinutes(workers) {             // person -> total minutes per garment over all her separate operations
+  const m = {};
+  workers.forEach(w => { if (w.min > 0) { const k = personKey(w); m[k] = (m[k] || 0) + w.min; } });
+  return m;
+}
+// capacity of each operation = sum of what every worker covering it adds (shared hour for a person on several operations)
 function lineCapacity(workers, requiredOps) {
-  const opCap = {};
+  const opCap = {}, pm = personMinutes(workers);
   requiredOps.forEach(o => opCap[o] = 0);
-  workers.forEach(w => { if (w.min > 0) w.ops.forEach(o => opCap[o] = (opCap[o] || 0) + 60 / w.min); });
+  workers.forEach(w => { if (w.min > 0) w.ops.forEach(o => opCap[o] = (opCap[o] || 0) + 60 / pm[personKey(w)]); });
   let capacity = Infinity;
   Object.values(opCap).forEach(c => { if (c < capacity) capacity = c; });
   return { opCap, capacity: capacity === Infinity ? 0 : capacity };
@@ -82,7 +90,8 @@ function suggestMoves(workers, requiredOps, maxMoves = 10) {
 
 function analyze(rows, opMap, table = ALLOWANCE) {
   const workers = rows.map(r => calcOperator(r, opMap, table));
-  const active = workers.filter(w => w.min > 0);
+  const active = workers.filter(w => w.min > 0), pm = personMinutes(active);
+  workers.forEach(w => { if (w.min > 0) { const tot = pm[personKey(w)]; w.share = w.min / tot; w.lineRate = 60 / tot; } });   // share of her time, pcs/hr she really gives
   const requiredOps = [...new Set(active.flatMap(w => w.ops))];
   const { opCap, capacity } = lineCapacity(active, requiredOps);
   const totalSam = active.reduce((s, w) => s + w.sam, 0);
@@ -91,11 +100,12 @@ function analyze(rows, opMap, table = ALLOWANCE) {
   const avgCap = caps.reduce((a, b) => a + b, 0) / caps.length;
   const bottleneckOps = requiredOps.filter(o => Math.abs(opCap[o] - capacity) < 1e-9);
   return {
-    workers, opCap, lineCapacity: capacity, bottleneckOps,
+    workers, opCap, lineCapacity: capacity, bottleneckOps, people: Object.keys(pm).length, calc: 2,
+    opMachine: Object.fromEntries(requiredOps.map(o => [o, (opMap[o] && opMap[o].machine) || ''])),
     lineEfficiency: totalMin > 0 ? totalSam / totalMin : 0,
     balanceRate: capacity > 0 ? capacity / avgCap : 0,   // bottleneck / average op capacity
     suggestion: suggestMoves(active, requiredOps)
   };
 }
 
-if (typeof module !== 'undefined') module.exports = { analyze, calcOperator, usedCycles, usedLaps, piecesUsed, wmean, variation, ALLOWANCE };
+if (typeof module !== 'undefined') module.exports = { analyze, calcOperator, lineCapacity, personKey, usedCycles, usedLaps, piecesUsed, wmean, variation, ALLOWANCE };
