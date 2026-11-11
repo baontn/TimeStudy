@@ -3,21 +3,23 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Time Study</title>
 <meta name="theme-color" content="#0058a0">
-<link rel="icon" href="logo.png"><link rel="apple-touch-icon" href="logo.png">
+<link rel="icon" href="icon.png"><link rel="apple-touch-icon" href="icon.png">
 <style>
 /* Crystal International palette: blue #0058a0, logo red #ed1c24, navy #091d36, greys #f1f1ef / #e2e2e2 (from crystalgroup.com) */
 :root{--bg:#f1f1ef;--panel:#fff;--text:#091d36;--muted:#5f6670;--line:#e2e2e2;--accent:#0058a0;--accent-tx:#fff;--brand-red:#ed1c24;
 --ok:#15803d;--okbg:#e7f6ec;--warn:#9a6700;--warnbg:#fff5d6;--bad:#c8161e;--badbg:#fde8e9;--info:#0058a0;--infobg:#e3eef8;--sel:#e3eef8}
 @media (prefers-color-scheme:dark){:root{--bg:#06142a;--panel:#0d2140;--text:#e8edf3;--muted:#9fb0c4;--line:#1f3858;--accent:#5e9fe0;--accent-tx:#04101f;--brand-red:#ff5a5f;
 --ok:#56d364;--okbg:#12301b;--warn:#e3b341;--warnbg:#3a2d0b;--bad:#ff6b6b;--badbg:#3d1416;--info:#7fb6ee;--infobg:#12305a;--sel:#15335a;color-scheme:dark}}
+@media (prefers-color-scheme:dark){#logo{background:#fff;padding:3px 5px;height:28px}}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 "Segoe UI",Roboto,Arial,sans-serif}
 header{display:flex;gap:8px;align-items:center;padding:8px 16px;background:var(--panel);border-bottom:3px solid var(--accent);box-shadow:0 1px 0 var(--brand-red);position:sticky;top:0;z-index:5}
-header b{flex:1;font-size:16px}
-#logo{height:32px;width:auto;flex:none;border-radius:4px}
+header b{flex:1;min-width:0;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#logo{height:24px;width:auto;flex:none;border-radius:4px}
+#author{position:fixed;right:8px;bottom:4px;font-size:10px;color:var(--muted);opacity:.75;pointer-events:none;z-index:1}
 header select,header button{width:auto;margin:0;padding:6px 10px}
 header button{background:var(--sel);color:var(--accent);border-color:transparent;font-weight:600}
-main{padding:12px;max-width:640px;margin:auto}main.wide{max-width:1000px}
+main{padding:12px 12px 24px;max-width:640px;margin:auto}main.wide{max-width:1000px}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:12px}
 .card h3{margin:0 0 8px;font-size:14px;display:flex;gap:8px;align-items:center}
 .num{display:inline-flex;width:22px;height:22px;border-radius:50%;background:var(--accent);color:var(--accent-tx);align-items:center;justify-content:center;font-size:12px}
@@ -80,6 +82,7 @@ h3{margin:4px 0 8px;font-size:14px}
 <header><button id="back" onclick="goBack()">&larr;</button><img id="logo" src="logo.png" alt="" onerror="this.remove()"><b id="title"></b>
 <select id="lang"><option value="en">EN</option><option value="vi">VI</option></select></header>
 <main id="app"></main>
+<div id="author">By Max Bao</div>
 <script src="data.js" onerror="void 0"></script>
 <script src="engine.js"></script>
 <script src="analytics.js"></script>
