@@ -52,7 +52,7 @@ td.l,th.l{text-align:left}
 #modal .sheet{background:var(--panel);border-radius:12px 12px 0 0;padding:16px;width:100%;max-width:640px;max-height:80vh;overflow:auto}
 #toast{position:fixed;left:12px;right:12px;bottom:80px;background:var(--panel);color:var(--text);border:1px solid var(--line);border-left:4px solid var(--accent);padding:10px 12px;border-radius:8px;z-index:30;font-size:13px;box-shadow:0 2px 10px rgba(0,0,0,.2);white-space:pre-wrap}
 .cyc{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0}.cy{width:auto;margin:0;padding:5px 10px;font-size:13px;border-radius:14px;background:var(--panel);color:var(--text);border-color:var(--line)}
-.cy.off{text-decoration:line-through;opacity:.45}.done{border-left:4px solid var(--ok)}.carried{border-left:4px solid var(--info)}.ok{color:var(--ok);font-weight:600}
+.cy.off{text-decoration:line-through;opacity:.45}tr.off td{text-decoration:line-through;opacity:.45}.done{border-left:4px solid var(--ok)}.carried{border-left:4px solid var(--info)}.ok{color:var(--ok);font-weight:600}
 .savebar{position:sticky;bottom:0;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px;box-shadow:0 -2px 8px rgba(0,0,0,.12);margin-top:8px}
 .dot{display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:middle;margin-right:4px}
 .dot.green{background:var(--ok)}.dot.amber{background:var(--warn)}.dot.red{background:var(--bad)}
@@ -125,7 +125,7 @@ const puKey = line => puOf(line) || NOPU;
 const DB = {
   pus:       () => [...new Set(EMP.map(e => puKey(e.line)))].sort((a, b) => (a === NOPU) - (b === NOPU) || a.localeCompare(b)),
   lines:     pu => [...new Set(EMP.filter(e => !pu || puKey(e.line) === pu).map(e => e.line))].sort(),
-  employees: line => EMP.filter(e => norm(e.line) === norm(line)),
+  employees: line => [...EMP, ...(S.extra || [])].filter(e => norm(e.line) === norm(line)),     // SQL workers + workers added by hand
   styles:    () => Object.keys(OPS).sort(),
   findStyle: v => Object.keys(OPS).find(k => norm(k) === norm(v)) || '',
   ops:       style => (OPS[style] || []).filter(o => o.no >= OP_MIN && o.no <= OP_MAX).sort((a, b) => a.no - b.no)   // {no, code, sam, machine}
@@ -136,12 +136,12 @@ const mkOpMap = style => { const m = {}; DB.ops(style).forEach(o => m[o.no] = { 
 // TEXT
 // =====================================================================
 const T = {
- en:{title:'Time Study',setup:'Study setup',selPU:'Select PU',noPU:'No PU',selLine:'Select line',selLineFirst:'Select a PU and a line to see the workers.',workers:'Workers',searchWorker:'Search worker (name or code)',chooseOps:'Choose the operation(s) this worker does (31-116). Green ring = already timed.',confirmOps:'Confirm operations',changeOps:'Change operations',dupOp:'Another operation for this worker',retime:'Re-time',fromPrev:'from previous study',prevStudy:'Previous study to re-study',pickPrev:'Select the previous study',noPrev:'No previous study on this line yet.',clearRows:'This clears the workers entered so far. Continue?',needBase:'Select the previous study to re-study.',prevTime:'Previous',sessions:'timings',login:'Log in',loginHelp:'Enter the email and PIN your supervisor gave you.',email:'Email',pin:'PIN',logout:'Log out',syncNow:'Sync now',waiting:'waiting to send',synced:'synced',syncOk:'Everything is sent.',emailMe:'Email me the report',emailSent:'Report emailed to {email}.',emailFail:'Could not email the report:',notConfigured:'The server address is not set in the app (API_URL).',refresh:'Refresh studies',updating:'Updating...',offline:'No connection. Studies stay on this phone and are sent automatically later.',loginFail:'Login failed:',newStudy:'New Study',history:'History',save:'Save study',
+ en:{title:'Time Study',lap:'Lap',resume:'Resume',reset:'Reset lap',lapTime:'Lap time',total:'Total',pcsLap:'Pieces in this lap',goalPcs:'Pieces to study',pcs:'pcs',spc:'s/pc',lapsTitle:'Laps',exclLap:'Exclude',undoLap:'Undo last lap',addWorker:'+ Add worker manually',mwName:'Worker name',mwCode:'Code (optional)',mwNeed:'Enter the worker name.',mwDup:'This code already exists on the line.',manual:'manual',rmWorker:'Remove this worker and the studies entered for him/her?',setup:'Study setup',selPU:'Select PU',noPU:'No PU',selLine:'Select line',selLineFirst:'Select a PU and a line to see the workers.',workers:'Workers',searchWorker:'Search worker (name or code)',chooseOps:'Choose the operation(s) this worker does (31-116). Green ring = already timed.',confirmOps:'Confirm operations',changeOps:'Change operations',dupOp:'Another operation for this worker',retime:'Re-time',fromPrev:'from previous study',prevStudy:'Previous study to re-study',pickPrev:'Select the previous study',noPrev:'No previous study on this line yet.',clearRows:'This clears the workers entered so far. Continue?',needBase:'Select the previous study to re-study.',prevTime:'Previous',sessions:'timings',login:'Log in',loginHelp:'Enter the email and PIN your supervisor gave you.',email:'Email',pin:'PIN',logout:'Log out',syncNow:'Sync now',waiting:'waiting to send',synced:'synced',syncOk:'Everything is sent.',emailMe:'Email me the report',emailSent:'Report emailed to {email}.',emailFail:'Could not email the report:',notConfigured:'The server address is not set in the app (API_URL).',refresh:'Refresh studies',updating:'Updating...',offline:'No connection. Studies stay on this phone and are sent automatically later.',loginFail:'Login failed:',newStudy:'New Study',history:'History',save:'Save study',
   noHistory:'No studies saved yet.',study:'Study detail',delStudy:'Delete this study',sure:'Delete?',
   line:'Line',style:'Style',ie:'Studied by',target:'Target pcs/hr (optional)',
-  cycles:'Cycles per operator',cyclesHint:'Tap a time to exclude an abnormal cycle (thread break, waiting...)',cv:'Variation',cvHigh:'High variation: check the method or exclude abnormal cycles',open:'Open',close:'Close',missingOps:'Operations not studied yet (line capacity may be wrong)',
+  cycles:'Default pieces per operator',cyclesHint:'Tap ✕ to exclude an abnormal lap (thread break, waiting...). − / + changes the pieces of a lap.',cv:'Variation',cvHigh:'High variation: check the method or exclude abnormal cycles',open:'Open',close:'Close',missingOps:'Operations not studied yet (line capacity may be wrong)',
   studyType:'Study type',ty_new:'New study',ty_qco:'QCO',ty_restudy:'Re-study',ty_routine:'Routine check (old)',ty_before:'Before improvement (old)',ty_after:'After improvement (old)',manpower:'Line manpower (optional)',note:'What was changed / observations (optional)',needIe:'Enter "Studied by" to save.',
-  quality:'Study quality',q_ok:'OK',q_check:'Check',q_review:'Needs review',qi_few:'{n} operator(s) with fewer than 3 cycles',qi_cover:'{n} operations not studied (coverage {v})',qi_missing:'{n} operation(s) not studied',qi_var:'{n} operator(s) with high variation (over 15%)',
+  quality:'Study quality',q_ok:'OK',q_check:'Check',q_review:'Needs review',qi_few:'{n} operator(s) with fewer than 3 pieces',qi_cover:'{n} operations not studied (coverage {v})',qi_missing:'{n} operation(s) not studied',qi_var:'{n} operator(s) with high variation (over 15%)',
   user:'User',cancel:'Cancel',
   exportXlsx:'Export Excel report',remark:'Remark (operation situation, optional)',xlsxFail:'Excel export failed:',
   editStudy:'Edit / Continue study',editing:'Editing a saved study',cancelEdit:'Cancel editing',replaceDraft:'Replace the current unsaved draft with this study?',updated:'updated',
@@ -152,7 +152,7 @@ const T = {
   add:'Add operator to study',addNeed:'Select an employee and at least one operation',
   start:'Start',piece:'Piece done',stop:'Stop',undo:'Undo',del:'Delete',
   avg:'Avg time (s)',pcsHr:'pcs/hr',effp:'Efficiency',
-  firstHint:'Tap Start, then tap Piece done each time a piece is finished.',
+  firstHint:'Tap Start. Tap Lap each time the pieces are finished (after cutting, if the worker sews a chain). Set the pieces of the lap first.',
   timeFirst:'Time at least one operator (Start, then Piece done) to see the line analysis and save.',
   cap:'Line capacity (pcs/hr)',eff:'Line efficiency',bal:'Balance rate',bn:'Bottleneck op',
   opcap:'Operation capacity',moves:'Suggested moves',none:'No improving move found',
@@ -171,12 +171,12 @@ const T = {
   r_eff:'Efficiency {v} is below the standard {s}',r_cap:'Capacity is {v} of the target',r_bal:'Balance rate {v} is below {s}',potNote:'+{v} possible by balancing',
   review:'Supervisor review',rv_approved:'Approved',rv_recheck:'Needs recheck',rv_clear:'Clear',rvComment:'Comment for the IE officer',rvSaved:'Review saved.',
   expSummary:'Export summary (Excel)',copySummary:'Copy summary text',copied:'Summary copied.',readOnly:'Study done by another IE officer (read only).',by:'by',allSent:'Nothing new to send.'},
- vi:{title:'Nghiên cứu thời gian',setup:'Thiết lập nghiên cứu',selPU:'Chọn PU',noPU:'Chưa có PU',selLine:'Chọn chuyền',selLineFirst:'Chọn PU và chuyền để xem danh sách công nhân.',workers:'Công nhân',searchWorker:'Tìm công nhân (tên hoặc mã)',chooseOps:'Chọn công đoạn công nhân này làm (31-116). Viền xanh = đã bấm giờ.',confirmOps:'Xác nhận công đoạn',changeOps:'Đổi công đoạn',dupOp:'Công đoạn khác của công nhân này',retime:'Bấm lại',fromPrev:'từ nghiên cứu trước',prevStudy:'Nghiên cứu trước để làm lại',pickPrev:'Chọn nghiên cứu trước',noPrev:'Chuyền này chưa có nghiên cứu trước.',clearRows:'Thao tác này xóa các công nhân đã nhập. Tiếp tục?',needBase:'Chọn nghiên cứu trước để làm lại.',prevTime:'Trước',sessions:'lần bấm',login:'Đăng nhập',loginHelp:'Nhập email và mã PIN do giám sát cấp.',email:'Email',pin:'Mã PIN',logout:'Đăng xuất',syncNow:'Đồng bộ ngay',waiting:'đang chờ gửi',synced:'đã đồng bộ',syncOk:'Đã gửi tất cả.',emailMe:'Gửi báo cáo về email',emailSent:'Đã gửi báo cáo đến {email}.',emailFail:'Không gửi được báo cáo:',notConfigured:'Chưa cài địa chỉ máy chủ trong ứng dụng (API_URL).',refresh:'Làm mới nghiên cứu',updating:'Đang cập nhật...',offline:'Không có mạng. Nghiên cứu được giữ trên điện thoại và sẽ tự gửi sau.',loginFail:'Đăng nhập lỗi:',newStudy:'Nghiên cứu mới',history:'Lịch sử',save:'Lưu nghiên cứu',
+ vi:{title:'Nghiên cứu thời gian',lap:'Vòng',resume:'Tiếp tục',reset:'Xóa vòng đang chạy',lapTime:'Thời gian vòng',total:'Tổng',pcsLap:'Số cái trong vòng này',goalPcs:'Số cái cần bấm',pcs:'cái',spc:'giây/cái',lapsTitle:'Các vòng',exclLap:'Loại',undoLap:'Hoàn tác vòng cuối',addWorker:'+ Thêm công nhân thủ công',mwName:'Tên công nhân',mwCode:'Mã (tùy chọn)',mwNeed:'Nhập tên công nhân.',mwDup:'Mã này đã có trong chuyền.',manual:'thêm tay',rmWorker:'Xóa công nhân này và các nghiên cứu đã nhập?',setup:'Thiết lập nghiên cứu',selPU:'Chọn PU',noPU:'Chưa có PU',selLine:'Chọn chuyền',selLineFirst:'Chọn PU và chuyền để xem danh sách công nhân.',workers:'Công nhân',searchWorker:'Tìm công nhân (tên hoặc mã)',chooseOps:'Chọn công đoạn công nhân này làm (31-116). Viền xanh = đã bấm giờ.',confirmOps:'Xác nhận công đoạn',changeOps:'Đổi công đoạn',dupOp:'Công đoạn khác của công nhân này',retime:'Bấm lại',fromPrev:'từ nghiên cứu trước',prevStudy:'Nghiên cứu trước để làm lại',pickPrev:'Chọn nghiên cứu trước',noPrev:'Chuyền này chưa có nghiên cứu trước.',clearRows:'Thao tác này xóa các công nhân đã nhập. Tiếp tục?',needBase:'Chọn nghiên cứu trước để làm lại.',prevTime:'Trước',sessions:'lần bấm',login:'Đăng nhập',loginHelp:'Nhập email và mã PIN do giám sát cấp.',email:'Email',pin:'Mã PIN',logout:'Đăng xuất',syncNow:'Đồng bộ ngay',waiting:'đang chờ gửi',synced:'đã đồng bộ',syncOk:'Đã gửi tất cả.',emailMe:'Gửi báo cáo về email',emailSent:'Đã gửi báo cáo đến {email}.',emailFail:'Không gửi được báo cáo:',notConfigured:'Chưa cài địa chỉ máy chủ trong ứng dụng (API_URL).',refresh:'Làm mới nghiên cứu',updating:'Đang cập nhật...',offline:'Không có mạng. Nghiên cứu được giữ trên điện thoại và sẽ tự gửi sau.',loginFail:'Đăng nhập lỗi:',newStudy:'Nghiên cứu mới',history:'Lịch sử',save:'Lưu nghiên cứu',
   noHistory:'Chưa có nghiên cứu nào.',study:'Chi tiết nghiên cứu',delStudy:'Xóa nghiên cứu này',sure:'Xóa?',
   line:'Chuyền',style:'Mã hàng',ie:'Người làm',target:'Mục tiêu SL/giờ (tùy chọn)',
-  cycles:'Số chu kỳ mỗi công nhân',cyclesHint:'Chạm vào một thời gian để loại chu kỳ bất thường (đứt chỉ, chờ hàng...)',cv:'Độ biến động',cvHigh:'Biến động cao: kiểm tra thao tác hoặc loại chu kỳ bất thường',open:'Mở',close:'Đóng',missingOps:'Công đoạn chưa bấm giờ (năng lực chuyền có thể chưa đúng)',
+  cycles:'Số cái mặc định mỗi công nhân',cyclesHint:'Bấm ✕ để loại vòng bất thường (đứt chỉ, chờ hàng...). − / + đổi số cái của vòng.',cv:'Độ biến động',cvHigh:'Biến động cao: kiểm tra thao tác hoặc loại chu kỳ bất thường',open:'Mở',close:'Đóng',missingOps:'Công đoạn chưa bấm giờ (năng lực chuyền có thể chưa đúng)',
   studyType:'Loại nghiên cứu',ty_new:'Nghiên cứu mới',ty_qco:'QCO',ty_restudy:'Nghiên cứu lại',ty_routine:'Kiểm tra định kỳ (cũ)',ty_before:'Trước cải tiến (cũ)',ty_after:'Sau cải tiến (cũ)',manpower:'Số lao động của chuyền (tùy chọn)',note:'Đã thay đổi gì / nhận xét (tùy chọn)',needIe:'Nhập "Người làm" để lưu.',
-  quality:'Chất lượng nghiên cứu',q_ok:'Đạt',q_check:'Cần kiểm tra',q_review:'Cần xem lại',qi_few:'{n} công nhân bấm ít hơn 3 chu kỳ',qi_cover:'{n} công đoạn chưa nghiên cứu (độ phủ {v})',qi_missing:'{n} công đoạn chưa nghiên cứu',qi_var:'{n} công nhân biến động cao (trên 15%)',
+  quality:'Chất lượng nghiên cứu',q_ok:'Đạt',q_check:'Cần kiểm tra',q_review:'Cần xem lại',qi_few:'{n} công nhân bấm ít hơn 3 cái',qi_cover:'{n} công đoạn chưa nghiên cứu (độ phủ {v})',qi_missing:'{n} công đoạn chưa nghiên cứu',qi_var:'{n} công nhân biến động cao (trên 15%)',
   user:'Người dùng',cancel:'Hủy',
   exportXlsx:'Xuất báo cáo Excel',remark:'Ghi chú (tình hình công đoạn, tùy chọn)',xlsxFail:'Xuất Excel lỗi:',
   editStudy:'Sửa / Tiếp tục nghiên cứu',editing:'Đang sửa nghiên cứu đã lưu',cancelEdit:'Hủy sửa',replaceDraft:'Thay bản nháp chưa lưu hiện tại bằng nghiên cứu này?',updated:'cập nhật',
@@ -187,7 +187,7 @@ const T = {
   add:'Thêm công nhân vào nghiên cứu',addNeed:'Chọn công nhân và ít nhất một công đoạn',
   start:'Bắt đầu',piece:'Xong 1 cái',stop:'Dừng',undo:'Hoàn tác',del:'Xóa',
   avg:'TB (giây)',pcsHr:'cái/giờ',effp:'Hiệu suất',
-  firstHint:'Bấm Bắt đầu, sau đó bấm Xong 1 cái mỗi khi hoàn thành một cái.',
+  firstHint:'Bấm Bắt đầu. Bấm Vòng mỗi khi xong số cái (sau khi cắt, nếu công nhân may chuyền). Chọn số cái của vòng trước.',
   timeFirst:'Bấm giờ ít nhất một công nhân (Bắt đầu, rồi Xong 1 cái) để xem phân tích và lưu.',
   cap:'Năng lực chuyền (cái/giờ)',eff:'Hiệu suất chuyền',bal:'Tỷ lệ cân bằng',bn:'Công đoạn nút cổ chai',
   opcap:'Năng lực từng công đoạn',moves:'Đề xuất điều chuyển',none:'Không có đề xuất cải thiện',
@@ -211,8 +211,8 @@ const T = {
 // =====================================================================
 // STATE
 // =====================================================================
-const APP_VER = '4.0';
-let S = { lang:'en', pu:'', line:'G08', style:'PUM25-00054-1301H4', target:'', ie:'', type:'new', baseId:'', manpower:'', note:'', rows:[], editId:null, me:null, pin:'', since:0, cycles:5, supMode:false,
+const APP_VER = '4.1';
+let S = { lang:'en', pu:'', line:'G08', style:'PUM25-00054-1301H4', target:'', ie:'', type:'new', baseId:'', manpower:'', note:'', rows:[], extra:[], editId:null, me:null, pin:'', since:0, cycles:5, supMode:false,
           sup:{ eff:55, bal:70, period:'30', pu:'', line:'', ie:'', type:'' } };
 let H = [];                                        // my saved studies
 let TEAM = [], REV = {}, SYNCING = false;      // studies from the server, supervisor reviews
@@ -229,7 +229,7 @@ try {
   if (old) { H = (old.history || []).map(x => ({ ...x, id:String(x.id) })); delete old.history;
              Object.assign(S, old); localStorage.removeItem('ts'); saveDraft(); saveHist(); }
 } catch(e){}
-S.rows.forEach(r => r.t0 = null);
+S.rows.forEach(normRow);
 try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch(e){}
 const uid = () => (crypto.randomUUID ? crypto.randomUUID() : 'id' + Date.now() + Math.random().toString(36).slice(2));
 const t = k => (T[S.lang][k] !== undefined ? T[S.lang][k] : k);
@@ -265,13 +265,13 @@ function mergeRows(rows) {                    // several timings of one worker o
   const m = new Map();
   rows.forEach(r => {
     const k = r.emp + '|' + r.opText; let x = m.get(k);
-    if (!x) { x = { emp:r.emp, name:r.name, opText:r.opText, pieces:[], skip:[], remarks:[], sessions:0, carried:true }; m.set(k, x); }
+    if (!x) { x = { emp:r.emp, name:r.name, opText:r.opText, pieces:[], cnt:[], skip:[], remarks:[], sessions:0, carried:true }; m.set(k, x); }
     (r.skip || []).forEach(i => x.skip.push(x.pieces.length + i));
-    x.pieces.push(...r.pieces); x.sessions++;
+    x.pieces.push(...r.pieces); x.cnt.push(...r.pieces.map((p, i) => (r.cnt || [])[i] || 1)); x.sessions++;
     if (r.remark) x.remarks.push(r.remark);
     if (!r.carried) x.carried = false;
   });
-  return [...m.values()].map(x => ({ emp:x.emp, name:x.name, opText:x.opText, pieces:x.pieces, skip:x.skip, remark:[...new Set(x.remarks)].join('; '), sessions:x.sessions, carried:x.carried }));
+  return [...m.values()].map(x => ({ emp:x.emp, name:x.name, opText:x.opText, pieces:x.pieces, cnt:x.cnt, skip:x.skip, remark:[...new Set(x.remarks)].join('; '), sessions:x.sessions, carried:x.carried }));
 }
 const calcRows = () => mergeRows(S.rows.filter(r => r.opText && r.pieces.length));
 const coveredOps = () => new Set(calcRows().flatMap(r => parseOps(r.opText)));
@@ -296,7 +296,9 @@ function viewNewSkeleton() {
       <div><label>${t('cycles')}</label><input id="cycles" type="number" min="1" max="20" value="${esc(S.cycles || 5)}" oninput="S.cycles=this.value;save();updateCards()"></div></div>
       <textarea id="note" rows="2" placeholder="${t('note')}" oninput="S.note=this.value;save()">${esc(S.note)}</textarea>
     </div>
-    <div class="card"><h3><span class="num">2</span>${t('workers')} <span class="muted" id="wCount"></span></h3>
+    <div class="card"><h3><span class="num">2</span>${t('workers')} <span class="muted" id="wCount"></span><button class="sec small" style="margin-left:auto" onclick="toggleAddW()">${t('addWorker')}</button></h3>
+      <div id="addW" class="info" style="display:none"><div class="row"><div><label>${t('mwName')}</label><input id="mwName" autocomplete="off"></div><div><label>${t('mwCode')}</label><input id="mwCode" autocomplete="off"></div></div>
+        <div class="row"><button onclick="addManual()">${t('add').replace(/ .*/, '')}</button><button class="sec" onclick="toggleAddW()">${t('cancel')}</button></div></div>
       <input id="wq" placeholder="${t('searchWorker')}" oninput="paintWorkers()" autocomplete="off">
       <div class="wlist" id="wlist"></div></div>
     <div id="cards"></div>
@@ -350,12 +352,11 @@ function pickBase(id) {
   if (S.rows.length && !confirm(t('clearRows'))) { $('baseSel').value = S.baseId; return; }
   S.baseId = id; S.style = b.style; if (b.target) S.target = b.target; if (b.manpower) S.manpower = b.manpower;
   opMap = mkOpMap(S.style);
-  S.rows = (b.raw || []).map(r => { const used = usedCycles(r);
-    return { emp:r.emp, name:r.name, opText:r.opText, sel:[], pieces:(r.pieces || []).slice(), skip:(r.skip || []).slice(), remark:r.remark || '', t0:null, carried:true, prevSec:mean(used) }; });
+  S.rows = (b.raw || []).map(r => normRow({ emp:r.emp, name:r.name, opText:r.opText, sel:[], pieces:(r.pieces || []).slice(), cnt:(r.cnt || []).slice(), skip:(r.skip || []).slice(), remark:r.remark || '', carried:true, prevSec:wmean(r) }));
   active = -1; save(); buildNew();
 }
 function retime(i) {                          // re-time a worker of the previous study: its old time stays as a reference
-  const r = S.rows[i]; r.carried = false; r.pieces = []; r.skip = []; r.t0 = null; save(); updateCards(); updateAnalysis();
+  const r = S.rows[i]; r.carried = false; r.pieces = []; r.cnt = []; r.laps = []; r.skip = []; r.t0 = null; r.acc = 0; r.lapAt = 0; r.ln = 1; r.goal = cyclesGoal(); save(); updateCards(); updateAnalysis();
 }
 // ---- workers
 function paintWorkers() {
@@ -368,11 +369,31 @@ function paintWorkers() {
     list.map(e => {
       const mine = S.rows.filter(r => same(r.emp, e.code) && r.opText && r.pieces.length);
       const tags = [...new Set(mine.map(r => (r.carried ? '' : '✓ ') + r.opText))].map(o => `<span class="tag ${o.startsWith('✓') ? 't-ok' : 't-info'}">${esc(o)}</span>`).join(' ');
-      return `<div class="wrow" onclick="pickWorker('${String(e.code).replace(/'/g, "\\'")}')"><div><b>${esc(e.name)}</b> <small class="muted">${esc(e.code)}</small></div><div>${tags}</div></div>`;
+      const code = String(e.code).replace(/'/g, "\\'");
+      return `<div class="wrow" onclick="pickWorker('${code}')"><div><b>${esc(e.name)}</b> <small class="muted">${esc(e.code)}</small> ${e.manual ? `<span class="tag t-warn">${t('manual')}</span>` : ''}</div><div>${tags}${e.manual ? ` <button class="sec small" onclick="event.stopPropagation();rmManual('${code}')">×</button>` : ''}</div></div>`;
     }).join('');
 }
+function toggleAddW() { const b = $('addW'); b.style.display = b.style.display === 'none' ? 'block' : 'none'; if (b.style.display === 'block') $('mwName').focus(); }
+function addManual() {                        // a worker that is not in the data yet (new in the line)
+  const name = ($('mwName').value || '').trim();
+  if (!name) { toast(t('mwNeed')); return; }
+  if (!S.line) { toast(t('selLineFirst')); return; }
+  let code = ($('mwCode').value || '').trim();
+  const taken = c => DB.employees(S.line).some(e => same(e.code, c));
+  if (!code) { let n = (S.extra || []).length + 1; do { code = 'NEW' + String(n++).padStart(3, '0'); } while (taken(code)); }
+  else if (taken(code)) { toast(t('mwDup')); return; }
+  (S.extra = S.extra || []).push({ code, name, line:S.line, manual:true });
+  $('mwName').value = ''; $('mwCode').value = ''; $('addW').style.display = 'none';
+  save(); paintWorkers(); pickWorker(code);
+}
+function rmManual(code) {
+  if (!confirm(t('rmWorker'))) return;
+  S.extra = (S.extra || []).filter(e => !(same(e.code, code) && norm(e.line) === norm(S.line)));
+  S.rows = S.rows.filter(r => !same(r.emp, code)); active = S.rows.findIndex(r => r.t0 !== null);
+  save(); paintWorkers(); updateCards(); updateAnalysis();
+}
 function addEntry(e) {                        // new entry for a worker, placed right after the worker's other entries
-  const r = { emp:e.code, name:e.name, opText:'', sel:[], pieces:[], skip:[], remark:'', t0:null };
+  const r = normRow({ emp:e.code, name:e.name, opText:'', sel:[], pieces:[], skip:[], remark:'' });
   let at = -1; S.rows.forEach((x, k) => { if (same(x.emp, e.code)) at = k; });
   if (at < 0) { S.rows.push(r); return S.rows.length - 1; }
   S.rows.splice(at + 1, 0, r); return at + 1;
@@ -390,7 +411,7 @@ function dupWorker(i) {                       // same worker, another operation 
 }
 function toggleSel(i, no) { const r = S.rows[i]; r.sel = (r.sel || []).includes(no) ? r.sel.filter(x => x !== no) : [...(r.sel || []), no]; save(); updateCards(); }
 function confirmOps(i) { const r = S.rows[i]; if (!(r.sel || []).length) return; r.opText = r.sel.slice().sort((a, b) => a - b).join('+'); r.sel = []; save(); updateCards(); updateAnalysis(); focusCard(i); }
-function changeOps(i) { const r = S.rows[i]; r.sel = parseOps(r.opText); r.opText = ''; r.t0 = null; save(); updateCards(); updateAnalysis(); }
+function changeOps(i) { const r = S.rows[i]; pauseRow(r, performance.now()); r.sel = parseOps(r.opText); r.opText = ''; save(); updateCards(); updateAnalysis(); }
 
 // ---------- remarks ----------
 const QUICK = ['chất lượng chưa ổn định', 'k đủ hàng làm', 'thao tác chậm, điều chỉnh lâu', 'nhảy công đoạn', 'Đi HT', 'mới học'];
@@ -399,41 +420,65 @@ function addRemark(i, txt) {                // tap a quick remark: it is added t
   save(); updateCards();
 }
 
-// ---------- stopwatch ----------
-const MIN_CYCLE = 1.5;                        // seconds: a faster second tap is treated as an accidental double tap
+// ---------- stopwatch: Start / Stop and Lap, like a phone stopwatch ----------
+// The clock keeps running while the worker sews a chain and cuts. Tap Lap when the pieces are finished (set the pieces of the lap first).
+const MIN_CYCLE = 1.5;                        // seconds: a faster second Lap tap is treated as an accidental double tap
 const openCard = new Set();
 const cyclesGoal = () => Math.max(1, Number(S.cycles) || 5);
-const nUsed = r => usedCycles(r).length;
-function nextToTime(i) {                      // next entry that still needs cycles
-  for (let k = 1; k <= S.rows.length; k++) { const j = (i + k) % S.rows.length, x = S.rows[j]; if (x.opText && !x.carried && nUsed(x) < cyclesGoal()) return j; }
+const goalOf = r => Math.max(1, Math.round(Number(r.goal)) || cyclesGoal());
+const elapsed = (r, now) => (r.acc || 0) + (r.t0 === null ? 0 : (now === undefined ? performance.now() : now) - r.t0);
+const fmtT = ms => { const x = Math.max(0, ms) / 1000, m = Math.floor(x / 60); return String(m).padStart(2, '0') + ':' + (x - m * 60).toFixed(1).padStart(4, '0'); };
+function syncLaps(r) { r.pieces = r.laps.map(l => l.sec / l.n); r.cnt = r.laps.map(l => l.n); }
+function normRow(r) {                         // makes sure an entry has the stopwatch fields (also for entries saved by older versions)
+  r.t0 = null; r.skip = r.skip || []; r.pieces = r.pieces || []; r.sel = r.sel || [];
+  if (!r.cnt || r.cnt.length !== r.pieces.length) r.cnt = r.pieces.map((p, i) => (r.cnt || [])[i] || 1);
+  if (!r.laps || r.laps.length !== r.pieces.length) r.laps = r.pieces.map((p, i) => ({ sec: p * r.cnt[i], n: r.cnt[i] }));
+  if (r.acc == null) r.acc = r.laps.reduce((a, l) => a + l.sec * 1000, 0);
+  if (r.lapAt == null) r.lapAt = r.acc;
+  r.ln = r.ln || (r.laps.length ? r.laps[r.laps.length - 1].n : 1);
+  r.goal = r.goal || Math.max(Number(S.cycles) || 5, r.laps.reduce((a, l) => a + l.n, 0));
+  return r;
+}
+function nextToTime(i) {                      // next entry that still needs pieces
+  for (let k = 1; k <= S.rows.length; k++) { const j = (i + k) % S.rows.length, x = S.rows[j]; if (x.opText && !x.carried && piecesUsed(x) < goalOf(x)) return j; }
   return -1;
 }
-function tap(i, ev) {                         // Start, then every tap = one piece done
+function pauseRow(r, now) { if (r.t0 !== null) { r.acc += now - r.t0; r.t0 = null; } }
+function startStop(i, ev) {                   // Start / Resume / Stop (pause); only one stopwatch runs at a time
   const r = S.rows[i], now = ev ? ev.timeStamp : performance.now();
-  let next = -1;
-  if (r.t0 === null) {
-    S.rows.forEach((x, k) => { if (k !== i) x.t0 = null; });                  // only one stopwatch runs at a time
-    r.t0 = now; active = i;
-  } else {
-    const sec = (now - r.t0) / 1000;
-    if (sec < MIN_CYCLE) return;
-    r.pieces.push(sec); r.t0 = now;
-    if (nUsed(r) >= cyclesGoal()) { r.t0 = null; active = -1; openCard.delete(i); next = nextToTime(i); }   // enough cycles: stop and move on
-  }
-  save(); updateCards(); updateAnalysis();
-  if (next >= 0) { const el = $('card' + next); if (el && el.scrollIntoView) el.scrollIntoView({ behavior:'smooth', block:'center' }); }
+  if (r.t0 === null) { S.rows.forEach((x, k) => { if (k !== i) pauseRow(x, now); }); r.t0 = now; active = i; }
+  else { pauseRow(r, now); active = S.rows.findIndex(x => x.t0 !== null); }
+  save(); updateCards();
 }
-function toggleCycle(i, k) {                  // exclude / include an abnormal cycle
-  const r = S.rows[i]; r.skip = r.skip || [];
+function lap(i, ev) {                         // one lap = the pieces set in "Pieces in this lap", measured from the previous lap
+  const r = S.rows[i], now = ev ? ev.timeStamp : performance.now();
+  if (r.t0 === null) return;
+  const el = elapsed(r, now), ms = el - r.lapAt;
+  if (ms < MIN_CYCLE * 1000) return;
+  r.laps.push({ sec: ms / 1000, n: Math.max(1, r.ln || 1) }); r.lapAt = el; syncLaps(r);
+  let next = -1;
+  if (piecesUsed(r) >= goalOf(r)) { pauseRow(r, now); active = S.rows.findIndex(x => x.t0 !== null); openCard.delete(i); next = nextToTime(i); }   // target reached: stop and move on
+  save(); updateCards(); updateAnalysis();
+  if (next >= 0) { const el2 = $('card' + next); if (el2 && el2.scrollIntoView) el2.scrollIntoView({ behavior:'smooth', block:'center' }); }
+}
+function resetLap(i) { const r = S.rows[i]; if (r.t0 !== null) return; r.acc = r.lapAt; save(); updateCards(); }       // throw away the unfinished part of the current lap
+function undoLap(i) {                         // remove the last lap; its time goes back into the lap that is running
+  const r = S.rows[i], l = r.laps.pop(); if (!l) return;
+  r.lapAt = Math.max(0, r.lapAt - l.sec * 1000); r.skip = r.skip.filter(k => k < r.laps.length); syncLaps(r);
+  save(); updateCards(); updateAnalysis();
+}
+function lnAdj(i, d) { const r = S.rows[i]; r.ln = Math.max(1, (r.ln || 1) + d); const el = $('ln' + i); if (el) el.textContent = r.ln; save(); }
+function setLapN(i, k, d) { const r = S.rows[i]; r.laps[k].n = Math.max(1, r.laps[k].n + d); syncLaps(r); save(); updateCards(); updateAnalysis(); }
+function toggleCycle(i, k) {                  // exclude / include an abnormal lap
+  const r = S.rows[i];
   r.skip = r.skip.includes(k) ? r.skip.filter(x => x !== k) : [...r.skip, k];
   save(); updateCards(); updateAnalysis();
 }
-function stop(i) { S.rows[i].t0 = null; active = -1; save(); updateCards(); }
-function undo(i) { const r = S.rows[i]; r.pieces.pop(); r.skip = (r.skip || []).filter(k => k < r.pieces.length); r.t0 = null; save(); updateCards(); updateAnalysis(); }
+function setGoal(i, v) { const r = S.rows[i]; r.goal = Math.max(1, Math.round(Number(v)) || 1); save(); updateCards(); }
 function del(i) { S.rows.splice(i, 1); active = S.rows.findIndex(r => r.t0 !== null); openCard.clear(); save(); updateCards(); updateAnalysis(); }
 
 function updateCards() {
-  const tg = cyclesGoal(), cov = coveredOps(), opsList = DB.ops(S.style);
+  const cov = coveredOps(), opsList = DB.ops(S.style);
   $('cards').innerHTML = S.rows.map((r, i) => {
     const head = `<b>${esc(r.name)}</b> <small class="muted">${esc(r.emp)}</small>`;
     if (r.carried) {                          // from the previous study (Re-study)
@@ -450,27 +495,35 @@ function updateCards() {
       return `<div class="card" id="card${i}">${head}<div class="muted">${t('chooseOps')}</div><div class="chips">${chips}</div><div class="info">${info}</div>
         <div class="row"><button ${sel.length ? '' : 'disabled'} onclick="confirmOps(${i})">${t('confirmOps')}</button><button class="sec" onclick="del(${i})">${t('del')}</button></div></div>`;
     }
-    const c = calcOperator(r, opMap), d = opsList.filter(o => c.ops.includes(o.no)), n = c.n, done = n >= tg && r.t0 === null;
+    const c = calcOperator(r, opMap), d = opsList.filter(o => c.ops.includes(o.no)), pcs = c.pcs, goal = goalOf(r), running = r.t0 !== null, el = elapsed(r);
+    const done = pcs >= goal && !running;
     const machines = [...new Set(d.map(o => o.machine).filter(Boolean))];
-    const stat = n ? `${t('avg')} <b>${f(c.sec)}</b> · ${f(c.capacity)} ${t('pcsHr')} · ${f(c.eff * 100)}% · ${t('cv')} ${f(c.cv * 100)}%` : '';
-    const warnCv = n >= 3 && c.cv > 0.15 ? `<div class="warn">⚠ ${t('cvHigh')}</div>` : '';
+    const stat = pcs ? `${t('avg')} <b>${f(c.sec)}</b> · ${f(c.capacity)} ${t('pcsHr')} · ${f(c.eff * 100)}% · ${t('cv')} ${f(c.cv * 100)}%` : '';
+    const warnCv = c.n >= 3 && c.cv > 0.15 ? `<div class="warn">⚠ ${t('cvHigh')}</div>` : '';
     const prev = r.prevSec ? `<div class="muted">${t('prevTime')}: ${f(r.prevSec)} s</div>` : '';
-    if (done && !openCard.has(i)) return `<div class="card done" id="card${i}">${head} &nbsp; ${t('opn')} <b>${esc(r.opText)}</b> <span class="ok">✓ ${n}/${tg}</span>
+    const progress = `<span class="${done ? 'ok' : 'muted'}">${pcs}/${goal} ${t('pcs')}</span>`;
+    if (done && !openCard.has(i)) return `<div class="card done" id="card${i}">${head} &nbsp; ${t('opn')} <b>${esc(r.opText)}</b> <span class="ok">✓</span> ${progress}
       <div class="muted">${stat}</div>${prev}${warnCv}${r.remark ? `<div class="muted">📝 ${esc(r.remark)}</div>` : ''}
       <div class="row"><button class="sec" onclick="openCard.add(${i});updateCards()">${t('open')}</button><button class="sec" onclick="dupWorker(${i})">${t('dupOp')}</button></div></div>`;
-    return `<div class="card${done ? ' done' : ''}" id="card${i}">${head} &nbsp; ${t('opn')} <b>${esc(r.opText)}</b> <span class="${done ? 'ok' : 'muted'}">${n}/${tg}</span>
+    const left = running ? `<button class="big" onpointerdown="lap(${i},event)">${t('lap')}</button>`
+                         : `<button class="big sec" ${el > r.lapAt ? '' : 'disabled'} onclick="resetLap(${i})">${t('reset')}</button>`;
+    const right = `<button class="big ${running ? 'red' : 'green'}" onpointerdown="startStop(${i},event)">${running ? t('stop') : (el > 0 ? t('resume') : t('start'))}</button>`;
+    const lapsTbl = r.laps.length ? `<table><tr><th>#</th><th>${t('lapTime')}</th><th>${t('pcs')}</th><th>${t('spc')}</th><th></th></tr>` + r.laps.map((l, k) => `<tr class="${r.skip.includes(k) ? 'off' : ''}"><td>${k + 1}</td><td>${f(l.sec)}</td>
+        <td><button class="sec small" onclick="setLapN(${i},${k},-1)">−</button> ${l.n} <button class="sec small" onclick="setLapN(${i},${k},1)">+</button></td><td>${f(l.sec / l.n)}</td>
+        <td><button class="sec small" onclick="toggleCycle(${i},${k})">${r.skip.includes(k) ? '↺' : '✕'}</button></td></tr>`).join('') + `</table><div class="muted" style="font-size:12px">${t('cyclesHint')}</div>` : '';
+    return `<div class="card${done ? ' done' : ''}" id="card${i}">${head} &nbsp; ${t('opn')} <b>${esc(r.opText)}</b> ${progress}
       <div class="muted">${t('sam')} ${f(c.sam, 4)} · ${t('machine')}: ${esc(machines.join(', ') || '-')}</div>${prev}
-      <div class="time" id="tm${i}">${r.t0 === null ? '0.0' : ''}</div>
-      <button class="big" onpointerdown="tap(${i},event)">${r.t0 === null ? t('start') : t('piece')}</button>
-      ${r.pieces.length ? `<div class="cyc">${r.pieces.map((p, k) => `<button class="cy ${(r.skip || []).includes(k) ? 'off' : ''}" onclick="toggleCycle(${i},${k})">${f(p)}</button>`).join('')}</div><div class="muted" style="font-size:12px">${t('cyclesHint')}</div>` : ''}
-      ${n ? `<div class="metrics"><div>${t('avg')}<b>${f(c.sec)}</b></div><div>${t('pcsHr')}<b>${f(c.capacity)}</b></div><div>${t('effp')}<b>${f(c.eff * 100)}%</b></div></div><div class="muted">${t('cv')}: ${f(c.cv * 100)}%</div>${warnCv}`
+      <div class="time" id="tm${i}">${fmtT(el - r.lapAt)}</div><div class="muted" style="text-align:center">${t('total')} <span id="tt${i}">${fmtT(el)}</span></div>
+      <div class="row">${left}${right}</div>
+      <div class="row" style="align-items:center;margin-top:6px"><div>${t('pcsLap')}</div><button class="sec small" onclick="lnAdj(${i},-1)">−</button><b id="ln${i}" style="text-align:center;font-size:20px">${r.ln}</b><button class="sec small" onclick="lnAdj(${i},1)">+</button></div>
+      <div class="row" style="align-items:center"><div>${t('goalPcs')}</div><input type="number" min="1" value="${goal}" onchange="setGoal(${i},this.value)"></div>
+      ${lapsTbl}
+      ${pcs ? `<div class="metrics"><div>${t('avg')}<b>${f(c.sec)}</b></div><div>${t('pcsHr')}<b>${f(c.capacity)}</b></div><div>${t('effp')}<b>${f(c.eff * 100)}%</b></div></div><div class="muted">${t('cv')}: ${f(c.cv * 100)}%</div>${warnCv}`
           : `<div class="muted">${t('firstHint')}</div>`}
       <textarea rows="2" placeholder="${t('remark')}" oninput="S.rows[${i}].remark=this.value;save()">${esc(r.remark || '')}</textarea>
       <div class="qr">${QUICK.map((q, k) => `<button class="sec" onclick="addRemark(${i},QUICK[${k}])">+ ${esc(q)}</button>`).join('')}</div>
-      <div class="row"><button class="sec" onclick="stop(${i})">${t('stop')}</button>
-      <button class="sec" onclick="undo(${i})">${t('undo')}</button>
-      <button class="sec" onclick="del(${i})">${t('del')}</button>${done ? `<button class="sec" onclick="openCard.delete(${i});updateCards()">${t('close')}</button>` : ''}</div>
-      <div class="row"><button class="sec" onclick="dupWorker(${i})">${t('dupOp')}</button>${r.pieces.length ? '' : `<button class="sec" onclick="changeOps(${i})">${t('changeOps')}</button>`}</div></div>`;
+      <div class="row"><button class="sec" ${r.laps.length ? '' : 'disabled'} onclick="undoLap(${i})">${t('undoLap')}</button><button class="sec" onclick="del(${i})">${t('del')}</button>${done ? `<button class="sec" onclick="openCard.delete(${i});updateCards()">${t('close')}</button>` : ''}</div>
+      <div class="row"><button class="sec" onclick="dupWorker(${i})">${t('dupOp')}</button>${r.laps.length || el > 0 ? '' : `<button class="sec" onclick="changeOps(${i})">${t('changeOps')}</button>`}</div></div>`;
   }).join('');
   keepAwake(S.rows.some(r => r.t0 !== null));
   paintWorkers();
@@ -480,7 +533,7 @@ function liveStudy() {                      // the study as it would be saved no
 }
 function qualityHtml(q) {
   const txt = i => tf('qi_' + i.k, { n: i.n, v: i.v != null ? P(i.v, 0) : '' });
-  return `<div class="card q-${q.status}"><b>${t('quality')}: ${t('q_' + q.status)}</b> <span class="muted">· ${f(q.avgCycles)} ${t('cycles').toLowerCase()}</span>${q.issues.map(i => `<div class="warn">⚠ ${esc(txt(i))}</div>`).join('')}</div>`;
+  return `<div class="card q-${q.status}"><b>${t('quality')}: ${t('q_' + q.status)}</b> <span class="muted">· ${f(q.avgCycles)} ${t('pcs')}</span>${q.issues.map(i => `<div class="warn">⚠ ${esc(txt(i))}</div>`).join('')}</div>`;
 }
 function updateAnalysis() {                 // live: recomputed after every piece, no Analyze button
   const rows = calcRows();
@@ -513,7 +566,7 @@ function editStudy(id) {                    // load a saved study back into the 
   const h = H.find(x => x.id === id); if (!h) return;
   if (S.rows.length && S.editId !== id && !confirm(t('replaceDraft'))) return;
   if (S.editId !== id) {
-    S.rows = h.raw.map(r => ({ emp:r.emp, name:r.name, opText:r.opText, sel:[], pieces:r.pieces.slice(), skip:(r.skip || []).slice(), remark:r.remark || '', t0:null, carried:!!r.carried }));
+    S.rows = h.raw.map(r => normRow({ emp:r.emp, name:r.name, opText:r.opText, sel:[], pieces:r.pieces.slice(), cnt:(r.cnt || []).slice(), skip:(r.skip || []).slice(), remark:r.remark || '', carried:!!r.carried }));
     S.pu = h.pu || puKey(h.line); S.line = h.line; S.style = h.style; S.target = h.target || ''; S.ie = h.ie || ''; S.type = TYPES3.includes(h.type) ? h.type : 'new';
     S.baseId = h.baseId || ''; S.note = h.note || ''; S.manpower = h.manpower || ''; S.editId = id;
   }
@@ -911,11 +964,12 @@ function exportExcel(id) {                    // Excel report in the company tem
   return shareFiles([file]);
 }
 
-// live timer display
+// live timer display (lap time and total time of the running stopwatch)
 setInterval(() => {
   if (document.hidden || screen !== 'new' || active < 0 || !S.rows[active] || S.rows[active].t0 === null) return;
-  const el = $('tm' + active);
-  if (el) el.textContent = f((performance.now() - S.rows[active].t0) / 1000);
+  const r = S.rows[active], el = elapsed(r), a = $('tm' + active), b = $('tt' + active);
+  if (a) a.textContent = fmtT(el - r.lapAt);
+  if (b) b.textContent = fmtT(el);
 }, 100);
 $('lang').onchange = e => { S.lang = e.target.value; save(); render(); };
 async function boot() {

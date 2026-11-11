@@ -5,6 +5,7 @@
   const num = v => (isFinite(v) ? Number(v) : 0);
   const mean = a => (a.length ? a.reduce((s, x) => s + x, 0) / a.length : 0);
   const usedOf = w => (w.pieces || []).filter((p, i) => !(w.skip || []).includes(i) && Number(p) > 0).map(Number);
+  const pcsOf = w => (w.pieces || []).reduce((s, p, i) => (!(w.skip || []).includes(i) && Number(p) > 0) ? s + Math.max(1, Math.round(Number((w.cnt || [])[i])) || 1) : s, 0);
   const cvOf = a => { if (a.length < 2) return 0; const m = mean(a); return m ? Math.sqrt(a.reduce((s, x) => s + (x - m) * (x - m), 0) / (a.length - 1)) / m : 0; };
   const when = s => new Date(s.updated || s.date).getTime();         // newest version of a study
   const at = s => new Date(s.date).getTime();                        // the day the study was done
@@ -14,8 +15,8 @@
     o = o || {}; const minCycles = o.minCycles || 3, cvMax = o.cvMax || 0.15;
     const raw = s.raw || [], R = s.result || {};
     let few = 0, high = 0, excl = 0, cyc = 0, cvs = [];
-    raw.forEach(w => { const u = usedOf(w); cyc += u.length; excl += (w.skip || []).length;
-      if (u.length < minCycles) few++; else { const c = cvOf(u); cvs.push(c); if (c > cvMax) high++; } });
+    raw.forEach(w => { const u = usedOf(w), pc = pcsOf(w); cyc += pc; excl += (w.skip || []).length;
+      if (pc < minCycles) few++; else { const c = cvOf(u); cvs.push(c); if (u.length >= 3 && c > cvMax) high++; } });
     const missing = (R.missingOps || []).length, studied = Object.keys(R.opCap || {}).length;
     const coverage = studied + missing ? studied / (studied + missing) : 1;
     const issues = [];

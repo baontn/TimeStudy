@@ -11,8 +11,16 @@ function mean(arr) {
   const v = arr.map(Number).filter(x => x > 0);
   return v.length ? v.reduce((a, b) => a + b, 0) / v.length : 0;
 }
-// cycles the IE kept (abnormal cycles can be excluded with row.skip = [index, ...])
+// A row = one operator on one operation. row.pieces[i] = seconds PER PIECE of lap i, row.cnt[i] = pieces in lap i (default 1:
+// a chain of 4 pieces cut after the 4th = one lap of 4 pieces). Excluded laps are listed in row.skip = [index, ...].
 const usedCycles = row => (row.pieces || []).filter((p, i) => !(row.skip || []).includes(i) && Number(p) > 0);
+const usedLaps = row => (row.pieces || []).map((p, i) => ({ p: Number(p), w: Math.max(1, Math.round(Number((row.cnt || [])[i])) || 1), i }))
+  .filter(x => !(row.skip || []).includes(x.i) && x.p > 0);
+const piecesUsed = row => usedLaps(row).reduce((s, x) => s + x.w, 0);
+function wmean(row) {                        // average seconds per piece, weighted by the pieces of each lap
+  const u = usedLaps(row), w = u.reduce((s, x) => s + x.w, 0);
+  return w ? u.reduce((s, x) => s + x.p * x.w, 0) / w : 0;
+}
 function variation(arr) {                    // coefficient of variation (sd / mean)
   const v = arr.map(Number), m = mean(v);
   if (v.length < 2 || !m) return 0;
@@ -29,11 +37,11 @@ function calcOperator(row, opMap, table = ALLOWANCE) {
   const allow = sam > 0                                                    // SAM-weighted allowance
     ? ops.reduce((s, o) => s + (opMap[o]?.sam || 0) * allowanceFor(opMap[o]?.machine, table), 0) / sam
     : DEFAULT_ALLOWANCE;
-  const used = usedCycles(row), sec = mean(used);
+  const used = usedCycles(row), sec = wmean(row);
   const min = sec / 60 * (1 + allow);
   const machines = [...new Set(ops.map(o => opMap[o]?.machine).filter(Boolean))];
   return { ...row, ops, key: ops.join('+'), sam, allow, sec, min, n: used.length, cv: variation(used), machines,
-           capacity: min > 0 ? 60 / min : 0, eff: min > 0 ? sam / min : 0 };
+           pcs: piecesUsed(row), capacity: min > 0 ? 60 / min : 0, eff: min > 0 ? sam / min : 0 };
 }
 
 // capacity of each operation = sum of 60/min of every worker covering it
@@ -90,4 +98,4 @@ function analyze(rows, opMap, table = ALLOWANCE) {
   };
 }
 
-if (typeof module !== 'undefined') module.exports = { analyze, calcOperator, usedCycles, variation, ALLOWANCE };
+if (typeof module !== 'undefined') module.exports = { analyze, calcOperator, usedCycles, usedLaps, piecesUsed, wmean, variation, ALLOWANCE };
