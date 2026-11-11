@@ -1,10 +1,10 @@
 // Offline cache. Change VERSION every time you update index.html or engine.js.
-const VERSION = 'ts-v20';
+const VERSION = 'ts-v23';
 const APP_FILES = ['./', './index.html', './engine.js', './analytics.js', './xlsx_export.js'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(VERSION).then(async c => {
     await c.addAll(APP_FILES);
-    for (const f of ['./data.js', './logo.png']) { try { await c.add(f); } catch (_) {} }   // optional files
+    for (const f of ['./data.js', './logo.png', './icon.png']) { try { await c.add(f); } catch (_) {} }   // optional files
   }));
   self.skipWaiting();
 });
