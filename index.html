@@ -2,6 +2,7 @@
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Time Study</title>
+<link rel="icon" href="logo.png"><link rel="apple-touch-icon" href="logo.png">
 <style>
 :root{--bg:#f3f4f6;--panel:#fff;--text:#1d2330;--muted:#6b7280;--line:#e2e5ea;--accent:#1f6feb;--accent-tx:#fff;
 --ok:#15803d;--okbg:#e7f6ec;--warn:#9a6700;--warnbg:#fff5d6;--bad:#c4202b;--badbg:#fde8e8;--info:#0b5cad;--infobg:#e6f0ff;--sel:#eaf1ff}
@@ -11,6 +12,7 @@
 body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 "Segoe UI",Roboto,Arial,sans-serif}
 header{display:flex;gap:8px;align-items:center;padding:8px 16px;background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
 header b{flex:1;font-size:16px}
+#logo{height:32px;width:auto;flex:none;border-radius:4px}
 header select,header button{width:auto;margin:0;padding:6px 10px}
 header button{background:var(--sel);color:var(--accent);border-color:transparent;font-weight:600}
 main{padding:12px;max-width:640px;margin:auto}main.wide{max-width:1000px}
@@ -73,7 +75,7 @@ h3{margin:4px 0 8px;font-size:14px}
 .lb{stroke:var(--bad)}.lk{stroke:var(--ok)}.la{stroke:var(--accent)}.ll{stroke:var(--line)}
 </style></head>
 <body>
-<header><button id="back" onclick="goBack()">&larr;</button><b id="title"></b>
+<header><button id="back" onclick="goBack()">&larr;</button><img id="logo" src="logo.png" alt="" onerror="this.remove()"><b id="title"></b>
 <select id="lang"><option value="en">EN</option><option value="vi">VI</option></select></header>
 <main id="app"></main>
 <script src="data.js" onerror="void 0"></script>
