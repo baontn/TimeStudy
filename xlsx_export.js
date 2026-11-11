@@ -173,7 +173,11 @@ ${line(1, 'D', 'Line capacity', caps.line, 'DC2626', 22225)}${hasTgt ? line(2, '
   const dmy = d => `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
 
   function build(h, styleOps, logo) {
-    const R = h.result, W = R.workers || [], raw = h.raw || [];
+    const R = h.result, W0 = R.workers || [], raw0 = h.raw || [];
+    // rows in operation sequence; a combined operation (e.g. 33+34) comes right after the single rows of all its operations
+    const seqKey = w => { const o = (w.ops || []).map(Number).filter(isFinite); return o.length ? [Math.max(...o), o.length, Math.min(...o)] : [Infinity, 0, 0]; };
+    const order = W0.map((w, i) => i).sort((a, b) => { const x = seqKey(W0[a]), y = seqKey(W0[b]); return x[0] - y[0] || x[1] - y[1] || x[2] - y[2] || a - b; });
+    const W = order.map(i => W0[i]), raw = order.map(i => raw0[i] || {});
     const used = [...new Set(W.flatMap(w => w.ops))].sort((a, b) => a - b);
     let ops = (h.opsSnap && h.opsSnap.length ? h.opsSnap : (styleOps || []).filter(o => used.includes(o.no)))
       .map(o => ({ no: o.no, sam: o.sam })).sort((a, b) => a.no - b.no);
@@ -292,7 +296,7 @@ ${line(1, 'D', 'Line capacity', caps.line, 'DC2626', 22225)}${hasTgt ? line(2, '
       const sh = mr + 3 + acts.length;              // header row of the staffing table
       ['Công đoạn', 'Máy', 'Có (lao động)', 'Cần (lao động)', 'Chênh lệch', 'Tình trạng'].forEach((v, c) => s2.put(c, sh, { s: ST.aHdr, v }));
       s2.heights[sh] = 32;
-      plan.rows.forEach((x, i) => {
+      plan.rows.slice().sort((a, b) => a.o - b.o).forEach((x, i) => {     // in operation sequence
         const r = sh + 1 + i, capRow = th + 1 + opList.indexOf(x.o), short = x.gap < -0.05;
         s2.put(0, r, { s: short ? ST.aRedCell : ST.aCell, v: x.o });
         s2.put(1, r, { s: ST.aTxtC, v: x.m || '' });
