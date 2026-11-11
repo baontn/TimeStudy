@@ -54,7 +54,8 @@
   function filterStudies(list, f) {
     f = f || {};
     const puOf = f.puOf || (() => '');
-    return list.filter(s => (!f.from || at(s) >= f.from) && (!f.pu || (s.pu || puOf(s.line)) === f.pu) && (!f.line || s.line === f.line) && (!f.ie || s.ie === f.ie) && (!f.type || (s.type || 'new') === f.type));
+    return list.filter(s => (!f.from || at(s) >= f.from) && (!f.pu || (s.pu || puOf(s.line)) === f.pu) && (!f.line || s.line === f.line) && (!f.ie || s.ie === f.ie) && (!f.type || (s.type || 'new') === f.type)
+      && (!f.style || String(s.style || '').toLowerCase().includes(String(f.style).trim().toLowerCase())));
   }
   function latestPerLine(list) {
     const m = new Map(); list.forEach(s => { const c = m.get(s.line); if (!c || at(s) > at(c) || (at(s) === at(c) && when(s) > when(c))) m.set(s.line, s); });
