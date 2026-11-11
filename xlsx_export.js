@@ -282,7 +282,8 @@ ${line(1, 'D', 'Line capacity', caps.line, 'DC2626', 22225)}${hasTgt ? line(2, '
     const logoPart = logo && logo.length > 24;
     let lw = 1454, lh = 184;
     if (logoPart) { const dv = new DataView(logo.buffer, logo.byteOffset, logo.byteLength); lw = dv.getUint32(16); lh = dv.getUint32(20); }
-    const cx = 6970770, cy = Math.round(cx * lh / lw);
+    const maxCx = 6970770, maxCy = Math.round(maxCx * 184 / 1454);   // fit any logo inside the original banner box
+    const sc = Math.min(maxCx / lw, maxCy / lh), cx = Math.round(lw * sc), cy = Math.round(lh * sc);
     const drawing1 = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <xdr:wsDr xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><xdr:oneCellAnchor><xdr:from><xdr:col>3</xdr:col><xdr:colOff>1126398</xdr:colOff><xdr:row>0</xdr:row><xdr:rowOff>46089</xdr:rowOff></xdr:from><xdr:ext cx="${cx}" cy="${cy}"/><xdr:pic><xdr:nvPicPr><xdr:cNvPr id="2" name="Logo"/><xdr:cNvPicPr><a:picLocks noChangeAspect="1"/></xdr:cNvPicPr></xdr:nvPicPr><xdr:blipFill><a:blip xmlns:r="${REL}" r:embed="rId1"/><a:stretch><a:fillRect/></a:stretch></xdr:blipFill><xdr:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></xdr:spPr></xdr:pic><xdr:clientData/></xdr:oneCellAnchor></xdr:wsDr>`;
     const emptyDrawing = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
