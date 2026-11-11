@@ -136,20 +136,21 @@ ${o.noDrawing ? '' : '<drawing r:id="rId1"/>'}
   };
 
   // ---------------- chart ----------------
-  function chartXml(n, firstRow, caps, bnIdx, hasTgt, sheet) {
+  function chartXml(n, firstRow, caps, bnIdx, hasTgt, sheet, big) {
+    const k = big ? 3 : 1;                       // big: copy on the capacity sheet, which is printed at a small scale
     const rng = (col) => `'${sheet}'!$${col}$${firstRow}:$${col}$${firstRow + n - 1}`;
     const cache = vals => `<c:numCache><c:formatCode>General</c:formatCode><c:ptCount val="${n}"/>${vals.map((v, i) => `<c:pt idx="${i}"><c:v>${num(v)}</c:v></c:pt>`).join('')}</c:numCache>`;
     const cat = `<c:cat><c:numRef><c:f>${rng('A')}</c:f>${cache(caps.ops)}</c:numRef></c:cat>`;
     const tx = (cell, name) => `<c:tx><c:strRef><c:f>'${sheet}'!$${cell}$${firstRow - 1}</c:f><c:strCache><c:ptCount val="1"/><c:pt idx="0"><c:v>${esc(name)}</c:v></c:pt></c:strCache></c:strRef></c:tx>`;
     const dpts = bnIdx.map(i => `<c:dPt><c:idx val="${i}"/><c:invertIfNegative val="0"/><c:bubble3D val="0"/><c:spPr><a:solidFill><a:srgbClr val="DC2626"/></a:solidFill></c:spPr></c:dPt>`).join('');
-    const lbl = `<c:dLbls><c:numFmt formatCode="0" sourceLinked="0"/><c:spPr><a:noFill/><a:ln><a:noFill/></a:ln></c:spPr><c:dLblPos val="outEnd"/><c:showLegendKey val="0"/><c:showVal val="1"/><c:showCatName val="0"/><c:showSerName val="0"/><c:showPercent val="0"/><c:showBubbleSize val="0"/></c:dLbls>`;
-    const line = (idx, col, name, vals, color, w) => `<c:ser><c:idx val="${idx}"/><c:order val="${idx}"/>${tx(col, name)}<c:spPr><a:ln w="${w}" cap="rnd"><a:solidFill><a:srgbClr val="${color}"/></a:solidFill><a:prstDash val="dash"/><a:round/></a:ln></c:spPr><c:marker><c:symbol val="none"/></c:marker>${cat}<c:val><c:numRef><c:f>${rng(col)}</c:f>${cache(vals)}</c:numRef></c:val><c:smooth val="0"/></c:ser>`;
-    const title = t => `<c:title><c:tx><c:rich><a:bodyPr/><a:p><a:pPr><a:defRPr sz="1000" b="0"/></a:pPr><a:r><a:rPr lang="en-US" sz="1000" b="0"/><a:t>${esc(t)}</a:t></a:r></a:p></c:rich></c:tx><c:overlay val="0"/></c:title>`;
+    const lbl = `<c:dLbls><c:numFmt formatCode="0" sourceLinked="0"/><c:spPr><a:noFill/><a:ln><a:noFill/></a:ln></c:spPr>${big ? '<c:txPr><a:bodyPr/><a:lstStyle/><a:p><a:pPr><a:defRPr sz="2800" b="1"/></a:pPr><a:endParaRPr lang="en-US"/></a:p></c:txPr>' : ''}<c:dLblPos val="outEnd"/><c:showLegendKey val="0"/><c:showVal val="1"/><c:showCatName val="0"/><c:showSerName val="0"/><c:showPercent val="0"/><c:showBubbleSize val="0"/></c:dLbls>`;
+    const line = (idx, col, name, vals, color, w) => `<c:ser><c:idx val="${idx}"/><c:order val="${idx}"/>${tx(col, name)}<c:spPr><a:ln w="${w * k}" cap="rnd"><a:solidFill><a:srgbClr val="${color}"/></a:solidFill><a:prstDash val="dash"/><a:round/></a:ln></c:spPr><c:marker><c:symbol val="none"/></c:marker>${cat}<c:val><c:numRef><c:f>${rng(col)}</c:f>${cache(vals)}</c:numRef></c:val><c:smooth val="0"/></c:ser>`;
+    const title = t => `<c:title><c:tx><c:rich><a:bodyPr/><a:p><a:pPr><a:defRPr sz="${1000 * k}" b="0"/></a:pPr><a:r><a:rPr lang="en-US" sz="${1000 * k}" b="0"/><a:t>${esc(t)}</a:t></a:r></a:p></c:rich></c:tx><c:overlay val="0"/></c:title>`;
     return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <c:chartSpace xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
 <c:roundedCorners val="0"/>
 <c:chart>
-<c:title><c:tx><c:rich><a:bodyPr/><a:p><a:pPr><a:defRPr sz="1400" b="1"/></a:pPr><a:r><a:rPr lang="en-US" sz="1400" b="1"/><a:t>Line balance: capacity per operation (pcs/hr)</a:t></a:r></a:p></c:rich></c:tx><c:overlay val="0"/></c:title>
+<c:title><c:tx><c:rich><a:bodyPr/><a:p><a:pPr><a:defRPr sz="${1400 * k}" b="1"/></a:pPr><a:r><a:rPr lang="en-US" sz="${1400 * k}" b="1"/><a:t>Line balance: capacity per operation (pcs/hr)</a:t></a:r></a:p></c:rich></c:tx><c:overlay val="0"/></c:title>
 <c:autoTitleDeleted val="0"/>
 <c:plotArea><c:layout/>
 <c:barChart><c:barDir val="col"/><c:grouping val="clustered"/><c:varyColors val="0"/>
@@ -163,7 +164,7 @@ ${line(1, 'D', 'Line capacity', caps.line, 'DC2626', 22225)}${hasTgt ? line(2, '
 </c:plotArea>
 <c:legend><c:legendPos val="b"/><c:overlay val="0"/></c:legend>
 <c:plotVisOnly val="1"/><c:dispBlanksAs val="gap"/>
-</c:chart></c:chartSpace>`;
+</c:chart>${big ? '<c:txPr><a:bodyPr/><a:lstStyle/><a:p><a:pPr><a:defRPr sz="2600"/></a:pPr><a:endParaRPr lang="en-US"/></a:p></c:txPr>' : ''}</c:chartSpace>`;
   }
 
   // ---------------- the workbook ----------------
@@ -233,6 +234,8 @@ ${line(1, 'D', 'Line capacity', caps.line, 'DC2626', 22225)}${hasTgt ? line(2, '
     for (let r = 1; r <= 4; r++) s1.heights[r] = 26.25; s1.heights[5] = 63.75; s1.heights[6] = 262; s1.heights[7] = 260.25;
     for (let r = first; r <= last; r++) s1.heights[r] = r === first ? 90 : 72.75;
     s1.heights[tot] = 177.75;
+    const chTop = tot + 2, chRows = 12;            // chart rows on the capacity sheet (one blank row after Total)
+    for (let r = tot + 1; r < chTop + chRows; r++) { s1.put(0, r, {}); s1.heights[r] = 72.75; }
     const cf1 = `<conditionalFormatting sqref="H${first}:H${first + Math.max(W.length, 1) - 1}"><cfRule type="cellIs" dxfId="0" priority="1" operator="lessThan"><formula>0.5</formula></cfRule></conditionalFormatting>`;
     const sheet1 = s1.xml({ cols: [46.140625, 41.28515625, 38, 81.140625, 32.28515625, 33.140625, 53, 35.5703125, 38, 119.85546875, 27.3, 35.3],
       tab: 'FFFFFF00', zoom: 30, defH: 46.5, orient: 'portrait', fitH: 1, selected: true, zeroMargins: true, cf: cf1,
@@ -315,10 +318,12 @@ ${line(1, 'D', 'Line capacity', caps.line, 'DC2626', 22225)}${hasTgt ? line(2, '
     if (logoPart) { const dv = new DataView(logo.buffer, logo.byteOffset, logo.byteLength); lw = dv.getUint32(16); lh = dv.getUint32(20); }
     const maxCx = 6970770, maxCy = Math.round(maxCx * 184 / 1454);   // fit any logo inside the original banner box
     const sc = Math.min(maxCx / lw, maxCy / lh), cx = Math.round(lw * sc), cy = Math.round(lh * sc);
+    const chartFrame = (c0, r0, c1, r1, rid, id) => `<xdr:twoCellAnchor><xdr:from><xdr:col>${c0}</xdr:col><xdr:colOff>0</xdr:colOff><xdr:row>${r0}</xdr:row><xdr:rowOff>0</xdr:rowOff></xdr:from><xdr:to><xdr:col>${c1}</xdr:col><xdr:colOff>0</xdr:colOff><xdr:row>${r1}</xdr:row><xdr:rowOff>0</xdr:rowOff></xdr:to><xdr:graphicFrame macro=""><xdr:nvGraphicFramePr><xdr:cNvPr id="${id}" name="Line balance chart"/><xdr:cNvGraphicFramePr/></xdr:nvGraphicFramePr><xdr:xfrm><a:off x="0" y="0"/><a:ext cx="0" cy="0"/></xdr:xfrm><a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/chart"><c:chart xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart" xmlns:r="${REL}" r:id="${rid}"/></a:graphicData></a:graphic></xdr:graphicFrame><xdr:clientData/></xdr:twoCellAnchor>`;
+    const chart1Frame = chartFrame(0, chTop - 1, 10, chTop - 1 + chRows, 'rId2', 3);   // capacity sheet: columns A-J, under the Total row
     const drawing1 = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<xdr:wsDr xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><xdr:oneCellAnchor><xdr:from><xdr:col>3</xdr:col><xdr:colOff>1126398</xdr:colOff><xdr:row>0</xdr:row><xdr:rowOff>46089</xdr:rowOff></xdr:from><xdr:ext cx="${cx}" cy="${cy}"/><xdr:pic><xdr:nvPicPr><xdr:cNvPr id="2" name="Logo"/><xdr:cNvPicPr><a:picLocks noChangeAspect="1"/></xdr:cNvPicPr></xdr:nvPicPr><xdr:blipFill><a:blip xmlns:r="${REL}" r:embed="rId1"/><a:stretch><a:fillRect/></a:stretch></xdr:blipFill><xdr:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></xdr:spPr></xdr:pic><xdr:clientData/></xdr:oneCellAnchor></xdr:wsDr>`;
+<xdr:wsDr xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><xdr:oneCellAnchor><xdr:from><xdr:col>3</xdr:col><xdr:colOff>1126398</xdr:colOff><xdr:row>0</xdr:row><xdr:rowOff>46089</xdr:rowOff></xdr:from><xdr:ext cx="${cx}" cy="${cy}"/><xdr:pic><xdr:nvPicPr><xdr:cNvPr id="2" name="Logo"/><xdr:cNvPicPr><a:picLocks noChangeAspect="1"/></xdr:cNvPicPr></xdr:nvPicPr><xdr:blipFill><a:blip xmlns:r="${REL}" r:embed="rId1"/><a:stretch><a:fillRect/></a:stretch></xdr:blipFill><xdr:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></xdr:spPr></xdr:pic><xdr:clientData/></xdr:oneCellAnchor>${chart1Frame}</xdr:wsDr>`;
     const emptyDrawing = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<xdr:wsDr xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"/>`;
+<xdr:wsDr xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">${chart1Frame}</xdr:wsDr>`;
     const drawing2 = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <xdr:wsDr xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><xdr:twoCellAnchor><xdr:from><xdr:col>8</xdr:col><xdr:colOff>0</xdr:colOff><xdr:row>3</xdr:row><xdr:rowOff>0</xdr:rowOff></xdr:from><xdr:to><xdr:col>20</xdr:col><xdr:colOff>0</xdr:colOff><xdr:row>26</xdr:row><xdr:rowOff>0</xdr:rowOff></xdr:to><xdr:graphicFrame macro=""><xdr:nvGraphicFramePr><xdr:cNvPr id="2" name="Line balance chart"/><xdr:cNvGraphicFramePr/></xdr:nvGraphicFramePr><xdr:xfrm><a:off x="0" y="0"/><a:ext cx="0" cy="0"/></xdr:xfrm><a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/chart"><c:chart xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart" xmlns:r="${REL}" r:id="rId1"/></a:graphicData></a:graphic></xdr:graphicFrame><xdr:clientData/></xdr:twoCellAnchor></xdr:wsDr>`;
     const rels = list => `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -331,11 +336,12 @@ ${line(1, 'D', 'Line capacity', caps.line, 'DC2626', 22225)}${hasTgt ? line(2, '
 <Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>
 <Override PartName="/xl/drawings/drawing1.xml" ContentType="application/vnd.openxmlformats-officedocument.drawing+xml"/>
 <Override PartName="/xl/drawings/drawing2.xml" ContentType="application/vnd.openxmlformats-officedocument.drawing+xml"/>
-<Override PartName="/xl/charts/chart1.xml" ContentType="application/vnd.openxmlformats-officedocument.drawingml.chart+xml"/></Types>`;
+<Override PartName="/xl/charts/chart1.xml" ContentType="application/vnd.openxmlformats-officedocument.drawingml.chart+xml"/>
+<Override PartName="/xl/charts/chart2.xml" ContentType="application/vnd.openxmlformats-officedocument.drawingml.chart+xml"/></Types>`;
     const wb = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <workbook ${NS} xmlns:r="${REL}"><bookViews><workbookView xWindow="0" yWindow="0" windowWidth="15360" windowHeight="7020"/></bookViews>
 <sheets><sheet name="${esc(sheetName)}" sheetId="1" r:id="rId1"/><sheet name="${AN}" sheetId="2" r:id="rId2"/></sheets>
-<definedNames><definedName name="_xlnm.Print_Area" localSheetId="0">'${esc(sheetName)}'!$A$1:$J$${tot}</definedName></definedNames>
+<definedNames><definedName name="_xlnm.Print_Area" localSheetId="0">'${esc(sheetName)}'!$A$1:$J$${chTop + chRows - 1}</definedName></definedNames>
 <calcPr calcId="191029" fullCalcOnLoad="1"/></workbook>`;
     const files = [
       ['[Content_Types].xml', ct], ['_rels/.rels', rels([['rId1', 'officeDocument', 'xl/workbook.xml']])],
@@ -347,10 +353,11 @@ ${line(1, 'D', 'Line capacity', caps.line, 'DC2626', 22225)}${hasTgt ? line(2, '
       ['xl/drawings/drawing1.xml', logoPart ? drawing1 : emptyDrawing],
       ['xl/drawings/drawing2.xml', drawing2],
       ['xl/drawings/_rels/drawing2.xml.rels', rels([['rId1', 'chart', '../charts/chart1.xml']])],
-      ['xl/charts/chart1.xml', chartXml(n, th + 1, capsArr, bnIdx, !!tgt, AN)]
+      ['xl/charts/chart1.xml', chartXml(n, th + 1, capsArr, bnIdx, !!tgt, AN)],
+      ['xl/charts/chart2.xml', chartXml(n, th + 1, capsArr, bnIdx, !!tgt, AN, true)],     // same chart (same data) on the capacity sheet
+      ['xl/drawings/_rels/drawing1.xml.rels', rels([...(logoPart ? [['rId1', 'image', '../media/image1.png']] : []), ['rId2', 'chart', '../charts/chart2.xml']])]
     ].map(([name, text]) => ({ name, data: enc.encode(text) }));
     if (logoPart) {
-      files.push({ name: 'xl/drawings/_rels/drawing1.xml.rels', data: enc.encode(rels([['rId1', 'image', '../media/image1.png']])) });
       files.push({ name: 'xl/media/image1.png', data: logo });
     }
     return zip(files);
