@@ -695,32 +695,11 @@ function balanceChart(r, tgt) {              // inline SVG: capacity per operati
   return `<div class="card"><b>${t('chartTitle')}</b><div style="overflow-x:auto">${g}</div>
     <div class="legend"><i style="background:var(--accent)"></i>${t('lgOp')}<i style="background:var(--bad)"></i>${t('lgBn')} / ${t('lgCap')}${tgt ? `<i style="background:var(--ok)"></i>${t('lgTgt')}` : ''}</div></div>`;
 }
-function staffing(r, tgt, snap) {             // operators needed per operation to reach the target, worst first
-  const mach = o => (r.opMachine || {})[o] || ((snap || []).find(x => x.no === o) || {}).machine || '';
-  const rows = Object.keys(r.opCap).map(Number).map(o => {
-    const have = r.workers.filter(w => w.min > 0 && (w.ops || []).includes(o)).reduce((a, w) => a + (w.share == null ? 1 : w.share), 0);
-    const cap = r.opCap[o], need = cap > 0 ? tgt * have / cap : 0;
-    return { o, m: mach(o), cap, have, need, gap: have - need };
-  }).sort((a, b) => a.gap - b.gap);
-  const spare = rows.filter(x => x.gap > 0).map(x => ({ ...x, left: x.gap })), acts = [], done = new Set();
-  const pk = w => String(w.emp || w.name);
-  rows.filter(x => x.gap < -0.05).forEach(x => {           // one person sews several short operations: split them first
-    const p = r.workers.find(w => w.min > 0 && w.share < 0.995 && (w.ops || []).includes(x.o));
-    if (!p || done.has(pk(p))) return;
-    const mine = r.workers.filter(w => w.min > 0 && pk(w) === pk(p)), ops = mine.map(w => w.opText);
-    const short = rows.filter(y => y.gap < -0.05 && mine.some(w => (w.ops || []).includes(y.o)));
-    short.forEach(y => done.add(y.o)); done.add(pk(p));
-    acts.push(tf('stSplit', { ops: ops.join(' + '), g: f(-Math.min(...short.map(y => y.gap)), 1), name: p.name || p.emp }));
-  });
-  rows.filter(x => x.gap < -0.05 && !done.has(x.o)).forEach(x => {           // a short operation takes time from a spare operation on the same machine
-    let need = -x.gap;
-    spare.filter(y => y.left >= 0.1 && (!x.m || y.m === x.m)).sort((a, b) => b.left - a.left).forEach(y => {
-      if (need < 0.05) return; const g = Math.min(need, y.left); y.left -= g; need -= g;
-      acts.push(tf('stMove', { o: x.o, g: f(-x.gap, 1), x: f(g, 1), from: y.o, m: y.m || '-' }));
-    });
-    if (need >= 0.05) acts.push(tf('stHire', { o: x.o, g: f(need, 1), m: x.m || '-' }));
-  });
-  return { rows, acts, need: rows.reduce((a, x) => a + x.need, 0), have: rows.reduce((a, x) => a + x.have, 0) };
+function staffing(r, tgt, snap) {             // operators needed per operation to reach the target (engine.js), with the actions as text
+  const st = staffingPlan(r, tgt, snap), F = v => f(v, 1);
+  st.acts = st.acts.map(a => a.k === 'split' ? tf('stSplit', { ops: a.ops, g: F(a.g), name: a.name })
+    : a.k === 'move' ? tf('stMove', { o: a.o, g: F(a.g), x: F(a.x), from: a.from, m: a.m || '-' }) : tf('stHire', { o: a.o, g: F(a.g), m: a.m || '-' }));
+  return st;
 }
 function staffingHtml(r, tgt, snap) {
   if (!tgt) return `<div class="card"><b>${t('stTitle')}</b><div class="muted">${t('stNoTgt')}</div></div>`;

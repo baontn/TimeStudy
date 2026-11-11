@@ -108,4 +108,34 @@ function analyze(rows, opMap, table = ALLOWANCE) {
   };
 }
 
-if (typeof module !== 'undefined') module.exports = { analyze, calcOperator, lineCapacity, personKey, usedCycles, usedLaps, piecesUsed, wmean, variation, ALLOWANCE };
+// Operators needed per operation to reach the target (shared by the result screen and the Excel report), worst first.
+// acts: { k:'split', ops, g, name } one person sews several short operations | { k:'move', o, g, x, from, m } take time from a
+// spare operation on the same machine | { k:'hire', o, g, m } no spare time on that machine.
+function staffingPlan(r, tgt, snap) {
+  const mach = o => (r.opMachine || {})[o] || ((snap || []).find(x => x.no === o) || {}).machine || '';
+  const rows = Object.keys(r.opCap || {}).map(Number).map(o => {
+    const have = (r.workers || []).filter(w => w.min > 0 && (w.ops || []).includes(o)).reduce((a, w) => a + (w.share == null ? 1 : w.share), 0);
+    const cap = r.opCap[o], need = cap > 0 ? tgt * have / cap : 0;
+    return { o, m: mach(o), cap, have, need, gap: have - need };
+  }).sort((a, b) => a.gap - b.gap);
+  const spare = rows.filter(x => x.gap > 0).map(x => ({ ...x, left: x.gap })), acts = [], done = new Set();
+  rows.filter(x => x.gap < -0.05).forEach(x => {           // one person sews several short operations: split them first
+    const p = (r.workers || []).find(w => w.min > 0 && w.share < 0.995 && (w.ops || []).includes(x.o));
+    if (!p || done.has('p:' + personKey(p))) return;
+    const mine = r.workers.filter(w => w.min > 0 && personKey(w) === personKey(p));
+    const short = rows.filter(y => y.gap < -0.05 && mine.some(w => (w.ops || []).includes(y.o)));
+    short.forEach(y => done.add(y.o)); done.add('p:' + personKey(p));
+    acts.push({ k: 'split', ops: mine.map(w => w.opText).join(' + '), g: -Math.min(...short.map(y => y.gap)), name: p.name || p.emp });
+  });
+  rows.filter(x => x.gap < -0.05 && !done.has(x.o)).forEach(x => {   // a short operation takes time from a spare operation on the same machine
+    let need = -x.gap;
+    spare.filter(y => y.left >= 0.1 && (!x.m || y.m === x.m)).sort((a, b) => b.left - a.left).forEach(y => {
+      if (need < 0.05) return; const g = Math.min(need, y.left); y.left -= g; need -= g;
+      acts.push({ k: 'move', o: x.o, g: -x.gap, x: g, from: y.o, m: y.m });
+    });
+    if (need >= 0.05) acts.push({ k: 'hire', o: x.o, g: need, m: x.m });
+  });
+  return { rows, acts, need: rows.reduce((a, x) => a + x.need, 0), have: rows.reduce((a, x) => a + x.have, 0) };
+}
+
+if (typeof module !== 'undefined') module.exports = { analyze, staffingPlan, calcOperator, lineCapacity, personKey, usedCycles, usedLaps, piecesUsed, wmean, variation, ALLOWANCE };

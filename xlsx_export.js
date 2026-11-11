@@ -276,6 +276,33 @@ ${line(1, 'D', 'Line capacity', caps.line, 'DC2626', 22225)}${hasTgt ? line(2, '
     if (!moves.length) s2.put(0, mr + 1, { s: ST.aValTxt, v: 'No improving move found' });
     moves.forEach((m, i) => s2.put(0, mr + 1 + i, { s: ST.aValTxt,
       v: `Move ${m.name || m.emp} from ${m.from} to ${m.to}  ->  line capacity ${m.newCapacity.toFixed(1)} pcs/hr` }));
+    // operators needed for the target (Vietnamese)
+    mr = mr + 2 + Math.max(moves.length, 1);
+    s2.put(0, mr, { s: ST.aTitle, v: 'Số lao động cần cho mục tiêu' });
+    const plan = typeof root.staffingPlan === 'function' ? root.staffingPlan(R, tgt, h.opsSnap) : null;
+    if (!tgt || !plan) s2.put(0, mr + 1, { s: ST.aValTxt, v: 'Nhập mục tiêu (cái/giờ) để xem mỗi công đoạn cần bao nhiêu lao động.' });
+    else {
+      const F = v => num(v).toFixed(1);
+      s2.put(0, mr + 1, { s: ST.aValTxt, v: `Để đạt ${tgt} cái/giờ chuyền cần ${F(plan.need)} lao động; hiện có ${F(plan.have)}.` });
+      const acts = plan.acts.length ? plan.acts.map(x => x.k === 'split' ? `→ Các CĐ ${x.ops} thiếu (${F(x.g)} lao động) vì ${x.name} làm tất cả: giao một trong các CĐ này cho người khác.`
+        : x.k === 'move' ? `→ Công đoạn ${x.o} thiếu ${F(x.g)} lao động: chuyển ${F(x.x)} thời gian từ công đoạn ${x.from} (cùng máy ${x.m || '-'}).`
+        : `→ Công đoạn ${x.o} thiếu ${F(x.g)} lao động và không có công đoạn máy ${x.m || '-'} nào dư: thêm / đào tạo người hoặc cải tiến thao tác.`)
+        : ['✓ Tất cả công đoạn đủ lao động cho mục tiêu.'];
+      acts.forEach((v, i) => s2.put(0, mr + 2 + i, { s: ST.aValTxt, v }));
+      const sh = mr + 3 + acts.length;              // header row of the staffing table
+      ['Công đoạn', 'Máy', 'Có (lao động)', 'Cần (lao động)', 'Chênh lệch', 'Tình trạng'].forEach((v, c) => s2.put(c, sh, { s: ST.aHdr, v }));
+      s2.heights[sh] = 32;
+      plan.rows.forEach((x, i) => {
+        const r = sh + 1 + i, capRow = th + 1 + opList.indexOf(x.o), short = x.gap < -0.05;
+        s2.put(0, r, { s: short ? ST.aRedCell : ST.aCell, v: x.o });
+        s2.put(1, r, { s: ST.aTxtC, v: x.m || '' });
+        s2.put(2, r, { s: ST.aNum, v: rnd(x.have, 3) });
+        s2.put(3, r, { s: ST.aNum, f: `$B$9*C${r}/B${capRow}`, v: x.need });           // need = target × operators ÷ capacity of the operation
+        s2.put(4, r, { s: short ? ST.aRedNum : ST.aNum, f: `C${r}-D${r}`, v: x.gap });
+        s2.put(5, r, { s: short ? ST.aRedCell : ST.aCell, v: short ? 'Thiếu' : x.gap > 0.05 ? 'Dư' : 'Đủ' });
+      });
+      s2.put(0, sh + plan.rows.length + 1, { s: ST.aValTxt, v: 'Cần = mục tiêu × số lao động ÷ năng lực của công đoạn. Chênh lệch dưới 0 = công đoạn không đạt mục tiêu.' });
+    }
     const sheet2 = s2.xml({ cols: [36, 18, 18, 14, 10, 44, 16], zoom: 100, defH: 15, orient: 'landscape', fitH: 0, zeroMargins: false });
 
     // ===== package parts =====
