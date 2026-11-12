@@ -59,6 +59,17 @@ td.l,th.l{text-align:left}
 #toast{position:fixed;left:12px;right:12px;bottom:80px;background:var(--panel);color:var(--text);border:1px solid var(--line);border-left:4px solid var(--accent);padding:10px 12px;border-radius:8px;z-index:30;font-size:13px;box-shadow:0 2px 10px rgba(0,0,0,.2);white-space:pre-wrap}
 .cyc{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0}.cy{width:auto;margin:0;padding:5px 10px;font-size:13px;border-radius:14px;background:var(--panel);color:var(--text);border-color:var(--line)}
 .cy.off{text-decoration:line-through;opacity:.45}tr.off td{text-decoration:line-through;opacity:.45}.done{border-left:4px solid var(--ok)}.carried{border-left:4px solid var(--info)}.ok{color:var(--ok);font-weight:600}
+#dock{margin:-2px 0 8px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.dk-head{display:flex;flex-wrap:wrap;gap:2px 8px;align-items:baseline;font-size:13px;margin-bottom:6px}.dk-head .muted{font-size:11px}
+.dk-list{display:grid;gap:6px;max-height:38vh;overflow-y:auto}
+.dk-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto auto;gap:6px;align-items:center;padding:4px 4px 4px 8px;border-radius:8px;background:var(--sel);border-left:4px solid var(--accent)}
+.dk-row.wait{background:var(--warnbg);border-left-color:var(--warn);grid-template-columns:minmax(0,1fr) auto auto}
+.dk-who{min-width:0;cursor:pointer;line-height:1.25}.dk-who b,.dk-who small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.dk-who small{color:var(--muted);font-size:11px}.dk-who small .dk-w{display:inline;color:var(--warn)}
+.dk-t{font-size:20px;font-variant-numeric:tabular-nums;min-width:68px;text-align:right}
+.dk-row button{margin:0;width:auto;touch-action:manipulation}
+.dk-lap{min-width:84px;min-height:48px;font-size:18px;font-weight:600}.dk-go{min-width:96px;min-height:48px;font-weight:600}
+.dk-p{min-width:44px;min-height:48px;padding:0}.pz{display:inline-block;width:12px;height:16px;border-left:4px solid currentColor;border-right:4px solid currentColor;vertical-align:middle}
+.card.run{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
 .savebar{position:sticky;bottom:0;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px;box-shadow:0 -2px 8px rgba(0,0,0,.12);margin-top:8px}
 .dot{display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:middle;margin-right:4px}
 .dot.green{background:var(--ok)}.dot.amber{background:var(--warn)}.dot.red{background:var(--bad)}
@@ -160,7 +171,7 @@ const T = {
   start:'Start',piece:'Piece done',stop:'Stop',undo:'Undo',del:'Delete',
   avg:'Avg time (s)',pcsHr:'pcs/hr',effp:'Efficiency',
   firstHint:'Tap Start. Tap Lap each time the pieces are finished (after cutting, if the worker sews a chain). Set the pieces of the lap first.',
-  timeFirst:'Time at least one operator (Start, then Piece done) to see the line analysis and save.',
+  timeFirst:'Time at least one operator (Start, then Lap) to see the line analysis and save.',dkTitle:'Timing now',dkWait:'waiting',dkHint:'Several operators can be timed at the same time. Pause when the worker waits (the lap is kept).',
   cap:'Line capacity (pcs/hr)',eff:'Line efficiency',bal:'Balance rate',bn:'Bottleneck op',
   opcap:'Operation capacity',moves:'Suggested moves',none:'No improving move found',people:'Operators timed',ppl:'people',mpLess:'Line manpower is {mp}: {n} person(s) not timed yet.',mpMore:'More people timed ({n}) than the line manpower ({mp}).',stTitle:'Operators needed for the target',stOp:'Op',stHave:'Have',stNeed:'Need',stGap:'Gap',stShort:'short',stSpare:'spare',stTotal:'To make {t} pcs/hr the line needs {need} operators; you have {have}.',stNoTgt:'Enter the target (pcs/hr) to see how many operators each operation needs.',stMove:'Op {o} is short {g} operator: give it {x} of the time of op {from} (same machine {m}).',stHire:'Op {o} is short {g} operator and no {m} operation has spare time: add / train an operator or improve the method.',stOk:'Every operation has enough operators for the target.',stSplit:'Ops {ops} are short ({g} operator) because {name} sews all of them: give one of these operations to another operator.',stHelp:'Need = target × operators ÷ capacity of the operation. Gap below 0 = this operation cannot reach the target.',shared:'shares time between ops {ops}: {p} on this one',
   pieces:'Pieces',unknown:'Not in style data',move:'Move',from:'from',to:'to',now:'capacity becomes',
@@ -195,7 +206,7 @@ const T = {
   start:'Bắt đầu',piece:'Xong 1 cái',stop:'Dừng',undo:'Hoàn tác',del:'Xóa',
   avg:'TB (giây)',pcsHr:'cái/giờ',effp:'Hiệu suất',
   firstHint:'Bấm Bắt đầu. Bấm Vòng mỗi khi xong số cái (sau khi cắt, nếu công nhân may chuyền). Chọn số cái của vòng trước.',
-  timeFirst:'Bấm giờ ít nhất một công nhân (Bắt đầu, rồi Xong 1 cái) để xem phân tích và lưu.',
+  timeFirst:'Bấm giờ ít nhất một công nhân (Bắt đầu, rồi Vòng) để xem phân tích và lưu.',dkTitle:'Đang bấm giờ',dkWait:'đang chờ',dkHint:'Có thể bấm giờ nhiều người cùng lúc. Bấm tạm dừng khi công nhân chờ hàng (vòng đang chạy được giữ lại).',
   cap:'Năng lực chuyền (cái/giờ)',eff:'Hiệu suất chuyền',bal:'Tỷ lệ cân bằng',bn:'Công đoạn nút cổ chai',
   opcap:'Năng lực từng công đoạn',moves:'Đề xuất điều chuyển',none:'Không có đề xuất cải thiện',people:'Số người đã bấm giờ',ppl:'người',mpLess:'Lao động của chuyền là {mp}: còn {n} người chưa bấm giờ.',mpMore:'Số người đã bấm giờ ({n}) nhiều hơn lao động của chuyền ({mp}).',stTitle:'Số lao động cần cho mục tiêu',stOp:'CĐ',stHave:'Có',stNeed:'Cần',stGap:'Chênh lệch',stShort:'thiếu',stSpare:'dư',stTotal:'Để đạt {t} cái/giờ chuyền cần {need} lao động; hiện có {have}.',stNoTgt:'Nhập mục tiêu (cái/giờ) để xem mỗi công đoạn cần bao nhiêu lao động.',stMove:'Công đoạn {o} thiếu {g} lao động: chuyển {x} thời gian từ công đoạn {from} (cùng máy {m}).',stHire:'Công đoạn {o} thiếu {g} lao động và không có công đoạn máy {m} nào dư: thêm / đào tạo người hoặc cải tiến thao tác.',stOk:'Tất cả công đoạn đủ lao động cho mục tiêu.',stSplit:'Các CĐ {ops} thiếu ({g} lao động) vì {name} làm tất cả: giao một trong các CĐ này cho người khác.',stHelp:'Cần = mục tiêu × số lao động ÷ năng lực của công đoạn. Chênh lệch dưới 0 = công đoạn không đạt mục tiêu.',shared:'chia thời gian cho các CĐ {ops}: {p} cho CĐ này',
   pieces:'Số cái',unknown:'Không có trong dữ liệu mã hàng',move:'Chuyển',from:'từ',to:'sang',now:'năng lực thành',
@@ -225,7 +236,11 @@ let H = [];                                        // my saved studies
 let TEAM = [], REV = {}, SYNCING = false;      // studies from the server, supervisor reviews
 let screen = 'home', detailId = null, detailBack = 'history', active = -1, live = null;
 let opMap = {};
-function saveDraft() { try { localStorage.setItem('ts_draft', JSON.stringify(S)); } catch(e){} }
+function saveDraft() {                        // a running stopwatch is stored as wall-clock start, so it keeps running after a reload
+  const now = performance.now(), wall = Date.now();
+  (S.rows || []).forEach(r => { r.w0 = r.t0 != null ? wall - (now - r.t0) : null; });
+  try { localStorage.setItem('ts_draft', JSON.stringify(S)); } catch(e){}
+}
 function saveHist()  { try { localStorage.setItem('ts_hist', JSON.stringify(H)); } catch(e){} }
 const save = saveDraft;
 try {
@@ -321,7 +336,7 @@ function viewNewSkeleton() {
     <div id="cards"></div>
     <div id="quality"></div>
     <div id="analysis"></div>
-    <div class="savebar"><div class="muted" id="saveStatus"></div>
+    <div class="savebar"><div id="dock" hidden></div><div class="muted" id="saveStatus"></div>
       <button id="saveBtn" onclick="saveStudy()">${t('save')}</button></div>`;
 }
 function buildNew() {
@@ -447,7 +462,8 @@ const elapsed = (r, now) => (r.acc || 0) + (r.t0 === null ? 0 : (now === undefin
 const fmtT = ms => { const x = Math.max(0, ms) / 1000, m = Math.floor(x / 60); return String(m).padStart(2, '0') + ':' + (x - m * 60).toFixed(1).padStart(4, '0'); };
 function syncLaps(r) { r.pieces = r.laps.map(l => l.sec / l.n); r.cnt = r.laps.map(l => l.n); }
 function normRow(r) {                         // makes sure an entry has the stopwatch fields (also for entries saved by older versions)
-  r.t0 = null; r.skip = r.skip || []; r.pieces = r.pieces || []; r.sel = r.sel || [];
+  const age = r.w0 ? Date.now() - r.w0 : -1;    // still running when the page was closed (less than 12 h ago): continue
+  r.t0 = age >= 0 && age < 12 * 3600e3 ? performance.now() - age : null; r.skip = r.skip || []; r.pieces = r.pieces || []; r.sel = r.sel || [];
   if (!r.cnt || r.cnt.length !== r.pieces.length) r.cnt = r.pieces.map((p, i) => (r.cnt || [])[i] || 1);
   if (!r.laps || r.laps.length !== r.pieces.length) r.laps = r.pieces.map((p, i) => ({ sec: p * r.cnt[i], n: r.cnt[i] }));
   if (r.acc == null) r.acc = r.laps.reduce((a, l) => a + l.sec * 1000, 0);
@@ -461,9 +477,9 @@ function nextToTime(i) {                      // next entry that still needs pie
   return -1;
 }
 function pauseRow(r, now) { if (r.t0 !== null) { r.acc += now - r.t0; r.t0 = null; } }
-function startStop(i, ev) {                   // Start / Resume / Stop (pause); only one stopwatch runs at a time
+function startStop(i, ev) {                   // Start / Resume / Stop (pause); several operators can be timed at the same time
   const r = S.rows[i], now = ev ? ev.timeStamp : performance.now();
-  if (r.t0 === null) { S.rows.forEach((x, k) => { if (k !== i) pauseRow(x, now); }); r.t0 = now; active = i; }
+  if (r.t0 === null) { r.t0 = now; active = i; }
   else { pauseRow(r, now); active = S.rows.findIndex(x => x.t0 !== null); }
   save(); updateCards();
 }
@@ -476,7 +492,7 @@ function lap(i, ev) {                         // one lap = the pieces set in "Pi
   let next = -1;
   if (piecesUsed(r) >= goalOf(r)) { pauseRow(r, now); active = S.rows.findIndex(x => x.t0 !== null); openCard.delete(i); next = nextToTime(i); }   // target reached: stop and move on
   save(); updateCards(); updateAnalysis();
-  if (next >= 0) { const el2 = $('card' + next); if (el2 && el2.scrollIntoView) el2.scrollIntoView({ behavior:'smooth', block:'center' }); }
+  if (next >= 0 && !S.rows.some(x => x.t0 !== null)) { const el2 = $('card' + next); if (el2 && el2.scrollIntoView) el2.scrollIntoView({ behavior:'smooth', block:'center' }); }
 }
 function resetLap(i) { const r = S.rows[i]; if (r.t0 !== null) return; r.acc = r.lapAt; save(); updateCards(); }       // throw away the unfinished part of the current lap
 function undoLap(i) {                         // remove the last lap; its time goes back into the lap that is running
@@ -528,7 +544,7 @@ function updateCards() {
     const lapsTbl = r.laps.length ? `<table><tr><th>#</th><th>${t('lapTime')}</th><th>${t('pcs')}</th><th>${t('spc')}</th><th></th></tr>` + r.laps.map((l, k) => `<tr class="${r.skip.includes(k) ? 'off' : ''}"><td>${k + 1}</td><td>${f(l.sec)}</td>
         <td><button class="sec small" onclick="setLapN(${i},${k},-1)">−</button> ${l.n} <button class="sec small" onclick="setLapN(${i},${k},1)">+</button></td><td>${f(l.sec / l.n)}</td>
         <td><button class="sec small" onclick="toggleCycle(${i},${k})">${r.skip.includes(k) ? '↺' : '✕'}</button></td></tr>`).join('') + `</table><div class="muted" style="font-size:12px">${t('cyclesHint')}</div>` : '';
-    return `<div class="card${done ? ' done' : ''}" id="card${i}">${head} &nbsp; ${t('opn')} <b>${esc(r.opText)}</b> ${progress}
+    return `<div class="card${done ? ' done' : ''}${running ? ' run' : ''}" id="card${i}">${head} &nbsp; ${t('opn')} <b>${esc(r.opText)}</b> ${progress}
       <div class="muted">${t('sam')} ${f(c.sam, 4)} · ${t('machine')}: ${esc(machines.join(', ') || '-')}</div>${prev}
       <div class="time" id="tm${i}">${fmtT(el - r.lapAt)}</div><div class="muted" style="text-align:center">${t('total')} <span id="tt${i}">${fmtT(el)}</span></div>
       <div class="row">${left}${right}</div>
@@ -543,7 +559,22 @@ function updateCards() {
       <div class="row"><button class="sec" onclick="dupWorker(${i})">${t('dupOp')}</button>${r.laps.length || el > 0 ? '' : `<button class="sec" onclick="changeOps(${i})">${t('changeOps')}</button>`}</div></div>`;
   }).join('');
   keepAwake(S.rows.some(r => r.t0 !== null));
+  updateDock();
   paintWorkers();
+}
+const inDock = r => r.opText && !r.carried && piecesUsed(r) < goalOf(r) && (r.t0 !== null || elapsed(r) > r.lapAt + 1);
+function updateDock() {
+  const box = $('dock'); if (!box) return;
+  const list = S.rows.map((r, i) => ({ r, i })).filter(x => inDock(x.r));
+  box.hidden = !list.length; if (!list.length) { box.innerHTML = ''; return; }
+  box.innerHTML = `<div class="dk-head"><b>${t('dkTitle')} (${list.length})</b><span class="muted">${t('dkHint')}</span></div><div class="dk-list">` + list.map(({ r, i }) => {
+    const run = r.t0 !== null, n = Math.max(1, r.ln || 1);
+    return `<div class="dk-row ${run ? 'run' : 'wait'}"><div class="dk-who" onclick="openCard.add(${i});updateCards();focusCard(${i})"><b>${esc(r.name)}</b>`
+      + `<small>${run ? '' : `<b class="dk-w">${t('dkWait')}</b> · `}${t('opn')} ${esc(r.opText)} · ${piecesUsed(r)}/${goalOf(r)}${n > 1 ? ` · ×${n}` : ''}</small></div>`
+      + `<div class="dk-t" id="dk${i}">${fmtT(elapsed(r) - r.lapAt)}</div>`
+      + (run ? `<button class="dk-p sec" aria-label="${t('stop')}" onpointerdown="startStop(${i},event)"><i class="pz"></i></button><button class="dk-lap" onpointerdown="lap(${i},event)">${t('lap')}</button>`
+             : `<button class="dk-go green" onpointerdown="startStop(${i},event)">${t('resume')}</button>`) + '</div>';
+  }).join('') + '</div>';
 }
 function liveStudy() {                      // the study as it would be saved now
   return { raw: calcRows(), result: live, target: S.target, opsSnap: [] };
@@ -1015,10 +1046,14 @@ function exportExcel(id) {                    // Excel report in the company tem
 
 // live timer display (lap time and total time of the running stopwatch)
 setInterval(() => {
-  if (document.hidden || screen !== 'new' || active < 0 || !S.rows[active] || S.rows[active].t0 === null) return;
-  const r = S.rows[active], el = elapsed(r), a = $('tm' + active), b = $('tt' + active);
-  if (a) a.textContent = fmtT(el - r.lapAt);
-  if (b) b.textContent = fmtT(el);
+  if (document.hidden || screen !== 'new') return;
+  S.rows.forEach((r, i) => {
+    if (r.t0 === null) return;
+    const el = elapsed(r), a = $('tm' + i), b = $('tt' + i), d = $('dk' + i);
+    if (a) a.textContent = fmtT(el - r.lapAt);
+    if (b) b.textContent = fmtT(el);
+    if (d) d.textContent = fmtT(el - r.lapAt);
+  });
 }, 100);
 $('lang').onchange = e => { S.lang = e.target.value; save(); render(); };
 async function boot() {
@@ -1028,6 +1063,7 @@ async function boot() {
   if (!S.editId) S.style = DB.findStyle(S.style) || DB.styles()[0] || '';
   fixSel();
   if (!S.ie && S.me) S.ie = S.me.name;
+  if (S.rows.some(r => r.t0 !== null)) screen = 'new';     // stopwatches were running when the app was closed: go straight back to them
   render();
   loadLogo();
   if (API_URL && (!S.me || !S.pin)) openLogin();   // sync happens on login, Save, Email, and Sync now - never automatically on open/reconnect

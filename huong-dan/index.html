@@ -260,7 +260,7 @@ footer { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 16
             <li>Khi đủ <span class="ui">Số cái cần bấm</span>, đồng hồ tự dừng và màn hình chuyển xuống công nhân kế tiếp chưa bấm xong.</li>
           </ol>
           <ul>
-            <li><span class="ui">Dừng</span> tạm ngưng khi công nhân rời chỗ (đi vệ sinh, chờ hàng). Bấm <span class="ui">Tiếp tục</span> để chạy lại. Chỉ một đồng hồ chạy tại một thời điểm.</li>
+            <li><span class="ui">Dừng</span> tạm ngưng khi công nhân rời chỗ (đi vệ sinh, chờ hàng). Bấm <span class="ui">Tiếp tục</span> để chạy lại. Vòng đang chạy được giữ nguyên.</li>
             <li><span class="ui">Xóa vòng đang chạy</span> (khi đã dừng) bỏ phần thời gian của vòng chưa xong.</li>
             <li><span class="ui">Hoàn tác vòng cuối</span> xóa vòng vừa ghi nếu bấm nhầm. Hai lần bấm Vòng cách nhau dưới 1,5 giây được coi là bấm nhầm và bỏ qua.</li>
           </ul>
@@ -271,7 +271,27 @@ footer { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 16
 
       <div class="step">
         <div class="txt">
-          <h3><span class="n">2</span>Ghi chú tình hình công đoạn</h3>
+          <h3><span class="n">2</span>Bấm giờ nhiều người cùng lúc</h3>
+          <p>Khi đứng giữa 2 đến 4 công nhân ngồi gần nhau, có thể bấm giờ tất cả cùng lúc:</p>
+          <ol>
+            <li>Bấm <span class="ui">Bắt đầu</span> trên thẻ của từng người. Bắt đầu người sau <b>không</b> dừng người trước.</li>
+            <li>Thanh <span class="ui">Đang bấm giờ</span> ở cuối màn hình hiện mỗi người một dòng: tên, công đoạn, số cái đã bấm, thời gian vòng đang chạy.</li>
+            <li>Bấm nút <span class="ui">Vòng</span> trên dòng của người vừa làm xong. Không cần cuộn lên tìm thẻ.</li>
+            <li>Bấm nút tạm dừng (hai vạch) khi người đó chờ hàng. Dòng chuyển màu vàng <span class="ui">đang chờ</span> với nút <span class="ui">Tiếp tục</span>.</li>
+          </ol>
+          <ul>
+            <li>Bấm vào tên trên dòng để mở thẻ của người đó (đổi số cái trong vòng, loại vòng, ghi chú).</li>
+            <li>Khi đủ số cái cần bấm, người đó tự rời khỏi thanh.</li>
+            <li>Nếu điện thoại tắt trình duyệt hoặc tải lại trang, các đồng hồ vẫn tiếp tục chạy và ứng dụng mở lại đúng màn hình bấm giờ.</li>
+          </ul>
+          <div class="note warn"><b>Đừng bấm quá nhiều người</b><span>Chỉ bấm cùng lúc những người bạn nhìn rõ được tay. Bấm Vòng trễ vài giây làm sai thời gian của vòng đó.</span></div>
+        </div>
+        <figure><img src="img/29-dock.png" alt="Thanh Đang bấm giờ với ba công nhân" width="390" height="347" loading="lazy"><figcaption>Hai người đang chạy, Chi đang chờ hàng</figcaption></figure>
+      </div>
+
+      <div class="step">
+        <div class="txt">
+          <h3><span class="n">3</span>Ghi chú tình hình công đoạn</h3>
           <p>Ghi vào ô <span class="ui">Ghi chú</span> hoặc bấm các ghi chú nhanh:</p>
           <ul>
             <li><span class="key">chất lượng chưa ổn định</span>, <span class="key">k đủ hàng làm</span>, <span class="key">thao tác chậm, điều chỉnh lâu</span></li>
@@ -326,6 +346,21 @@ footer { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 16
           <div class="note"><b>Khác với công đoạn ghép</b><span>Làm liền trên cùng một sản phẩm → chọn ghép <span class="key">33+34</span> (mục 02.3). Làm riêng, theo bó, xen kẽ → dùng <span class="ui">Công đoạn khác của công nhân này</span>.</span></div>
         </div>
         <figure><img src="img/09-two-ops.png" alt="Cùng một công nhân với hai công đoạn 33 và 38" width="390" height="336" loading="lazy"><figcaption>Cùng một người, hai công đoạn riêng</figcaption></figure>
+      </div>
+
+      <div class="step">
+        <div class="txt">
+          <h3><span class="n">D</span>Một công đoạn gồm nhiều chi tiết, công nhân phải chờ chi tiết</h3>
+          <p>Ví dụ: Chi may CĐ 33 cho thân trước và thân sau. Chi may xong bó 10 thân trước, rồi phải chờ bó thân sau.</p>
+          <ol>
+            <li>Đặt <span class="ui">Số cái trong vòng này</span> = <b>10</b> (10 sản phẩm), bấm <span class="ui">Bắt đầu</span>.</li>
+            <li>Chi may xong 10 thân trước và bắt đầu chờ: bấm <b>tạm dừng</b>. Vòng đang chạy được giữ lại, Chi hiện <span class="ui">đang chờ</span> trên thanh Đang bấm giờ.</li>
+            <li>Trong lúc chờ, đi bấm giờ những công nhân khác.</li>
+            <li>Khi bó thân sau đến, quay lại bấm <span class="ui">Tiếp tục</span> trên dòng của Chi.</li>
+            <li>Chi may xong 10 thân sau: bấm <span class="ui">Vòng</span>. Vòng này là thời gian làm 10 bộ đầy đủ, <b>không tính thời gian chờ</b>.</li>
+          </ol>
+          <div class="note"><b>Đếm theo sản phẩm, không đếm theo chi tiết</b><span>SAM của công đoạn tính cho cả sản phẩm. Vì vậy vòng phải gồm đủ các chi tiết của sản phẩm, và số cái là số <b>sản phẩm</b> (10), không phải số chi tiết (20).</span></div>
+        </div>
       </div>
     </section>
 
@@ -576,6 +611,8 @@ footer { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 16
           <p>Điện thoại chưa có dữ liệu công nhân và mã hàng thật. Liên hệ phòng IED để được cập nhật dữ liệu, hoặc bấm <span class="ui">Tải tệp dữ liệu</span> nếu được gửi tệp.</p></details>
         <details><summary>“Không tìm thấy mã hàng trong dữ liệu”?</summary>
           <p>Mã hàng chưa có trong dữ liệu SAM. Kiểm tra lại mã hàng hoặc báo phòng IED cập nhật.</p></details>
+        <details><summary>Điện thoại tắt màn hình hoặc tôi lỡ đóng trình duyệt khi đang bấm giờ?</summary>
+          <p>Các đồng hồ vẫn tiếp tục chạy. Mở lại ứng dụng, màn hình bấm giờ hiện ra với thời gian đúng. Ứng dụng cũng giữ màn hình sáng trong khi có đồng hồ chạy.</p></details>
         <details><summary>Bấm nhầm Vòng hoặc quên đặt số cái?</summary>
           <p>Bấm nhầm: dùng <span class="ui">Hoàn tác vòng cuối</span>. Sai số cái: sửa bằng nút − / + ở cột cái của vòng đó. Vòng bất thường: bấm ✕ để loại.</p></details>
         <details><summary>Cần sửa nghiên cứu đã lưu?</summary>
