@@ -87,6 +87,24 @@
       .forEach(x => { const k = x.toLowerCase(); const c = m.get(k) || { text: x, n: 0 }; c.n++; m.set(k, c); })));
     return [...m.values()].sort((a, b) => b.n - a.n).slice(0, top || 8);
   }
+  // customer from the style name: SP... = LLM, other F... / S... = ADI, otherwise the first 3 characters (PUM25-00054 -> PUM)
+  function customerOf(style) {
+    const x = String(style || '').trim().toUpperCase();
+    if (!x) return '?';
+    if (x.startsWith('SP')) return 'LLM';
+    if (x[0] === 'F' || x[0] === 'S') return 'ADI';
+    return x.slice(0, 3);
+  }
+  // average line efficiency per customer: the latest study of every style on every line in the list
+  function customerStats(list) {
+    const latest = new Map();
+    list.forEach(s => { const k = String(s.line).toUpperCase() + '|' + String(s.style).toUpperCase(), c = latest.get(k); if (!c || at(s) > at(c) || (at(s) === at(c) && when(s) > when(c))) latest.set(k, s); });
+    const g = new Map();
+    latest.forEach(s => { const c = customerOf(s.style); let x = g.get(c); if (!x) g.set(c, x = { customer: c, effs: [], styles: new Set(), lines: new Set() });
+      x.effs.push(num((s.result || {}).lineEfficiency)); x.styles.add(String(s.style).toUpperCase()); x.lines.add(String(s.line).toUpperCase()); });
+    return [...g.values()].map(x => ({ customer: x.customer, eff: mean(x.effs), n: x.effs.length, styles: x.styles.size, lines: x.lines.size }))
+      .sort((a, b) => a.customer.localeCompare(b.customer));
+  }
   function officerStats(list, set) {
     const m = new Map();
     list.forEach(s => { const k = s.ie || '(unknown)', q = quality(s); const o = m.get(k) || { ie: k, studies: 0, ok: 0, review: 0, cyc: 0, ops: 0, cv: [], last: 0 };
@@ -123,7 +141,7 @@
     return t;
   }
 
-  const API = { quality, rag, potential, bottleneck, filterStudies, latestPerLine, trend, weekly, improvements, machineStats, remarkStats, officerStats, kpis, periodFrom, summaryText, when, at, mean };
+  const API = { customerOf, customerStats, quality, rag, potential, bottleneck, filterStudies, latestPerLine, trend, weekly, improvements, machineStats, remarkStats, officerStats, kpis, periodFrom, summaryText, when, at, mean };
   root.AN = API;
   if (typeof module !== 'undefined') module.exports = API;
 })(typeof window !== 'undefined' ? window : globalThis);

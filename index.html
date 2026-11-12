@@ -186,7 +186,7 @@ const T = {
   kStudies:'Studies',kLines:'Lines',kEff:'Avg efficiency (latest per line)',kStatus:'On standard / Watch / Below',kGap:'Avg gap to target',kPot:'Gain possible by balancing',kReview:'Studies to review',
   needAtt:'Needs attention',allGood:'All studied lines are on standard.',linesTitle:'Latest study per line',effByLine:'Efficiency by line (latest study)',trendTitle:'Efficiency trend',trendWeek:'weekly average, all lines',
   impTitle:'Re-study results (previous → new)',noImp:'No re-studies yet.',
-  machTitle:'Bottleneck by machine type',remTitle:'Most frequent operator remarks',covTitle:'Lines not studied in this period',covAll:'All known lines were studied.',ieTitle:'IE officer activity',studiesTitle:'Studies in this period',
+  machTitle:'Bottleneck by machine type',remTitle:'Most frequent operator remarks',custTitle:'Average efficiency by customer',cCust:'Customer',cStyles:'Styles',cLines:'Lines',custNote:'Customer from the style name: SP… = LLM, other F… / S… = ADI, otherwise the first 3 characters. Latest study of each style on each line.',covTitle:'Lines not studied in this period',covAll:'All known lines were studied.',ieTitle:'IE officer activity',studiesTitle:'Studies in this period',
   cPU:'PU',cLine:'Line',cStyle:'Style',cDate:'Date',cUpd:'Modified',cIE:'IE officer',cEff:'Eff.',cCap:'Capacity / target',cBal:'Balance',cBn:'Bottleneck',cPot:'+Gain',cQual:'Quality',cRev:'Review',cStudies:'Studies',cOk:'Quality OK',cCyc:'Avg cycles',cLast:'Last study',cBefore:'Before',cAfter:'After',cDEff:'Δ eff.',cDCap:'Δ capacity',
   r_eff:'Efficiency {v} is below the standard {s}',r_cap:'Capacity is {v} of the target',r_bal:'Balance rate {v} is below {s}',potNote:'+{v} possible by balancing',
   review:'Supervisor review',rv_approved:'Approved',rv_recheck:'Needs recheck',rv_clear:'Clear',rvComment:'Comment for the IE officer',rvSaved:'Review saved.',
@@ -221,7 +221,7 @@ const T = {
   kStudies:'Nghiên cứu',kLines:'Chuyền',kEff:'Hiệu suất TB (lần mới nhất mỗi chuyền)',kStatus:'Đạt / Theo dõi / Chưa đạt',kGap:'Chênh lệch TB so với mục tiêu',kPot:'Có thể tăng nhờ cân bằng',kReview:'Nghiên cứu cần xem lại',
   needAtt:'Cần chú ý',allGood:'Tất cả chuyền đã nghiên cứu đều đạt chuẩn.',linesTitle:'Nghiên cứu mới nhất của từng chuyền',effByLine:'Hiệu suất theo chuyền (lần mới nhất)',trendTitle:'Xu hướng hiệu suất',trendWeek:'trung bình theo tuần, tất cả chuyền',
   impTitle:'Kết quả nghiên cứu lại (trước → sau)',noImp:'Chưa có nghiên cứu lại.',
-  machTitle:'Nút cổ chai theo loại máy',remTitle:'Ghi chú công nhân hay gặp nhất',covTitle:'Chuyền chưa được nghiên cứu trong kỳ này',covAll:'Tất cả chuyền đã có nghiên cứu.',ieTitle:'Hoạt động của IE',studiesTitle:'Các nghiên cứu trong kỳ',
+  machTitle:'Nút cổ chai theo loại máy',remTitle:'Ghi chú công nhân hay gặp nhất',custTitle:'Hiệu suất TB theo khách hàng',cCust:'Khách hàng',cStyles:'Mã hàng',cLines:'Chuyền',custNote:'Khách hàng lấy từ mã hàng: SP… = LLM, F… / S… khác = ADI, còn lại = 3 ký tự đầu. Mỗi mã hàng trên mỗi chuyền tính lần nghiên cứu mới nhất.',covTitle:'Chuyền chưa được nghiên cứu trong kỳ này',covAll:'Tất cả chuyền đã có nghiên cứu.',ieTitle:'Hoạt động của IE',studiesTitle:'Các nghiên cứu trong kỳ',
   cPU:'PU',cLine:'Chuyền',cStyle:'Mã hàng',cDate:'Ngày',cUpd:'Cập nhật',cIE:'IE',cEff:'HS',cCap:'Năng lực / mục tiêu',cBal:'Cân bằng',cBn:'Nút cổ chai',cPot:'+Tăng',cQual:'Chất lượng',cRev:'Duyệt',cStudies:'Số NC',cOk:'Đạt chất lượng',cCyc:'Chu kỳ TB',cLast:'Lần cuối',cBefore:'Trước',cAfter:'Sau',cDEff:'Δ HS',cDCap:'Δ năng lực',
   r_eff:'Hiệu suất {v} thấp hơn chuẩn {s}',r_cap:'Năng lực đạt {v} so với mục tiêu',r_bal:'Tỷ lệ cân bằng {v} thấp hơn {s}',potNote:'có thể tăng {v} nếu cân bằng',
   review:'Duyệt của giám sát',rv_approved:'Đã duyệt',rv_recheck:'Cần kiểm tra lại',rv_clear:'Xóa',rvComment:'Nhận xét cho IE',rvSaved:'Đã lưu nhận xét.',
@@ -862,7 +862,7 @@ function supModel() {                         // everything the dashboard and th
   const list = AN.filterStudies(all, { from: AN.periodFrom(f2.period), touched: f2.period === 'today', pu: f2.pu, puOf, line: f2.line, ie: f2.ie, type: f2.type, style: f2.style });
   const last = AN.latestPerLine(list).map(s => ({ s, r: AN.rag(s, set), b: AN.bottleneck(s), pot: AN.potential(s), q: s.quality || AN.quality(s) }))
     .sort((a, b) => String(a.s.line).localeCompare(String(b.s.line), undefined, { numeric: true, sensitivity: 'base' }));   // by line name: L2 before L10
-  return { set, all, list, last, k: AN.kpis(list, set), imp: AN.improvements(list, all), mach: AN.machineStats(list), rem: AN.remarkStats(list, 8), off: AN.officerStats(list, set) };
+  return { set, all, list, last, k: AN.kpis(list, set), imp: AN.improvements(list, all), cust: AN.customerStats(list), off: AN.officerStats(list, set) };
 }
 function viewSup() {
   const f2 = S.sup, m = supModel(), { set, all, list, last, k } = m;
@@ -897,9 +897,12 @@ function viewSup() {
     + m.imp.map(x => `<tr class="go" onclick="go('detail','${x.after.id}','sup')"><td class="l"><b>${esc(x.line)}</b></td><td class="l">${esc(x.style)}</td><td>${P(x.before.result.lineEfficiency)}</td><td>${P(x.after.result.lineEfficiency)}</td>
       <td class="${x.dEff >= 0 ? 'ok' : 'warn'}">${x.dEff >= 0 ? '+' : ''}${(x.dEff * 100).toFixed(1)} pts</td><td class="${x.dCap >= 0 ? 'ok' : 'warn'}">${x.dCap >= 0 ? '+' : ''}${P(x.dCap, 0)}</td></tr>`).join('') + '</table></div>' : `<div class="muted">${t('noImp')}</div>`) + '</div>';
   // machines + remarks
-  const maxN = Math.max(1, ...m.mach.map(x => x.n));
-  h += `<div class="card"><h3>${t('machTitle')}</h3>${m.mach.map(x => `<div style="display:flex;align-items:center;gap:8px;margin:3px 0"><span style="width:90px">${esc(x.machine)}</span><div style="background:var(--accent);height:14px;border-radius:3px;width:${Math.round(x.n / maxN * 60)}%"></div><b>${x.n}</b></div>`).join('')}</div>`;
-  h += `<div class="card"><h3>${t('remTitle')}</h3>${m.rem.length ? m.rem.map(x => `<div>${x.n} × ${esc(x.text)}</div>`).join('') : '–'}</div>`;
+  // average efficiency by customer
+  const effCls = v => v >= set.eff ? 'sk' : v >= set.eff - 0.10 ? 'sw' : 'sb';
+  h += `<div class="card"><h3>${t('custTitle')}</h3>${m.cust.length ? barsH(m.cust.map(x => ({ label: x.customer, value: x.eff, cls: effCls(x.eff) })), set.eff)
+    + `<table><tr><th class="l">${t('cCust')}</th><th>${t('cStyles')}</th><th>${t('cLines')}</th><th>${t('cEff')}</th></tr>`
+    + m.cust.map(x => `<tr><td class="l"><b>${esc(x.customer)}</b></td><td>${x.styles}</td><td>${x.lines}</td><td><b>${P(x.eff)}</b></td></tr>`).join('') + '</table>'
+    : '–'}<div class="muted" style="font-size:12px;margin-top:6px">${t('custNote')}</div></div>`;
   // officers
   h += `<div class="card"><h3>${t('ieTitle')}</h3><div class="scroll"><table><tr><th class="l">${t('cIE')}</th><th>${t('cStudies')}</th><th>${t('cOk')}</th><th>${t('cCyc')}</th><th>${t('cLast')}</th></tr>`
     + m.off.map(o => `<tr><td class="l">${esc(o.ie)}</td><td>${o.studies}</td><td>${P(o.okPct, 0)}</td><td>${f(o.avgCycles)}</td><td>${o.last ? fmtDay(new Date(o.last).toISOString()) : ''}</td></tr>`).join('') + '</table></div></div>';
@@ -933,11 +936,11 @@ function summarySpecs() {                     // sheets of the supervisor's Exce
       return [fmtDate(new Date(AN.when(s)).toISOString()), fmtDay(s.date), studyPU(s), s.line, s.style, s.ie, T.en['ty_' + (s.type || 'new')], (s.raw || []).length, Number(s.manpower) || '', s.result.lineCapacity, Number(s.target) || '', s.result.lineEfficiency, s.result.balanceRate, b.ops.join(', '), b.machines.join(', '), AN.potential(s), en('q_' + q.status), rv.status ? en('rv_' + rv.status) : '', rv.comment || '', s.note || '']; }) };
   const imp = { name: 'Improvements', title: 'Re-study results (previous / new)', cols: [c('Line', 8), { h: 'Style', w: 22, t: 't' }, { h: 'Efficiency previous', w: 14, t: 'p' }, { h: 'Efficiency re-study', w: 14, t: 'p' }, { h: 'Change (points)', w: 14, t: 'n' }, { h: 'Capacity change', w: 14, t: 'p' }, { h: 'What was changed', w: 50, t: 't' }],
     rows: m.imp.map(x => [x.line, x.style, x.before.result.lineEfficiency, x.after.result.lineEfficiency, x.dEff * 100, x.dCap, x.after.note || '']) };
-  const mach = { name: 'Bottlenecks', title: 'How often each machine type holds the bottleneck', cols: [{ h: 'Machine type', w: 24, t: 't' }, { h: 'Studies', w: 12, t: 'i' }], rows: m.mach.map(x => [x.machine, x.n]) };
-  const rem = { name: 'Remarks', title: 'Most frequent operator remarks', cols: [{ h: 'Remark', w: 60, t: 't' }, { h: 'Times', w: 10, t: 'i' }], rows: AN.remarkStats(list, 30).map(x => [x.text, x.n]) };
+  const cust = { name: 'Customers', title: 'Average efficiency by customer (latest study of each style on each line)', cols: [{ h: 'Customer', w: 14, t: 't' }, { h: 'Styles', w: 10, t: 'i' }, { h: 'Lines', w: 10, t: 'i' }, { h: 'Studies counted', w: 14, t: 'i' }, { h: 'Average efficiency', w: 16, t: 'p' }],
+    rows: m.cust.map(x => [x.customer, x.styles, x.lines, x.n, x.eff]) };
   const off = { name: 'IE activity', title: 'IE officer activity and study quality', cols: [{ h: 'IE officer', w: 20, t: 't' }, { h: 'Studies', w: 10, t: 'i' }, { h: 'Quality OK', w: 12, t: 'p' }, { h: 'Need review', w: 12, t: 'i' }, { h: 'Avg cycles per operator', w: 16, t: 'n' }, { h: 'Avg variation', w: 14, t: 'p' }, c('Last study', 12)],
     rows: m.off.map(o => [o.ie, o.studies, o.okPct, o.review, o.avgCycles, o.avgCv, o.last ? fmtDay(new Date(o.last).toISOString()) : '']) };
-  return [summary, lines, studies, imp, mach, rem, off];
+  return [summary, lines, studies, imp, cust, off];
 }
 const tfEn = (k, o) => Object.keys(o).reduce((s, x) => s.split('{' + x + '}').join(o[x]), T.en[k]);
 function exportSummary() {
