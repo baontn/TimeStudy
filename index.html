@@ -71,6 +71,7 @@ td.l,th.l{text-align:left}
 .dk-row button{margin:0;width:auto;touch-action:manipulation}
 .dk-lap{min-width:72px;min-height:42px;padding:4px 8px;font-size:16px;font-weight:600}.dk-go{min-width:80px;min-height:42px;padding:4px 8px;font-weight:600}
 .dk-p{min-width:40px;min-height:42px;padding:0}.pz{display:inline-block;width:11px;height:14px;border-left:4px solid currentColor;border-right:4px solid currentColor;vertical-align:middle}
+.samed{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;font-size:13px;color:var(--muted)}.samed label{display:inline-flex;align-items:center;gap:6px}.samed input{width:96px;margin:0;padding:4px 8px;font-size:14px}.samed input.ed{border-color:var(--warn);background:var(--warnbg)}.samed button{width:auto;margin:0}
 .card.run{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
 .savebar{position:sticky;bottom:0;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px;box-shadow:0 -2px 8px rgba(0,0,0,.12);margin-top:8px}
 .dot{display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:middle;margin-right:4px}
@@ -150,7 +151,12 @@ const DB = {
   findStyle: v => Object.keys(OPS).find(k => norm(k) === norm(v)) || '',
   ops:       style => (OPS[style] || []).filter(o => o.no >= OP_MIN && o.no <= OP_MAX).sort((a, b) => a.no - b.no)   // {no, code, sam, machine}
 };
-const mkOpMap = style => { const m = {}; DB.ops(style).forEach(o => m[o.no] = { sam:o.sam, machine:o.machine }); return m; };
+const mkOpMap = style => {                       // SAM edited in this study (S.samOv) replaces the SAM of the style data
+  const m = {}, ov = style === S.style ? (S.samOv || {}) : {};
+  DB.ops(style).forEach(o => m[o.no] = { sam: ov[o.no] != null ? ov[o.no] : o.sam, machine: o.machine, orig: o.sam });
+  return m;
+};
+const samOvOf = h => Object.fromEntries((h.opsSnap || []).filter(o => o.samOrig != null).map(o => [o.no, o.sam]));   // edited SAMs of a saved study
 
 // =====================================================================
 // TEXT
@@ -168,7 +174,7 @@ const T = {
   chartTitle:'Line balance: capacity per operation (pcs/hr)',lgBn:'Bottleneck',lgOp:'Operation',lgTgt:'Target',lgCap:'Line capacity',
   dataFrom:'Data',sampleData:'SAMPLE data. Tap Load data file.',loadData:'Load data file',badFile:'This file is not a valid data file.',noShare:'This phone cannot open the share menu, so the file was downloaded instead.',exported:'sent',
   styleMissing:'Style not found in the synced data',selEmp:'Select employee',noEmp:'No employees found for this line',empCount:'employees on this line',
-  selOps:'Tap the operation number(s) this operator does',sam:'SAM',machine:'Machine',totalSam:'Total SAM',
+  selOps:'Tap the operation number(s) this operator does',sam:'SAM',machine:'Machine',totalSam:'Total SAM',samOrig:'original',samEdited:'SAM edited',
   add:'Add operator to study',addNeed:'Select an employee and at least one operation',
   start:'Start',piece:'Piece done',stop:'Stop',undo:'Undo',del:'Delete',
   avg:'Avg time (s)',pcsHr:'pcs/hr',effp:'Efficiency',
@@ -203,7 +209,7 @@ const T = {
   chartTitle:'Cân bằng chuyền: năng lực từng công đoạn (cái/giờ)',lgBn:'Nút cổ chai',lgOp:'Công đoạn',lgTgt:'Mục tiêu',lgCap:'Năng lực chuyền',
   dataFrom:'Dữ liệu',sampleData:'Dữ liệu MẪU. Bấm Tải tệp dữ liệu.',loadData:'Tải tệp dữ liệu',badFile:'Tệp dữ liệu không hợp lệ.',noShare:'Điện thoại không mở được menu chia sẻ nên tệp đã được tải xuống.',exported:'đã gửi',
   styleMissing:'Không tìm thấy mã hàng trong dữ liệu',selEmp:'Chọn công nhân',noEmp:'Không có công nhân cho chuyền này',empCount:'công nhân trong chuyền',
-  selOps:'Chọn số công đoạn công nhân này làm',sam:'SAM',machine:'Máy',totalSam:'Tổng SAM',
+  selOps:'Chọn số công đoạn công nhân này làm',sam:'SAM',machine:'Máy',totalSam:'Tổng SAM',samOrig:'gốc',samEdited:'SAM đã sửa',
   add:'Thêm công nhân vào nghiên cứu',addNeed:'Chọn công nhân và ít nhất một công đoạn',
   start:'Bắt đầu',piece:'Xong 1 cái',stop:'Dừng',undo:'Hoàn tác',del:'Xóa',
   avg:'TB (giây)',pcsHr:'cái/giờ',effp:'Hiệu suất',
@@ -362,7 +368,7 @@ function onLine(v) { if (!askClear()) { $('line').value = S.line; return; } clea
 function onStyle(v) {
   const found = DB.findStyle(v);
   if (S.rows.length && found !== S.style && !confirm(t('clearRows'))) { $('style').value = S.style; return; }
-  if (found !== S.style) clearRows();
+  if (found !== S.style) { clearRows(); S.samOv = {}; }
   S.style = found; save(); opMap = mkOpMap(found);
   $('styleWarn').textContent = (!found && v.trim()) ? t('styleMissing') : '';
   paintWorkers(); updateCards(); updateAnalysis();
@@ -386,7 +392,7 @@ function pickBase(id) {
   const b = allStudies().find(x => x.id === id);
   if (!b) return;
   if (S.rows.length && !confirm(t('clearRows'))) { $('baseSel').value = S.baseId; return; }
-  S.baseId = id; S.style = b.style; if (b.target) S.target = b.target; if (b.manpower) S.manpower = b.manpower;
+  S.baseId = id; S.style = b.style; S.samOv = samOvOf(b); if (b.target) S.target = b.target; if (b.manpower) S.manpower = b.manpower;
   opMap = mkOpMap(S.style);
   S.rows = (b.raw || []).map(r => normRow({ emp:r.emp, name:r.name, opText:r.opText, sel:[], pieces:(r.pieces || []).slice(), cnt:(r.cnt || []).slice(), skip:(r.skip || []).slice(), remark:r.remark || '', carried:true, prevSec:wmean(r) }));
   active = -1; save(); buildNew();
@@ -445,6 +451,17 @@ function dupWorker(i) {                       // same worker, another operation 
   const r = S.rows[i], j = addEntry({ code:r.emp, name:r.name });
   save(); updateCards(); updateAnalysis(); focusCard(j);
 }
+function setSam(no, v) {                      // edit the SAM of an operation for this study; empty or the original value = back to the data
+  const o = DB.ops(S.style).find(x => x.no === no); if (!o) return;
+  const x = parseFloat(String(v).replace(',', '.'));
+  S.samOv = S.samOv || {};
+  if (!(x > 0) || Math.abs(x - o.sam) < 1e-9) delete S.samOv[no]; else S.samOv[no] = Math.round(x * 10000) / 10000;
+  save(); opMap = mkOpMap(S.style); updateCards(); updateAnalysis();
+}
+const samEditor = (ops, total) => '<div class="samed">' + ops.map(no => { const m = opMap[no] || {}, ed = S.samOv && S.samOv[no] != null;
+    return `<label>${ops.length > 1 ? `${t('opn')} ${no} ` : ''}${t('sam')} <input type="number" step="0.0001" min="0" inputmode="decimal" value="${m.sam != null ? m.sam : ''}" class="${ed ? 'ed' : ''}" onchange="setSam(${no},this.value)"></label>`
+      + (ed ? `<span class="warn">✎ ${t('samOrig')} ${f(m.orig, 4)}</span><button class="sec small" onclick="setSam(${no},'')">↺</button>` : ''); }).join('')
+  + (ops.length > 1 ? `<span>${t('totalSam')} <b>${f(total, 4)}</b></span>` : '') + '</div>';
 function toggleSel(i, no) { const r = S.rows[i]; r.sel = (r.sel || []).includes(no) ? r.sel.filter(x => x !== no) : [...(r.sel || []), no]; save(); updateCards(); }
 function confirmOps(i) { const r = S.rows[i]; if (!(r.sel || []).length) return; r.opText = r.sel.slice().sort((a, b) => a - b).join('+'); r.sel = []; save(); updateCards(); updateAnalysis(); focusCard(i); }
 function changeOps(i) { const r = S.rows[i]; pauseRow(r, performance.now()); r.sel = parseOps(r.opText); r.opText = ''; save(); updateCards(); updateAnalysis(); }
@@ -527,8 +544,8 @@ function updateCards() {
     if (!r.opText) {                          // choose the operations of this worker
       const sel = r.sel || [], rows = opsList.filter(o => sel.includes(o.no));
       const chips = opsList.map(o => `<button class="chip ${sel.includes(o.no) ? 'on' : ''} ${cov.has(o.no) ? 'cov' : ''}" onclick="toggleSel(${i},${o.no})">${o.no}</button>`).join('');
-      const info = rows.length ? rows.map(o => `${t('opn')} <b>${o.no}</b> · ${t('sam')} ${f(o.sam, 4)} · ${t('machine')}: <b>${esc(o.machine || '-')}</b>`).join('<br>')
-          + (rows.length > 1 ? `<br>${t('totalSam')}: <b>${f(rows.reduce((a, o) => a + o.sam, 0), 4)}</b>` : '') : (opsList.length ? t('selOps') : t('styleMissing'));
+      const info = rows.length ? rows.map(o => `${t('opn')} <b>${o.no}</b> · ${t('sam')} ${f((opMap[o.no] || o).sam, 4)}${S.samOv && S.samOv[o.no] != null ? ' ✎' : ''} · ${t('machine')}: <b>${esc(o.machine || '-')}</b>`).join('<br>')
+          + (rows.length > 1 ? `<br>${t('totalSam')}: <b>${f(rows.reduce((a, o) => a + (opMap[o.no] || o).sam, 0), 4)}</b>` : '') : (opsList.length ? t('selOps') : t('styleMissing'));
       return `<div class="card" id="card${i}">${head}<div class="muted">${t('chooseOps')}</div><div class="chips">${chips}</div><div class="info">${info}</div>
         <div class="row"><button ${sel.length ? '' : 'disabled'} onclick="confirmOps(${i})">${t('confirmOps')}</button><button class="sec" onclick="del(${i})">${t('del')}</button></div></div>`;
     }
@@ -549,7 +566,7 @@ function updateCards() {
         <td><button class="sec small" onclick="setLapN(${i},${k},-1)">−</button> ${l.n} <button class="sec small" onclick="setLapN(${i},${k},1)">+</button></td><td>${f(l.sec / l.n)}</td>
         <td><button class="sec small" onclick="toggleCycle(${i},${k})">${r.skip.includes(k) ? '↺' : '✕'}</button></td></tr>`).join('') + `</table><div class="muted" style="font-size:12px">${t('cyclesHint')}</div>` : '';
     return `<div class="card${done ? ' done' : ''}${running ? ' run' : ''}" id="card${i}">${head} &nbsp; ${t('opn')} <b>${esc(r.opText)}</b> ${progress}
-      <div class="muted">${t('sam')} ${f(c.sam, 4)} · ${t('machine')}: ${esc(machines.join(', ') || '-')}</div>${prev}
+      ${samEditor(c.ops, c.sam)}<div class="muted">${t('machine')}: ${esc(machines.join(', ') || '-')}</div>${prev}
       <div class="time" id="tm${i}">${fmtT(el - r.lapAt)}</div><div class="muted" style="text-align:center">${t('total')} <span id="tt${i}">${fmtT(el)}</span></div>
       <div class="row">${left}${right}</div>
       <div class="row" style="align-items:center;margin-top:6px"><div>${t('pcsLap')}</div><button class="sec small" onclick="lnAdj(${i},-1)">−</button><b id="ln${i}" style="text-align:center;font-size:20px">${r.ln}</b><button class="sec small" onclick="lnAdj(${i},1)">+</button></div>
@@ -627,14 +644,15 @@ function saveStudy(keepUnfinished) {
   const pending = un.map(r => ({ emp:r.emp, name:r.name, opText:r.opText, ms:Math.round(partOf(r)), ln:r.ln || 1, goal:goalOf(r), remark:r.remark || '' }));   // kept on this phone to continue later
   const rec = { pu:(S.pu === NOPU ? '' : S.pu) || puOf(S.line), line:S.line, style:S.style, target:S.target, ie:S.ie.trim(), type:S.type, baseId:S.type === 'restudy' ? S.baseId : '',
                 note:S.note || '', manpower:S.manpower || '', cyclesGoal:cyclesGoal(), raw,
-                opsSnap:[...new Set(live.workers.flatMap(w => w.ops))].sort((a, b) => a - b).map(no => ({ no, sam:opMap[no] ? opMap[no].sam : 0, machine:opMap[no] ? opMap[no].machine : '' })),
+                opsSnap:[...new Set(live.workers.flatMap(w => w.ops))].sort((a, b) => a - b).map(no => ({ no, sam:opMap[no] ? opMap[no].sam : 0, machine:opMap[no] ? opMap[no].machine : '',
+                  ...(S.samOv && S.samOv[no] != null && opMap[no] ? { samOrig: opMap[no].orig } : {}) })),
                 meta:{ app:APP_VER, defaultAllowance:DEFAULT_ALLOWANCE }, sent:false, result:JSON.parse(JSON.stringify(live)), pending };
   rec.quality = AN.quality(rec);
   const ex = S.editId && H.find(h => h.id === S.editId);
   let id;
   if (ex) { Object.assign(ex, rec, { updated:new Date().toISOString() }); id = ex.id; }      // update the same study
   else { id = uid(); H.unshift({ id, date:new Date().toISOString(), ...rec }); }
-  S.rows = []; S.editId = null; S.baseId = ''; S.note = ''; S.manpower = ''; live = null; saveHist(); saveDraft(); go('detail', id, 'history'); pushPending().then(() => { if (screen === 'detail' || screen === 'history' || screen === 'home') render(); });
+  S.rows = []; S.editId = null; S.baseId = ''; S.note = ''; S.manpower = ''; S.samOv = {}; live = null; saveHist(); saveDraft(); go('detail', id, 'history'); pushPending().then(() => { if (screen === 'detail' || screen === 'history' || screen === 'home') render(); });
 }
 function editStudy(id) {                    // load a saved study back into the New Study screen
   const h = H.find(x => x.id === id); if (!h) return;
@@ -642,7 +660,7 @@ function editStudy(id) {                    // load a saved study back into the 
   if (S.editId !== id) {
     S.rows = h.raw.map(r => normRow({ emp:r.emp, name:r.name, opText:r.opText, sel:[], pieces:r.pieces.slice(), cnt:(r.cnt || []).slice(), skip:(r.skip || []).slice(), remark:r.remark || '', carried:!!r.carried }));
     S.pu = h.pu || puKey(h.line); S.line = h.line; S.style = h.style; S.target = h.target || ''; S.ie = h.ie || ''; S.type = TYPES3.includes(h.type) ? h.type : 'new';
-    S.baseId = h.baseId || ''; S.note = h.note || ''; S.manpower = h.manpower || ''; S.editId = id;
+    S.baseId = h.baseId || ''; S.note = h.note || ''; S.manpower = h.manpower || ''; S.editId = id; S.samOv = samOvOf(h);
     (h.pending || []).forEach(p => {
       let r = S.rows.find(x => same(x.emp, p.emp) && x.opText === p.opText && !x.carried);
       if (!r) { r = normRow({ emp:p.emp, name:p.name, opText:p.opText, sel:[], pieces:[], skip:[], remark:p.remark || '' }); S.rows.push(r); }
@@ -651,7 +669,7 @@ function editStudy(id) {                    // load a saved study back into the 
   }
   save(); go('new');
 }
-function cancelEdit() { const id = S.editId; S.rows = []; S.editId = null; save(); go(id ? 'detail' : 'history', id, 'history'); }
+function cancelEdit() { const id = S.editId; S.rows = []; S.editId = null; S.samOv = {}; save(); go(id ? 'detail' : 'history', id, 'history'); }
 function delStudy(id) { if (!confirm(t('sure'))) return; H = H.filter(h => h.id !== id); saveHist(); go('history'); }
 
 // ---------- keep screen on while timing ----------
@@ -729,6 +747,7 @@ function viewDetail() {
       <div class="muted">${nameOfType(h.type)}${Number(h.manpower) ? ' · ' + t('manpower').replace(' (optional)', '').replace(' (tùy chọn)', '') + ': ' + esc(h.manpower) : ''}</div>
       ${h.note ? `<div>📝 ${esc(h.note)}</div>` : ''}${own ? '' : `<div class="muted">${t('readOnly')}</div>`}</div>`
     + rvCard + (q.issues.length ? qualityHtml(q) : '')
+    + ((h.opsSnap || []).some(o => o.samOrig != null) ? `<div class="card q-check">✎ ${t('samEdited')}: ${(h.opsSnap || []).filter(o => o.samOrig != null).map(o => `${t('opn')} ${o.no}: ${f(o.samOrig, 4)} → <b>${f(o.sam, 4)}</b>`).join(' · ')}</div>` : '')
     + (own && (h.pending || []).length ? `<div class="card q-check">⏳ ${esc(tf('unKept', { n: h.pending.length, list: h.pending.map(p => `${p.name} (${t('opn')} ${p.opText}, ${fmtT(p.ms)})`).join(', ') }))}</div>` : '')
     + (own ? `<button onclick="editStudy('${h.id}')">${t('editStudy')}</button>
               <button onclick="emailReport('${h.id}')">${t('emailMe')}${S.me ? ' → ' + esc(S.me.email) : ''}</button>` : '')
