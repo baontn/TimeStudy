@@ -64,7 +64,8 @@ td.l,th.l{text-align:left}
 .dk-list{display:grid;gap:6px;max-height:38vh;overflow-y:auto}
 .dk-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto auto;gap:6px;align-items:center;padding:4px 4px 4px 8px;border-radius:8px;background:var(--sel);border-left:4px solid var(--accent)}
 .dk-row.wait{background:var(--warnbg);border-left-color:var(--warn);grid-template-columns:minmax(0,1fr) auto auto}
-.dk-who{min-width:0;cursor:pointer;line-height:1.25}.dk-who b,.dk-who small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.dk-who small{color:var(--muted);font-size:11px}.dk-who small .dk-w{display:inline;color:var(--warn)}
+.dk-name{grid-column:1/-1;font-weight:700;line-height:1.25;cursor:pointer;overflow-wrap:anywhere;margin-bottom:-2px}
+.dk-who{min-width:0;cursor:pointer;line-height:1.3;color:var(--muted);font-size:12px}.dk-who .dk-w{color:var(--warn)}
 .dk-t{font-size:20px;font-variant-numeric:tabular-nums;min-width:68px;text-align:right}
 .dk-row button{margin:0;width:auto;touch-action:manipulation}
 .dk-lap{min-width:84px;min-height:48px;font-size:18px;font-weight:600}.dk-go{min-width:96px;min-height:48px;font-weight:600}
@@ -569,8 +570,9 @@ function updateDock() {
   box.hidden = !list.length; if (!list.length) { box.innerHTML = ''; return; }
   box.innerHTML = `<div class="dk-head"><b>${t('dkTitle')} (${list.length})</b><span class="muted">${t('dkHint')}</span></div><div class="dk-list">` + list.map(({ r, i }) => {
     const run = r.t0 !== null, n = Math.max(1, r.ln || 1);
-    return `<div class="dk-row ${run ? 'run' : 'wait'}"><div class="dk-who" onclick="openCard.add(${i});updateCards();focusCard(${i})"><b>${esc(r.name)}</b>`
-      + `<small>${run ? '' : `<b class="dk-w">${t('dkWait')}</b> · `}${t('opn')} ${esc(r.opText)} · ${piecesUsed(r)}/${goalOf(r)}${n > 1 ? ` · ×${n}` : ''}</small></div>`
+    const open = `onclick="openCard.add(${i});updateCards();focusCard(${i})"`;
+    return `<div class="dk-row ${run ? 'run' : 'wait'}"><div class="dk-name" ${open}>${esc(r.name)}</div>`
+      + `<div class="dk-who" ${open}>${run ? '' : `<b class="dk-w">${t('dkWait')}</b> · `}${t('opn')} ${esc(r.opText)} · ${piecesUsed(r)}/${goalOf(r)}${n > 1 ? ` · ×${n}` : ''}</div>`
       + `<div class="dk-t" id="dk${i}">${fmtT(elapsed(r) - r.lapAt)}</div>`
       + (run ? `<button class="dk-p sec" aria-label="${t('stop')}" onpointerdown="startStop(${i},event)"><i class="pz"></i></button><button class="dk-lap" onpointerdown="lap(${i},event)">${t('lap')}</button>`
              : `<button class="dk-go green" onpointerdown="startStop(${i},event)">${t('resume')}</button>`) + '</div>';
