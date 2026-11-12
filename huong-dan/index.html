@@ -363,6 +363,24 @@ footer { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 16
           <div class="note"><b>Đếm theo sản phẩm, không đếm theo chi tiết</b><span>SAM của công đoạn tính cho cả sản phẩm. Vì vậy vòng phải gồm đủ các chi tiết của sản phẩm, và số cái là số <b>sản phẩm</b> (10), không phải số chi tiết (20).</span></div>
         </div>
       </div>
+
+      <div class="step">
+        <div class="txt">
+          <h3><span class="n">E</span>SAM trong dữ liệu chưa đúng</h3>
+          <p>Ví dụ: công đoạn 33 đã đổi phương pháp may, SAM thật là 0,65 nhưng dữ liệu vẫn ghi 0,55.</p>
+          <ol>
+            <li>Trên thẻ bấm giờ, sửa ô <span class="ui">SAM</span> của công đoạn đó. Công đoạn ghép có một ô cho mỗi công đoạn, và <span class="ui">Tổng SAM</span> tự cộng lại.</li>
+            <li>Ô đã sửa chuyển màu vàng, bên cạnh ghi <span class="ui">✎ gốc 0.5500</span>. Bấm <span class="key">↺</span> để trở về SAM gốc.</li>
+            <li>Hiệu suất của công nhân và của chuyền được tính lại ngay. Năng lực (cái/giờ) không đổi vì năng lực tính từ thời gian bấm được.</li>
+          </ol>
+          <ul>
+            <li>SAM đã sửa chỉ áp dụng cho nghiên cứu này, không thay đổi dữ liệu mã hàng.</li>
+            <li>Nghiên cứu đã lưu ghi rõ <span class="ui">SAM đã sửa: CĐ 33: 0.5500 → 0.6500</span>. Báo cáo Excel dùng SAM đã sửa, và trang Analysis có dòng ghi SAM gốc → SAM dùng.</li>
+            <li><span class="ui">Sửa / Tiếp tục nghiên cứu</span> và <span class="ui">Nghiên cứu lại</span> giữ nguyên SAM đã sửa. Đổi sang mã hàng khác thì SAM trở về theo dữ liệu.</li>
+          </ul>
+        </div>
+        <figure><img src="img/32-sam.png" alt="Ô SAM đã sửa trên thẻ bấm giờ" width="390" height="175" loading="lazy"><figcaption>SAM của CĐ 33 đã sửa từ 0,55 thành 0,65</figcaption></figure>
+      </div>
     </section>
 
     <!-- 05 -->

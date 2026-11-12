@@ -257,7 +257,8 @@ ${line(1, 'D', 'Line capacity', caps.line, 'DC2626', 22225)}${hasTgt ? line(2, '
       ['Gap to target (pcs/hr)', tgt ? lineCap - tgt : '', tgt ? ST.aVal : ST.aValTxt],
       ['Operations not studied', (R.missingOps || []).join(', '), ST.aValTxt],
       ['Study type', TYPES[h.type || 'new'] || '', ST.aValTxt], ['Line manpower', Number(h.manpower) || '', Number(h.manpower) ? ST.aVal : ST.aValTxt],
-      ['Note / change made', h.note || '', ST.aValTxt]];
+      ['Note / change made', h.note || '', ST.aValTxt],
+      ['SAM edited (original -> used)', (h.opsSnap || []).filter(o => o.samOrig != null).map(o => `${o.no}: ${num(o.samOrig).toFixed(4)} -> ${num(o.sam).toFixed(4)}`).join(', '), ST.aValTxt]];
     kp.forEach((k, i) => { s2.put(0, 5 + i, { s: ST.aBold, v: k[0] }); s2.put(1, 5 + i, { s: k[2], v: k[1] }); });
     const th = 16;                               // table header row
     ['Operation', 'Capacity (pcs/hr)', '% of line capacity', 'Line capacity', 'Target', 'Operators', 'Status']
