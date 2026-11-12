@@ -1,0 +1,593 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" href="../icon.png">
+<title>Hướng dẫn Time Study</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: a printed-handbook feel. Sticky chapter index on the left (wide screens), one reading column with
+   text beside a phone-sized screenshot for each step; stacks to one column on phones. */
+:root {
+  --bg: #f4f6f9;
+  --paper: #ffffff;
+  --ink: #0b1f38;
+  --muted: #5a6677;
+  --line: #dde3ea;
+  --accent: #0058a0;
+  --accent-soft: #e4eef8;
+  --red: #c8161e;
+  --red-soft: #fde9ea;
+  --ok: #157a3a;
+  --ok-soft: #e5f4ea;
+  --warn: #8a5a00;
+  --warn-soft: #fff4d9;
+  --shot-frame: #c9d3de;
+  --font-body: "Be Vietnam Pro", "Segoe UI", Roboto, Arial, sans-serif;
+  --font-mono: "JetBrains Mono", Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #07131f; --paper: #0e1e30; --ink: #e6edf5; --muted: #9fb0c3; --line: #1f3550;
+    --accent: #6aa8e6; --accent-soft: #132c48; --red: #ff7a7f; --red-soft: #3a1418;
+    --ok: #5fd08a; --ok-soft: #10301d; --warn: #f0c060; --warn-soft: #3a2d0b; --shot-frame: #2a425f;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #07131f; --paper: #0e1e30; --ink: #e6edf5; --muted: #9fb0c3; --line: #1f3550;
+  --accent: #6aa8e6; --accent-soft: #132c48; --red: #ff7a7f; --red-soft: #3a1418;
+  --ok: #5fd08a; --ok-soft: #10301d; --warn: #f0c060; --warn-soft: #3a2d0b; --shot-frame: #2a425f;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+img { max-width: 100%; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: 16px; line-height: 1.65;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 48px;
+}
+a { color: var(--accent); }
+h1, h2, h3 { line-height: 1.25; text-wrap: balance; margin: 0; }
+p { margin: 0; }
+
+.page { max-width: 1120px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 32px; }
+@media (min-width: 980px) { .page { grid-template-columns: 230px minmax(0, 1fr); } }
+
+/* cover */
+.cover { grid-column: 1 / -1; padding-block: 40px 8px; display: grid; gap: 14px; border-bottom: 3px solid var(--accent); box-shadow: 0 2px 0 var(--red); padding-bottom: 28px; }
+.back { justify-self: start; font-size: 14px; font-weight: 600; text-decoration: none; }
+.back:hover, .back:focus-visible { text-decoration: underline; }
+.eyebrow { font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+.cover h1 { font-size: clamp(30px, 5vw, 46px); font-weight: 700; letter-spacing: -0.01em; }
+.cover .lead { max-width: 62ch; color: var(--muted); font-size: 17px; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 14px; color: var(--muted); }
+.meta b { color: var(--ink); font-weight: 600; }
+
+/* chapter index */
+.toc { align-self: start; font-size: 14px; }
+@media (min-width: 980px) { .toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 20px); } }
+.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; counter-reset: ch; }
+.toc li a { display: grid; grid-template-columns: 28px 1fr; padding: 6px 8px; border-radius: 6px; text-decoration: none; color: var(--ink); }
+.toc li a:hover, .toc li a:focus-visible { background: var(--accent-soft); outline: none; }
+.toc li a span { color: var(--accent); font-family: var(--font-mono); font-size: 13px; padding-top: 2px; }
+.toc .label { font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px 8px; }
+
+main { min-width: 0; display: grid; gap: 56px; padding-top: 8px; }
+section.ch { display: grid; gap: 22px; scroll-margin-top: 16px; }
+.ch-head { display: grid; gap: 6px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+.ch-no { font-family: var(--font-mono); color: var(--accent); font-size: 14px; }
+.ch-head h2 { font-size: clamp(24px, 3.2vw, 30px); font-weight: 700; }
+.ch-head p { color: var(--muted); max-width: 66ch; }
+
+/* a step: text + screenshot */
+.step { display: grid; grid-template-columns: 1fr; gap: 18px; align-items: start; }
+@media (min-width: 760px) { .step { grid-template-columns: minmax(0, 1fr) 300px; gap: 28px; } .step.wide { grid-template-columns: 1fr; } }
+.step .txt { min-width: 0; display: grid; gap: 10px; max-width: 64ch; }
+.step h3 { font-size: 19px; font-weight: 650; display: flex; gap: 10px; align-items: baseline; }
+.step h3 .n { flex: none; display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: var(--paper); font-size: 13px; font-weight: 700; transform: translateY(-2px); }
+.step ul, .step ol { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+
+figure { margin: 0; display: grid; gap: 8px; justify-items: center; min-width: 0; }
+figure img { display: block; width: 100%; max-width: 300px; height: auto; border: 1px solid var(--shot-frame); border-radius: 14px; background: #fff; }
+figure.doc img { max-width: 100%; border-radius: 6px; }
+figcaption { font-size: 13px; color: var(--muted); text-align: center; max-width: 34ch; }
+figure.doc figcaption { max-width: 70ch; }
+.pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; }
+
+/* app words: what the user taps or reads on screen */
+.ui { font-weight: 600; color: var(--accent); white-space: nowrap; }
+.key { font-family: var(--font-mono); font-size: .9em; background: var(--accent-soft); color: var(--accent); padding: 1px 6px; border-radius: 4px; }
+
+.note { padding: 12px 16px; border-radius: 8px; background: var(--accent-soft); display: grid; gap: 4px; }
+.note.warn { background: var(--warn-soft); }
+.note.warn b:first-child { color: var(--warn); }
+.note.bad { background: var(--red-soft); }
+.note.bad b:first-child { color: var(--red); }
+.note.good { background: var(--ok-soft); }
+.note.good b:first-child { color: var(--ok); }
+
+.tbl { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); }
+table { width: 100%; border-collapse: collapse; font-size: 15px; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 13px; color: var(--muted); font-weight: 600; background: var(--bg); }
+tr:last-child td { border-bottom: 0; }
+td.f { font-family: var(--font-mono); font-size: 13.5px; white-space: nowrap; }
+.dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; transform: translateY(1px); }
+.dot.g { background: #1a9a4b; } .dot.a { background: #c98a00; } .dot.r { background: #d42a2a; }
+
+.faq { display: grid; gap: 10px; }
+.faq details { background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 12px 16px; }
+.faq summary { cursor: pointer; font-weight: 600; }
+.faq summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+.faq details p { margin-top: 8px; color: var(--ink); }
+
+footer { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 16px; font-size: 13px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 18px; justify-content: space-between; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <header class="cover">
+    <a class="back" href="../">← Về ứng dụng</a>
+    <div class="eyebrow">Phòng IED · Hướng dẫn sử dụng</div>
+    <h1>Ứng dụng Nghiên cứu thời gian (Time Study)</h1>
+    <p class="lead">Bấm giờ từng công nhân trên chuyền bằng điện thoại, xem ngay năng lực chuyền, nút cổ chai và số lao động cần cho mục tiêu, rồi gửi báo cáo Excel. Tài liệu này dành cho IE và giám sát.</p>
+    <div class="meta"><span>Phiên bản ứng dụng: <b>4.3</b></span><span>Cập nhật: <b>11/2026</b></span><span>Tác giả ứng dụng: <b>Max Bao</b></span></div>
+    <div class="note warn"><b>Lưu ý về hình ảnh</b><span>Các ảnh chụp màn hình dùng <b>dữ liệu ví dụ</b> (chuyền L05, mã hàng TEE-2401, tên công nhân giả định). Số liệu trên chuyền thật của bạn sẽ khác.</span></div>
+  </header>
+
+  <nav class="toc" aria-label="Mục lục">
+    <div class="label">Mục lục</div>
+    <ol>
+      <li><a href="#bat-dau"><span>01</span>Bắt đầu</a></li>
+      <li><a href="#nghien-cuu-moi"><span>02</span>Tạo nghiên cứu mới</a></li>
+      <li><a href="#bam-gio"><span>03</span>Bấm giờ</a></li>
+      <li><a href="#tinh-huong"><span>04</span>Tình huống thường gặp</a></li>
+      <li><a href="#ket-qua"><span>05</span>Đọc kết quả</a></li>
+      <li><a href="#luu-gui"><span>06</span>Lưu, gửi và xuất Excel</a></li>
+      <li><a href="#nghien-cuu-lai"><span>07</span>Nghiên cứu lại sau cải tiến</a></li>
+      <li><a href="#giam-sat"><span>08</span>Bảng theo dõi của giám sát</a></li>
+      <li><a href="#cong-thuc"><span>09</span>Cách tính</a></li>
+      <li><a href="#hoi-dap"><span>10</span>Hỏi đáp</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <!-- 01 -->
+    <section class="ch" id="bat-dau">
+      <div class="ch-head"><span class="ch-no">01</span><h2>Bắt đầu</h2>
+        <p>Ứng dụng chạy trên trình duyệt của điện thoại (Chrome hoặc Safari). Không cần cài từ cửa hàng ứng dụng.</p></div>
+
+      <div class="step">
+        <div class="txt">
+          <h3><span class="n">1</span>Mở ứng dụng và thêm vào màn hình chính</h3>
+          <ul>
+            <li>Mở đường dẫn ứng dụng do phòng IED gửi.</li>
+            <li>Android (Chrome): bấm <span class="ui">⋮</span> → <span class="ui">Thêm vào màn hình chính</span>. iPhone (Safari): bấm <span class="ui">Chia sẻ</span> → <span class="ui">Thêm vào MH chính</span>.</li>
+            <li>Sau lần mở đầu tiên, ứng dụng vẫn chạy khi <b>không có mạng</b>. Nghiên cứu được giữ trên điện thoại và tự gửi khi có mạng lại.</li>
+            <li>Đổi ngôn ngữ ở ô <span class="key">VI</span> / <span class="key">EN</span> góc trên bên phải.</li>
+          </ul>
+        </div>
+        <figure><img src="img/01-home.png" alt="Màn hình chính của ứng dụng" width="390" height="844" loading="lazy"><figcaption>Màn hình chính</figcaption></figure>
+      </div>
+
+      <div class="step">
+        <div class="txt">
+          <h3><span class="n">2</span>Đăng nhập</h3>
+          <p>Bấm <span class="ui">Đăng nhập</span>, nhập <b>email</b> và <b>mã PIN</b> do giám sát cấp. Chỉ cần đăng nhập một lần trên mỗi điện thoại.</p>
+          <p>Sau khi đăng nhập, màn hình chính có:</p>
+          <ul>
+            <li><span class="ui">+ Nghiên cứu mới</span>: bắt đầu bấm giờ một chuyền.</li>
+            <li><span class="ui">Lịch sử</span>: các nghiên cứu bạn đã lưu.</li>
+            <li><span class="ui">Bảng theo dõi của giám sát</span>: hiện với tài khoản giám sát, hoặc khi bật <span class="ui">Công cụ giám sát</span>.</li>
+            <li>Dòng trạng thái gửi: <span class="ui">✓ Đã gửi tất cả</span> hoặc <span class="ui">⏳ đang chờ gửi</span>, và nút <span class="ui">Đồng bộ ngay</span>.</li>
+          </ul>
+        </div>
+        <figure><img src="img/02-login.png" alt="Khung đăng nhập với email và mã PIN" width="390" height="844" loading="lazy"><figcaption>Đăng nhập bằng email và mã PIN</figcaption></figure>
+      </div>
+    </section>
+
+    <!-- 02 -->
+    <section class="ch" id="nghien-cuu-moi">
+      <div class="ch-head"><span class="ch-no">02</span><h2>Tạo nghiên cứu mới</h2>
+        <p>Bấm <span class="ui">+ Nghiên cứu mới</span>. Màn hình có 2 phần đánh số: thiết lập, rồi chọn công nhân. Mọi thay đổi được lưu nháp tự động, tắt ứng dụng giữa chừng không mất dữ liệu.</p></div>
+
+      <div class="step">
+        <div class="txt">
+          <h3><span class="n">1</span>Thiết lập nghiên cứu</h3>
+          <div class="tbl"><table>
+            <tr><th>Ô</th><th>Nhập gì</th></tr>
+            <tr><td>PU, Chuyền</td><td>Chọn PU trước, sau đó chọn chuyền. Danh sách công nhân của chuyền sẽ hiện ở phần 2.</td></tr>
+            <tr><td>Mã hàng</td><td>Gõ vài ký tự rồi chọn trong danh sách. Ứng dụng lấy SAM và loại máy của từng công đoạn theo mã hàng.</td></tr>
+            <tr><td>Loại nghiên cứu</td><td><b>Nghiên cứu mới</b>: lần đầu trên chuyền. <b>QCO</b>: khi chuyển mã hàng. <b>Nghiên cứu lại</b>: sau khi cải tiến (xem chương 07).</td></tr>
+            <tr><td>Người làm</td><td>Tên IE. Bắt buộc để lưu.</td></tr>
+            <tr><td>Mục tiêu SL/giờ</td><td>Sản lượng mục tiêu mỗi giờ của chuyền. Nên nhập để có bảng <b>Số lao động cần cho mục tiêu</b>.</td></tr>
+            <tr><td>Số lao động của chuyền</td><td>Tổng số người trên chuyền. Ứng dụng cảnh báo nếu số người đã bấm giờ khác số này.</td></tr>
+            <tr><td>Số cái mặc định mỗi công nhân</td><td>Số cái cần bấm cho mỗi người (mặc định 5). Có thể đổi riêng từng người.</td></tr>
+            <tr><td>Đã thay đổi gì / nhận xét</td><td>Ghi lại tình hình chuyền hoặc thay đổi đã làm. Hiện trong báo cáo.</td></tr>
+          </table></div>
+          <div class="note warn"><b>Cẩn thận</b><span>Đổi PU, chuyền, mã hàng hoặc loại nghiên cứu sẽ <b>xóa các công nhân đã nhập</b>. Ứng dụng sẽ hỏi trước khi xóa.</span></div>
+        </div>
+        <figure><img src="img/03-setup.png" alt="Phần 1: Thiết lập nghiên cứu" width="366" height="535" loading="lazy"><figcaption>Phần 1: Thiết lập nghiên cứu</figcaption></figure>
+      </div>
+
+      <div class="step">
+        <div class="txt">
+          <h3><span class="n">2</span>Chọn công nhân</h3>
+          <ul>
+            <li>Bấm vào tên công nhân để thêm vào nghiên cứu. Tìm nhanh bằng ô <span class="ui">Tìm công nhân (tên hoặc mã)</span>.</li>
+            <li>Công nhân mới chưa có trong dữ liệu: bấm <span class="ui">+ Thêm công nhân thủ công</span>, nhập tên (mã không bắt buộc). Người này được đánh dấu <span class="key">thêm tay</span>.</li>
+            <li>Sau khi bấm giờ, bên cạnh tên hiện các công đoạn của người đó (dấu ✓ = đã bấm xong).</li>
+          </ul>
+        </div>
+        <figure><img src="img/04-workers.png" alt="Phần 2: danh sách công nhân của chuyền" width="366" height="440" loading="lazy"><figcaption>Phần 2: Công nhân của chuyền</figcaption></figure>
+      </div>
+
+      <div class="step">
+        <div class="txt">
+          <h3><span class="n">3</span>Chọn công đoạn của công nhân</h3>
+          <ul>
+            <li>Bấm số công đoạn (31 đến 116) mà người này đang làm. Ô bên dưới hiện SAM và loại máy để kiểm tra.</li>
+            <li>Bấm <span class="ui">Xác nhận công đoạn</span>. Đồng hồ bấm giờ hiện ra.</li>
+            <li>Công đoạn có <b>viền xanh</b> là đã có người được bấm giờ.</li>
+          </ul>
+          <div class="note"><b>Công đoạn ghép</b><span>Nếu công nhân làm <b>liền nhiều công đoạn trên cùng một sản phẩm</b> (ví dụ 33 rồi 34 ngay trên cái đó), hãy chọn <b>cả hai</b> cùng lúc. Ứng dụng ghi là <span class="key">33+34</span>, cộng SAM và bấm giờ một lần cho cả hai.</span></div>
+        </div>
+        <figure><img src="img/05-ops.png" alt="Chọn công đoạn bằng các nút số" width="366" height="288" loading="lazy"><figcaption>Chọn công đoạn: nút xanh đậm là đang chọn</figcaption></figure>
+      </div>
+    </section>
+
+    <!-- 03 -->
+    <section class="ch" id="bam-gio">
+      <div class="ch-head"><span class="ch-no">03</span><h2>Bấm giờ</h2>
+        <p>Đồng hồ hoạt động như đồng hồ bấm giờ của điện thoại. Mỗi <b>vòng</b> là một lần công nhân làm xong một số cái. Màn hình điện thoại được giữ sáng trong khi đồng hồ chạy.</p></div>
+
+      <div class="step">
+        <div class="txt">
+          <h3><span class="n">1</span>Bắt đầu, Vòng, Dừng</h3>
+          <ol>
+            <li>Kiểm tra <span class="ui">Số cái trong vòng này</span> (thường là 1).</li>
+            <li>Bấm <span class="ui">Bắt đầu</span> khi công nhân bắt đầu cầm sản phẩm.</li>
+            <li>Bấm <span class="ui">Vòng</span> mỗi khi công nhân làm xong số cái của vòng. Thời gian vòng được ghi vào bảng.</li>
+            <li>Khi đủ <span class="ui">Số cái cần bấm</span>, đồng hồ tự dừng và màn hình chuyển xuống công nhân kế tiếp chưa bấm xong.</li>
+          </ol>
+          <ul>
+            <li><span class="ui">Dừng</span> tạm ngưng khi công nhân rời chỗ (đi vệ sinh, chờ hàng). Bấm <span class="ui">Tiếp tục</span> để chạy lại. Chỉ một đồng hồ chạy tại một thời điểm.</li>
+            <li><span class="ui">Xóa vòng đang chạy</span> (khi đã dừng) bỏ phần thời gian của vòng chưa xong.</li>
+            <li><span class="ui">Hoàn tác vòng cuối</span> xóa vòng vừa ghi nếu bấm nhầm. Hai lần bấm Vòng cách nhau dưới 1,5 giây được coi là bấm nhầm và bỏ qua.</li>
+          </ul>
+          <p>Dưới bảng vòng là kết quả của người này: <b>TB (giây)</b> mỗi cái, <b>cái/giờ</b>, <b>Hiệu suất</b> và <b>Độ biến động</b>.</p>
+        </div>
+        <figure><img src="img/06-stopwatch.png" alt="Đồng hồ đang chạy với nút Vòng và Dừng" width="366" height="923" loading="lazy"><figcaption>Đồng hồ đang chạy: thời gian vòng hiện tại ở trên, tổng ở dưới</figcaption></figure>
+      </div>
+
+      <div class="step">
+        <div class="txt">
+          <h3><span class="n">2</span>Ghi chú tình hình công đoạn</h3>
+          <p>Ghi vào ô <span class="ui">Ghi chú</span> hoặc bấm các ghi chú nhanh:</p>
+          <ul>
+            <li><span class="key">chất lượng chưa ổn định</span>, <span class="key">k đủ hàng làm</span>, <span class="key">thao tác chậm, điều chỉnh lâu</span></li>
+            <li><span class="key">nhảy công đoạn</span>, <span class="key">Đi HT</span>, <span class="key">mới học</span></li>
+          </ul>
+          <p>Ghi chú hiện trong kết quả, báo cáo Excel và bảng theo dõi của giám sát (phần “Ghi chú công nhân hay gặp nhất”).</p>
+          <div class="note warn"><b>Độ biến động cao</b><span>Nếu thời gian các vòng chênh nhau nhiều (độ biến động trên 15%), ứng dụng hiện ⚠. Hãy xem lại thao tác của công nhân hoặc loại các vòng bất thường.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 -->
+    <section class="ch" id="tinh-huong">
+      <div class="ch-head"><span class="ch-no">04</span><h2>Tình huống thường gặp trên chuyền</h2>
+        <p>Bấm đúng cách cho từng tình huống để năng lực chuyền phản ánh đúng thực tế.</p></div>
+
+      <div class="step">
+        <div class="txt">
+          <h3><span class="n">A</span>May dây chuyền (may liền nhiều cái rồi cắt)</h3>
+          <p>Ví dụ: lên lai tay áo máy viền, công nhân may liền 10 cái, sau đó cắt rời và cắt chỉ.</p>
+          <ol>
+            <li><b>Trước khi bấm Vòng</b>, đặt <span class="ui">Số cái trong vòng này</span> = <b>10</b> bằng nút <span class="key">+</span>.</li>
+            <li>Bấm <span class="ui">Vòng</span> <b>sau khi công nhân cắt rời và cắt chỉ xong</b>, để thời gian cắt cũng được tính.</li>
+            <li>Ứng dụng tự chia: 230 giây ÷ 10 cái = <b>23 giây/cái</b>.</li>
+          </ol>
+          <div class="note bad"><b>Lỗi hay gặp</b><span>Quên đặt số cái nên vòng 230 giây bị tính là 1 cái, năng lực chuyền tụt xuống rất thấp. Sửa bằng nút <span class="key">−</span> / <span class="key">+</span> ở cột <b>cái</b> của vòng đó trong bảng.</span></div>
+        </div>
+        <figure><img src="img/07-chain.png" alt="Bảng vòng với 10 cái mỗi vòng" width="366" height="899" loading="lazy"><figcaption>Mỗi vòng 10 cái: 230 giây = 23 giây/cái</figcaption></figure>
+      </div>
+
+      <div class="step">
+        <div class="txt">
+          <h3><span class="n">B</span>Vòng bất thường: đứt chỉ, chờ hàng, sửa hàng lỗi</h3>
+          <ul>
+            <li>Bấm <span class="key">✕</span> ở cuối dòng để <b>loại</b> vòng đó. Dòng bị gạch và không được tính. Bấm <span class="key">↺</span> để lấy lại.</li>
+            <li>Ví dụ: công nhân mới phải tháo ra may lại 2 cái (140 và 150 giây). Hai vòng này được loại.</li>
+          </ul>
+          <div class="note warn"><b>Ghi lại lý do</b><span>Thời gian của vòng bị loại không xuất hiện trong kết quả. Luôn ghi lý do vào <span class="ui">Ghi chú</span> (ví dụ “mới học; 2 cái phải tháo ra may lại”) để giám sát biết công nhân này cần đào tạo hoặc kiểm tra chất lượng. Chỉ loại vòng thật sự bất thường, không loại vòng chậm bình thường.</span></div>
+        </div>
+        <figure><img src="img/08-exclude.png" alt="Vòng 3 bị gạch vì đã loại" width="366" height="1184" loading="lazy"><figcaption>Vòng 3 đã được loại (gạch ngang)</figcaption></figure>
+      </div>
+
+      <div class="step">
+        <div class="txt">
+          <h3><span class="n">C</span>Một người làm nhiều công đoạn riêng</h3>
+          <p>Ví dụ: Lê Thị Chi may diễu cổ sau (CĐ 33) <b>và</b> may nhãn (CĐ 38) cho mọi sản phẩm, làm theo từng bó.</p>
+          <ol>
+            <li>Bấm giờ CĐ 33 như bình thường.</li>
+            <li>Bấm <span class="ui">Công đoạn khác của công nhân này</span>, chọn CĐ 38 và bấm giờ tiếp.</li>
+          </ol>
+          <p>Ứng dụng biết đây là <b>cùng một người</b> và chia thời gian của người đó cho hai công đoạn: mỗi sản phẩm cần 35,2 + 16,4 giây, nên người này chỉ làm được khoảng <b>62 cái/giờ cho cả hai công đoạn</b>, không phải 90 và 194.</p>
+          <div class="note"><b>Khác với công đoạn ghép</b><span>Làm liền trên cùng một sản phẩm → chọn ghép <span class="key">33+34</span> (mục 02.3). Làm riêng, theo bó, xen kẽ → dùng <span class="ui">Công đoạn khác của công nhân này</span>.</span></div>
+        </div>
+        <figure><img src="img/09-two-ops.png" alt="Cùng một công nhân với hai công đoạn 33 và 38" width="390" height="336" loading="lazy"><figcaption>Cùng một người, hai công đoạn riêng</figcaption></figure>
+      </div>
+    </section>
+
+    <!-- 05 -->
+    <section class="ch" id="ket-qua">
+      <div class="ch-head"><span class="ch-no">05</span><h2>Đọc kết quả</h2>
+        <p>Kết quả hiện ngay bên dưới các công nhân và cập nhật sau mỗi vòng. Không cần bấm nút phân tích.</p></div>
+
+      <div class="step">
+        <div class="txt">
+          <h3><span class="n">1</span>Chất lượng nghiên cứu</h3>
+          <p>Cho biết nghiên cứu có đủ tin cậy để ra quyết định hay chưa:</p>
+          <div class="tbl"><table>
+            <tr><th>Mức</th><th>Khi nào</th></tr>
+            <tr><td><b>Đạt</b></td><td>Mọi công nhân đã bấm ít nhất 3 cái, đủ công đoạn, thời gian ổn định.</td></tr>
+            <tr><td><b>Cần kiểm tra</b></td><td>Có công nhân biến động trên 15%, hoặc còn vài công đoạn chưa bấm giờ.</td></tr>
+            <tr><td><b>Cần xem lại</b></td><td>Có công nhân bấm ít hơn 3 cái, hoặc dưới 80% công đoạn được bấm giờ.</td></tr>
+          </table></div>
+        </div>
+        <figure><img src="img/10-quality.png" alt="Chất lượng nghiên cứu: Đạt" width="366" height="47" loading="lazy"><figcaption>Thanh chất lượng nghiên cứu</figcaption></figure>
+      </div>
+
+      <div class="step">
+        <div class="txt">
+          <h3><span class="n">2</span>Các chỉ số chính</h3>
+          <ul>
+            <li><b>Năng lực chuyền (cái/giờ)</b>: năng lực của công đoạn chậm nhất. Bên cạnh là mục tiêu (ví dụ 61,7 / 90).</li>
+            <li><b>Hiệu suất chuyền</b>: tổng SAM ÷ tổng thời gian thực tế của mọi công nhân.</li>
+            <li><b>Tỷ lệ cân bằng</b>: công đoạn chậm nhất so với trung bình các công đoạn. Càng gần 100% chuyền càng cân bằng.</li>
+            <li><b>Công đoạn nút cổ chai</b>: công đoạn quyết định năng lực chuyền và người đang làm.</li>
+            <li><b>Số người đã bấm giờ</b> so với số lao động của chuyền. Có cảnh báo nếu còn người chưa bấm.</li>
+          </ul>
+        </div>
+        <figure><img src="img/11-result.png" alt="Các chỉ số chính của chuyền" width="366" height="199" loading="lazy"><figcaption>Chỉ số chính</figcaption></figure>
+      </div>
+
+      <div class="step">
+        <div class="txt">
+          <h3><span class="n">3</span>Biểu đồ cân bằng chuyền</h3>
+          <p>Mỗi cột là năng lực một công đoạn (cái/giờ). Cột <b style="color:var(--red)">đỏ</b> là nút cổ chai. Đường đỏ gạch là năng lực chuyền, đường xanh lá là mục tiêu. Cột thấp hơn đường xanh lá là công đoạn chưa đạt mục tiêu.</p>
+        </div>
+        <figure><img src="img/12-chart.png" alt="Biểu đồ năng lực từng công đoạn" width="366" height="292" loading="lazy"><figcaption>Cột đỏ: nút cổ chai (CĐ 33 và 38)</figcaption></figure>
+      </div>
+
+      <div class="step">
+        <div class="txt">
+          <h3><span class="n">4</span>Số lao động cần cho mục tiêu</h3>
+          <p>Bảng quan trọng nhất để quyết định điều chuyển. Mỗi dòng là một công đoạn, sắp xếp từ thiếu nhiều nhất:</p>
+          <ul>
+            <li><b>Có</b>: số lao động đang làm công đoạn (người làm nhiều công đoạn được tính theo phần thời gian, ví dụ 0,7).</li>
+            <li><b>Cần</b>: số lao động cần để đạt mục tiêu.</li>
+            <li><b>Chênh lệch</b> = Có − Cần. Âm (đỏ, <b>thiếu</b>) là công đoạn không đạt mục tiêu. Dương (xanh, <b>dư</b>) là công đoạn còn thời gian rảnh.</li>
+          </ul>
+          <p>Phía trên bảng, ứng dụng ghi việc cần làm:</p>
+          <ul>
+            <li><b>Một người làm nhiều công đoạn đang thiếu</b> → giao một công đoạn cho người khác.</li>
+            <li><b>Có công đoạn dư cùng loại máy</b> → chuyển phần thời gian dư sang công đoạn thiếu.</li>
+            <li><b>Không có công đoạn dư cùng loại máy</b> → thêm hoặc đào tạo người, hoặc cải tiến thao tác.</li>
+          </ul>
+        </div>
+        <figure><img src="img/13-staffing.png" alt="Bảng số lao động cần cho mục tiêu" width="366" height="523" loading="lazy"><figcaption>CĐ 33 và 38 thiếu vì Chi làm cả hai</figcaption></figure>
+      </div>
+
+      <div class="step">
+        <div class="txt">
+          <h3><span class="n">5</span>Bảng công nhân và đề xuất điều chuyển</h3>
+          <ul>
+            <li>Mỗi dòng: thời gian trung bình mỗi cái, cái/giờ, hiệu suất (%), kèm ghi chú.</li>
+            <li>Dấu <span class="key">*</span> ở cột cái/giờ: người này chia thời gian cho nhiều công đoạn. Con số là sản lượng thật người đó làm ra cho chuyền.</li>
+            <li><b>Đề xuất điều chuyển</b> (cuối trang): ứng dụng thử chuyển từng người sang công đoạn khác dùng <b>cùng loại máy</b> và chỉ đề xuất khi năng lực chuyền tăng.</li>
+          </ul>
+        </div>
+        <figure><img src="img/14-workers-table.png" alt="Bảng kết quả từng công nhân" width="366" height="621" loading="lazy"><figcaption>Bảng công nhân</figcaption></figure>
+      </div>
+    </section>
+
+    <!-- 06 -->
+    <section class="ch" id="luu-gui">
+      <div class="ch-head"><span class="ch-no">06</span><h2>Lưu, gửi và xuất Excel</h2>
+        <p>Thanh dưới cùng màn hình luôn cho biết số người đã bấm giờ, năng lực và hiệu suất, cùng nút lưu.</p></div>
+
+      <div class="step">
+        <div class="txt">
+          <h3><span class="n">1</span>Lưu nghiên cứu</h3>
+          <ul>
+            <li>Bấm <span class="ui">Lưu nghiên cứu</span>. Nút chỉ bấm được khi đã chọn chuyền, mã hàng, nhập Người làm và có ít nhất một công nhân được bấm giờ.</li>
+            <li>Nghiên cứu được gửi lên máy chủ. Không có mạng thì hiện <span class="ui">⏳ đang chờ gửi</span> và tự gửi sau, hoặc bấm <span class="ui">Đồng bộ ngay</span>.</li>
+          </ul>
+        </div>
+        <figure><img src="img/15-savebar.png" alt="Thanh lưu ở cuối màn hình" width="366" height="91" loading="lazy"><figcaption>Thanh lưu</figcaption></figure>
+      </div>
+
+      <div class="step">
+        <div class="txt">
+          <h3><span class="n">2</span>Chi tiết nghiên cứu</h3>
+          <p>Sau khi lưu, màn hình chi tiết mở ra:</p>
+          <ul>
+            <li><span class="ui">Sửa / Tiếp tục nghiên cứu</span>: bấm thêm công nhân hoặc sửa vòng. Lưu lại sẽ cập nhật cùng nghiên cứu, không tạo bản mới.</li>
+            <li><span class="ui">Gửi báo cáo về email</span>: gửi file Excel đến email của bạn.</li>
+            <li><span class="ui">Xuất báo cáo Excel</span>: tải file Excel về hoặc chia sẻ qua Zalo, email.</li>
+          </ul>
+          <p>Tất cả nghiên cứu đã lưu nằm trong <span class="ui">Lịch sử</span> trên màn hình chính.</p>
+        </div>
+        <div class="pair">
+          <figure><img src="img/16-detail.png" alt="Màn hình chi tiết nghiên cứu" width="390" height="520" loading="lazy"><figcaption>Chi tiết nghiên cứu</figcaption></figure>
+          <figure><img src="img/17-history.png" alt="Danh sách lịch sử" width="390" height="330" loading="lazy"><figcaption>Lịch sử</figcaption></figure>
+        </div>
+      </div>
+
+      <div class="step wide">
+        <div class="txt">
+          <h3><span class="n">3</span>Báo cáo Excel</h3>
+          <p>File Excel có 2 trang:</p>
+          <ul>
+            <li><b>Trang mang tên chuyền</b> (ví dụ L05): biểu mẫu nghiên cứu năng lực chuyền của công ty (P-IED-001-F008), xếp theo thứ tự công đoạn. Công đoạn ghép (ví dụ 33+34) nằm ngay sau các công đoạn của nó. Biểu đồ cân bằng chuyền ở dưới dòng Total, in trên cùng một trang A4.</li>
+            <li><b>Analysis</b>: các chỉ số, bảng năng lực từng công đoạn, biểu đồ, đề xuất điều chuyển và bảng <b>Số lao động cần cho mục tiêu</b>. Cột Cần và Chênh lệch là công thức Excel: đổi mục tiêu ở ô B9 thì bảng tự tính lại.</li>
+          </ul>
+        </div>
+        <div class="pair">
+          <figure class="doc"><img src="img/27-excel-capa.png" alt="Trang biểu mẫu năng lực chuyền với biểu đồ" width="904" height="1106" loading="lazy"><figcaption>Trang biểu mẫu (bản xem trước khi in)</figcaption></figure>
+          <figure class="doc"><img src="img/28-excel-analysis.png" alt="Trang Analysis của báo cáo Excel" width="1182" height="523" loading="lazy"><figcaption>Trang Analysis</figcaption></figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- 07 -->
+    <section class="ch" id="nghien-cuu-lai">
+      <div class="ch-head"><span class="ch-no">07</span><h2>Nghiên cứu lại sau cải tiến</h2>
+        <p>Dùng sau khi đã điều chuyển, đào tạo hoặc cải tiến thao tác, để đo kết quả so với lần trước. Không cần bấm lại cả chuyền.</p></div>
+
+      <div class="step">
+        <div class="txt">
+          <h3><span class="n">1</span>Chọn nghiên cứu trước</h3>
+          <ol>
+            <li>Chọn PU, chuyền, rồi chọn loại <span class="ui">Nghiên cứu lại</span>.</li>
+            <li>Ở ô <span class="ui">Nghiên cứu trước để làm lại</span>, chọn lần nghiên cứu cần so sánh. Mã hàng, mục tiêu và lao động được lấy từ lần đó.</li>
+            <li>Ghi việc đã thay đổi vào ô <span class="ui">Đã thay đổi gì / nhận xét</span>, ví dụ “Chuyển CĐ 38 cho Oanh; Hà đã được đào tạo”.</li>
+          </ol>
+        </div>
+        <figure><img src="img/18-restudy-setup.png" alt="Thiết lập nghiên cứu lại" width="366" height="602" loading="lazy"><figcaption>Chọn nghiên cứu trước</figcaption></figure>
+      </div>
+
+      <div class="step">
+        <div class="txt">
+          <h3><span class="n">2</span>Bấm lại những người đã thay đổi</h3>
+          <ul>
+            <li>Mọi công nhân của lần trước hiện với nhãn <span class="key">từ nghiên cứu trước</span> và thời gian cũ.</li>
+            <li>Bấm <span class="ui">Bấm lại</span> cho người có thay đổi. Thời gian cũ hiện làm mốc so sánh.</li>
+            <li>Người không còn làm công đoạn đó: bấm <span class="ui">Xóa</span>. Người mới: chọn trong danh sách công nhân.</li>
+          </ul>
+          <p>Kết quả trước → sau hiện trong bảng theo dõi của giám sát (chương 08).</p>
+        </div>
+        <figure><img src="img/19-carried.png" alt="Công nhân lấy từ nghiên cứu trước" width="366" height="115" loading="lazy"><figcaption>Dòng lấy từ nghiên cứu trước</figcaption></figure>
+      </div>
+
+      <div class="note"><b>QCO</b><span>Khi chuyển mã hàng, chọn loại QCO. Có thể bấm giờ cùng một người trên cùng công đoạn nhiều lần (ví dụ đầu ca và cuối ca). Ứng dụng gộp tất cả các lần bấm của người đó để tính.</span></div>
+    </section>
+
+    <!-- 08 -->
+    <section class="ch" id="giam-sat">
+      <div class="ch-head"><span class="ch-no">08</span><h2>Bảng theo dõi của giám sát</h2>
+        <p>Giám sát thấy nghiên cứu của mọi IE. Mở từ nút <span class="ui">Bảng theo dõi của giám sát</span> trên màn hình chính, rồi bấm <span class="ui">Làm mới nghiên cứu</span> để tải bản mới nhất.</p></div>
+
+      <div class="step">
+        <div class="txt">
+          <h3><span class="n">1</span>Bộ lọc và tìm mã hàng</h3>
+          <ul>
+            <li>Lọc theo <b>thời gian</b>, <b>PU</b>, <b>chuyền</b>, <b>IE</b> và <b>loại nghiên cứu</b>.</li>
+            <li><span class="ui">Tìm mã hàng</span>: gõ một phần mã hàng (không phân biệt hoa thường), ví dụ <span class="key">TEE</span>. Mọi phần của bảng và báo cáo tổng hợp chỉ tính các mã hàng khớp.</li>
+            <li><b>Hiệu suất chuẩn %</b> và <b>Tỷ lệ cân bằng tối thiểu %</b> là tiêu chuẩn để xếp màu cho từng chuyền.</li>
+          </ul>
+        </div>
+        <figure><img src="img/23-sup-search.png" alt="Bộ lọc của bảng theo dõi với ô tìm mã hàng" width="366" height="278" loading="lazy"><figcaption>Tìm theo mã hàng</figcaption></figure>
+      </div>
+
+      <div class="step">
+        <div class="txt">
+          <h3><span class="n">2</span>Chỉ số tổng và màu trạng thái</h3>
+          <div class="tbl"><table>
+            <tr><th>Màu</th><th>Ý nghĩa</th></tr>
+            <tr><td><span class="dot g"></span>Đạt</td><td>Hiệu suất bằng hoặc cao hơn chuẩn, năng lực đạt mục tiêu.</td></tr>
+            <tr><td><span class="dot a"></span>Theo dõi</td><td>Hiệu suất thấp hơn chuẩn không quá 10 điểm, năng lực đạt 90 đến 100% mục tiêu, hoặc tỷ lệ cân bằng dưới mức tối thiểu.</td></tr>
+            <tr><td><span class="dot r"></span>Chưa đạt</td><td>Hiệu suất thấp hơn chuẩn trên 10 điểm, hoặc năng lực dưới 90% mục tiêu.</td></tr>
+          </table></div>
+          <p>Ô <b>Có thể tăng nhờ cân bằng</b> cho biết năng lực có thể tăng bao nhiêu nếu làm theo đề xuất điều chuyển.</p>
+        </div>
+        <figure><img src="img/21-sup-kpi.png" alt="Các ô chỉ số tổng của giám sát" width="366" height="345" loading="lazy"><figcaption>Chỉ số tổng</figcaption></figure>
+      </div>
+
+      <div class="step">
+        <div class="txt">
+          <h3><span class="n">3</span>Cần chú ý</h3>
+          <p>Danh sách chuyền chưa đạt, chuyền tệ nhất ở trên. Mỗi chuyền ghi lý do (hiệu suất, năng lực so với mục tiêu, cân bằng), nút cổ chai, người đang làm và ghi chú. Bấm vào để mở nghiên cứu.</p>
+        </div>
+        <figure><img src="img/22-sup-attention.png" alt="Danh sách chuyền cần chú ý" width="366" height="209" loading="lazy"><figcaption>Chuyền cần chú ý</figcaption></figure>
+      </div>
+
+      <div class="step wide">
+        <div class="txt">
+          <h3><span class="n">4</span>Bảng chuyền và kết quả nghiên cứu lại</h3>
+          <p>Bảng <b>Nghiên cứu mới nhất của từng chuyền</b> có năng lực so với mục tiêu, tỷ lệ cân bằng, nút cổ chai và chất lượng nghiên cứu. Bảng <b>Kết quả nghiên cứu lại</b> so sánh trước → sau: thay đổi hiệu suất (điểm %) và năng lực (%). Trên điện thoại, kéo ngang để xem hết cột.</p>
+        </div>
+        <figure class="doc"><img src="img/26-sup-lines.png" alt="Bảng nghiên cứu mới nhất của từng chuyền" width="1472" height="370" loading="lazy"><figcaption>Nghiên cứu mới nhất của từng chuyền</figcaption></figure>
+        <figure class="doc"><img src="img/24-sup-restudy.png" alt="Bảng kết quả nghiên cứu lại trước và sau" width="1472" height="228" loading="lazy"><figcaption>Kết quả nghiên cứu lại của L05: trước → sau</figcaption></figure>
+      </div>
+
+      <div class="step">
+        <div class="txt">
+          <h3><span class="n">5</span>Duyệt nghiên cứu và báo cáo tổng hợp</h3>
+          <ul>
+            <li>Mở một nghiên cứu, ở phần <span class="ui">Duyệt của giám sát</span> ghi nhận xét cho IE và bấm <span class="ui">Đã duyệt</span> hoặc <span class="ui">Cần kiểm tra lại</span>. IE thấy kết quả duyệt và nhận xét trong nghiên cứu của mình sau khi điện thoại đồng bộ.</li>
+            <li>Cuối bảng theo dõi: <span class="ui">Xuất báo cáo tổng hợp (Excel)</span> hoặc <span class="ui">Sao chép nội dung tóm tắt</span> để dán vào tin nhắn.</li>
+          </ul>
+        </div>
+        <figure><img src="img/25-review.png" alt="Phần duyệt của giám sát" width="366" height="201" loading="lazy"><figcaption>Duyệt của giám sát</figcaption></figure>
+      </div>
+    </section>
+
+    <!-- 09 -->
+    <section class="ch" id="cong-thuc">
+      <div class="ch-head"><span class="ch-no">09</span><h2>Cách tính</h2>
+        <p>Các công thức ứng dụng dùng, để IE kiểm tra lại bằng tay khi cần.</p></div>
+      <div class="tbl"><table>
+        <tr><th>Chỉ số</th><th>Công thức</th><th>Ghi chú</th></tr>
+        <tr><td>Thời gian TB mỗi cái</td><td class="f">Σ thời gian vòng ÷ Σ số cái</td><td>Chỉ tính các vòng không bị loại.</td></tr>
+        <tr><td>Phút/cái (có hao phí)</td><td class="f">giây TB ÷ 60 × (1 + 13%)</td><td>Hao phí mặc định 13%.</td></tr>
+        <tr><td>Năng lực công nhân</td><td class="f">60 ÷ phút/cái</td><td>cái/giờ</td></tr>
+        <tr><td>Hiệu suất công nhân</td><td class="f">SAM ÷ phút/cái</td><td>Công đoạn ghép: cộng SAM.</td></tr>
+        <tr><td>Người làm nhiều CĐ riêng</td><td class="f">60 ÷ Σ phút/cái các CĐ</td><td>Góp cho mỗi công đoạn của người đó.</td></tr>
+        <tr><td>Năng lực công đoạn</td><td class="f">Σ năng lực những người làm CĐ</td><td></td></tr>
+        <tr><td>Năng lực chuyền</td><td class="f">min (năng lực công đoạn)</td><td>Công đoạn đó là nút cổ chai.</td></tr>
+        <tr><td>Hiệu suất chuyền</td><td class="f">Σ SAM ÷ Σ phút/cái</td><td>Mọi công nhân đã bấm giờ.</td></tr>
+        <tr><td>Tỷ lệ cân bằng</td><td class="f">năng lực chuyền ÷ TB năng lực công đoạn</td><td></td></tr>
+        <tr><td>Lao động cần</td><td class="f">mục tiêu × Có ÷ năng lực công đoạn</td><td>Chênh lệch = Có − Cần.</td></tr>
+        <tr><td>Độ biến động</td><td class="f">độ lệch chuẩn ÷ trung bình</td><td>Cảnh báo khi trên 15%.</td></tr>
+      </table></div>
+    </section>
+
+    <!-- 10 -->
+    <section class="ch" id="hoi-dap">
+      <div class="ch-head"><span class="ch-no">10</span><h2>Hỏi đáp</h2></div>
+      <div class="faq">
+        <details><summary>Ứng dụng có bản mới nhưng điện thoại vẫn hiện bản cũ?</summary>
+          <p>Khi có mạng, chỉ cần tải lại trang. Nếu vẫn thấy bản cũ, đóng hẳn ứng dụng (vuốt tắt) rồi mở lại một lần.</p></details>
+        <details><summary>Không có mạng trên chuyền thì sao?</summary>
+          <p>Vẫn bấm giờ và lưu bình thường. Nghiên cứu hiện <span class="ui">⏳ đang chờ gửi</span> và tự gửi khi có mạng. Có thể bấm <span class="ui">Đồng bộ ngay</span> trên màn hình chính hoặc trong Lịch sử.</p></details>
+        <details><summary>Màn hình hiện “Dữ liệu MẪU”?</summary>
+          <p>Điện thoại chưa có dữ liệu công nhân và mã hàng thật. Liên hệ phòng IED để được cập nhật dữ liệu, hoặc bấm <span class="ui">Tải tệp dữ liệu</span> nếu được gửi tệp.</p></details>
+        <details><summary>“Không tìm thấy mã hàng trong dữ liệu”?</summary>
+          <p>Mã hàng chưa có trong dữ liệu SAM. Kiểm tra lại mã hàng hoặc báo phòng IED cập nhật.</p></details>
+        <details><summary>Bấm nhầm Vòng hoặc quên đặt số cái?</summary>
+          <p>Bấm nhầm: dùng <span class="ui">Hoàn tác vòng cuối</span>. Sai số cái: sửa bằng nút − / + ở cột cái của vòng đó. Vòng bất thường: bấm ✕ để loại.</p></details>
+        <details><summary>Cần sửa nghiên cứu đã lưu?</summary>
+          <p>Mở nghiên cứu trong <span class="ui">Lịch sử</span> → <span class="ui">Sửa / Tiếp tục nghiên cứu</span>. Lưu lại sẽ cập nhật cùng nghiên cứu đó.</p></details>
+        <details><summary>Năng lực chuyền thấp bất thường?</summary>
+          <p>Kiểm tra: vòng may dây chuyền có đặt đúng số cái chưa, có vòng bất thường chưa loại, có công đoạn nào chưa bấm giờ (cảnh báo màu vàng trong kết quả), và có công nhân nào đang làm nhiều công đoạn không.</p></details>
+      </div>
+    </section>
+  </main>
+
+  <footer><span>Ứng dụng Nghiên cứu thời gian · Phòng IED · By Max Bao</span><span>Ảnh minh họa dùng dữ liệu ví dụ</span></footer>
+</div>
+
+</body>
+</html>
