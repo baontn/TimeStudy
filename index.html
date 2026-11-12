@@ -861,7 +861,7 @@ function supModel() {                         // everything the dashboard and th
   const set = setOf(), f2 = S.sup, all = allStudies();
   const list = AN.filterStudies(all, { from: AN.periodFrom(f2.period), touched: f2.period === 'today', pu: f2.pu, puOf, line: f2.line, ie: f2.ie, type: f2.type, style: f2.style });
   const last = AN.latestPerLine(list).map(s => ({ s, r: AN.rag(s, set), b: AN.bottleneck(s), pot: AN.potential(s), q: s.quality || AN.quality(s) }))
-    .sort((a, b) => b.r.level - a.r.level || a.s.result.lineEfficiency - b.s.result.lineEfficiency);
+    .sort((a, b) => String(a.s.line).localeCompare(String(b.s.line), undefined, { numeric: true, sensitivity: 'base' }));   // by line name: L2 before L10
   return { set, all, list, last, k: AN.kpis(list, set), imp: AN.improvements(list, all), mach: AN.machineStats(list), rem: AN.remarkStats(list, 8), off: AN.officerStats(list, set) };
 }
 function viewSup() {
@@ -883,13 +883,6 @@ function viewSup() {
   h += `<div class="tiles">${tile(t('kStudies'), k.studies)}${tile(t('kLines'), k.lines)}${tile(t('kEff'), `<span style="color:${k.avgEff >= set.eff ? 'var(--ok)' : 'var(--bad)'}">${P(k.avgEff)}</span>`)}
     ${tile(t('kStatus'), `<span class="dot green"></span>${k.green} <span class="dot amber"></span>${k.amber} <span class="dot red"></span>${k.red}`)}
     ${tile(t('kGap'), k.avgGap == null ? '–' : (k.avgGap >= 0 ? '+' : '') + P(k.avgGap, 0))}${tile(t('kPot'), '+' + P(k.potential, 0))}${tile(t('kReview'), k.review)}</div>`;
-  // needs attention
-  const att = last.filter(x => x.r.level > 0).slice(0, 6);
-  h += `<div class="card"><h3>${t('needAtt')}</h3>` + (att.length ? att.map(x => `<div class="card q-${x.r.level === 2 ? 'review' : 'check'}" style="margin:6px 0;cursor:pointer" onclick="go('detail','${x.s.id}','sup')">
-      <b><span class="dot ${x.r.name}"></span>${esc(x.s.line)}</b> · ${esc(x.s.style)} · <b>${P(x.s.result.lineEfficiency)}</b> <small class="muted">${fmtDay(x.s.date)} · ${esc(x.s.ie)}</small>
-      ${x.r.reasons.map(r => `<div class="warn">• ${esc(reasonText(r, set))}</div>`).join('')}
-      <div class="muted">${t('cBn')}: ${x.b.ops.join(', ')}${x.b.machines.length ? ' (' + esc(x.b.machines.join(', ')) + ')' : ''}${x.b.who.length ? ' — ' + esc(x.b.who.map(w => `${w.name} ${f(w.sec, 0)} s${w.remark ? ' (' + w.remark + ')' : ''}`).join('; ')) : ''}</div>
-      ${x.pot > 0.03 ? `<div class="ok">${tf('potNote', { v: P(x.pot, 0) })}</div>` : ''}</div>`).join('') : `<div class="ok">${t('allGood')}</div>`) + '</div>';
   // lines table + charts
   h += `<div class="card"><h3>${t('linesTitle')}</h3><div class="scroll"><table><tr><th class="l"></th><th class="l">${t('cLine')}</th><th class="l">${t('cStyle')}</th><th>${t('cDate')}</th><th class="l">${t('cIE')}</th><th>${t('cEff')}</th><th>${t('cCap')}</th><th>${t('cBal')}</th><th class="l">${t('cBn')}</th><th>${t('cPot')}</th><th>${t('cQual')}</th><th>${t('cRev')}</th></tr>`
     + last.map(x => `<tr class="go" onclick="go('detail','${x.s.id}','sup')"><td class="l"><span class="dot ${x.r.name}"></span></td><td class="l"><b>${esc(x.s.line)}</b> <small class="muted">${esc(studyPU(x.s))}</small></td><td class="l">${esc(x.s.style)}</td><td>${fmtDay(x.s.date)}</td><td class="l">${esc(x.s.ie)}</td>
