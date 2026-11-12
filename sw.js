@@ -1,5 +1,5 @@
 // Offline cache. Change VERSION every time you update index.html or engine.js.
-const VERSION = 'ts-v31';
+const VERSION = 'ts-v32';
 const APP_FILES = ['./', './index.html', './engine.js', './analytics.js', './xlsx_export.js'];
 const fresh = f => new Request(f, { cache: 'reload' });     // bypass the browser's HTTP cache so a new version is really stored
 self.addEventListener('install', e => {

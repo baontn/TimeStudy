@@ -54,7 +54,7 @@
   function filterStudies(list, f) {
     f = f || {};
     const puOf = f.puOf || (() => '');
-    return list.filter(s => (!f.from || at(s) >= f.from) && (!f.pu || (s.pu || puOf(s.line)) === f.pu) && (!f.line || s.line === f.line) && (!f.ie || s.ie === f.ie) && (!f.type || (s.type || 'new') === f.type)
+    return list.filter(s => (!f.from || at(s) >= f.from || (f.touched && when(s) >= f.from)) && (!f.pu || (s.pu || puOf(s.line)) === f.pu) && (!f.line || s.line === f.line) && (!f.ie || s.ie === f.ie) && (!f.type || (s.type || 'new') === f.type)
       && (!f.style || String(s.style || '').toLowerCase().includes(String(f.style).trim().toLowerCase())));
   }
   function latestPerLine(list) {
@@ -106,6 +106,7 @@
   function periodFrom(code, now) {
     const d = new Date(now || Date.now()); d.setHours(0, 0, 0, 0);
     if (code === 'all') return null;
+    if (code === 'today') return d.getTime();
     if (code === 'month') { d.setDate(1); return d.getTime(); }
     d.setDate(d.getDate() - (Number(code) || 30)); return d.getTime();
   }
