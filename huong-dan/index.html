@@ -456,7 +456,22 @@ footer { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 16
 
       <div class="step">
         <div class="txt">
-          <h3><span class="n">2</span>Chi tiết nghiên cứu</h3>
+          <h3><span class="n">2</span>Lưu khi còn vòng chưa xong</h3>
+          <p>Nếu bấm <span class="ui">Lưu nghiên cứu</span> khi còn công nhân đang giữa vòng (đang chạy hoặc đang chờ), ứng dụng hiện bảng <span class="ui">Vòng chưa xong</span> với tên và thời gian của từng người. Thời gian này chưa được tính vì chưa biết số cái.</p>
+          <ul>
+            <li><span class="ui">Quay lại bấm giờ</span>: bấm Vòng khi công nhân làm xong, rồi lưu.</li>
+            <li><span class="ui">Lưu, giữ vòng chưa xong</span>: lưu các vòng đã xong. Vòng chưa xong được giữ trên điện thoại này, và trang chi tiết ghi rõ ai còn vòng chưa xong.</li>
+            <li>Để bấm tiếp: mở nghiên cứu → <span class="ui">Sửa / Tiếp tục nghiên cứu</span>. Những người đó hiện lại <span class="ui">đang chờ</span> với đúng thời gian. Bấm <span class="ui">Tiếp tục</span>, rồi <span class="ui">Vòng</span> khi xong.</li>
+            <li>Nếu chưa ai có vòng nào xong, bảng chỉ nhắc bấm Vòng trước, chưa lưu được.</li>
+          </ul>
+          <div class="note warn"><b>Bấm tiếp trên cùng điện thoại</b><span>Vòng chưa xong chỉ lưu trên điện thoại đã bấm giờ, không gửi lên máy chủ.</span></div>
+        </div>
+        <figure><img src="img/30-unfinished.png" alt="Bảng Vòng chưa xong khi bấm Lưu" width="390" height="350" loading="lazy"><figcaption>Bảng Vòng chưa xong</figcaption></figure>
+      </div>
+
+      <div class="step">
+        <div class="txt">
+          <h3><span class="n">3</span>Chi tiết nghiên cứu</h3>
           <p>Sau khi lưu, màn hình chi tiết mở ra:</p>
           <ul>
             <li><span class="ui">Sửa / Tiếp tục nghiên cứu</span>: bấm thêm công nhân hoặc sửa vòng. Lưu lại sẽ cập nhật cùng nghiên cứu, không tạo bản mới.</li>
@@ -473,7 +488,7 @@ footer { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 16
 
       <div class="step wide">
         <div class="txt">
-          <h3><span class="n">3</span>Báo cáo Excel</h3>
+          <h3><span class="n">4</span>Báo cáo Excel</h3>
           <p>File Excel có 2 trang:</p>
           <ul>
             <li><b>Trang mang tên chuyền</b> (ví dụ L05): biểu mẫu nghiên cứu năng lực chuyền của công ty (P-IED-001-F008), xếp theo thứ tự công đoạn. Công đoạn ghép (ví dụ 33+34) nằm ngay sau các công đoạn của nó. Biểu đồ cân bằng chuyền ở dưới dòng Total, in trên cùng một trang A4.</li>
