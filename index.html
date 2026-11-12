@@ -15,6 +15,7 @@ body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 "Segoe UI",R
 header{display:flex;gap:8px;align-items:center;padding:8px 16px;background:var(--panel);border-bottom:3px solid var(--accent);box-shadow:0 1px 0 var(--brand-red);position:sticky;top:0;z-index:5}
 header b{flex:1;min-width:0;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #logo{height:28px;width:auto;flex:none}
+.guide{display:block;text-align:center;padding:10px;margin:4px 0;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--accent);font-weight:600;text-decoration:none}
 #author{position:fixed;right:8px;bottom:4px;font-size:10px;color:var(--muted);opacity:.75;pointer-events:none;z-index:1}
 header select,header button{width:auto;margin:0;padding:6px 10px}
 header button{background:var(--sel);color:var(--accent);border-color:transparent;font-weight:600}
@@ -167,7 +168,7 @@ const T = {
   dash:'Supervisor dashboard',supTools:'Supervisor tools',roleSup:'Supervisor',roleOff:'IE officer',
   teamLoaded:'Studies loaded',loadTeam:'Load studies from folder',refreshTeam:'Refresh studies',teamHelp:'Pick the folder with the study files (TimeStudy/reports). On a PC with Chrome or Edge it remembers the folder, so Refresh needs one tap.',teamDone:'{n} study file(s) read, {bad} skipped.',
   noTeam:'No studies yet. They appear here as the IE officers save them.',
-  period:'Period',p_7:'Last 7 days',p_30:'Last 30 days',p_month:'This month',p_90:'Last 90 days',p_all:'All time',allPU:'All PU',allLines:'All lines',allIE:'All IE officers',searchStyle:'Search style',allTypes:'All types',
+  period:'Period',p_7:'Last 7 days',p_30:'Last 30 days',p_month:'This month',p_90:'Last 90 days',p_all:'All time',allPU:'All PU',allLines:'All lines',allIE:'All IE officers',guide:'User guide (Vietnamese)',searchStyle:'Search style',allTypes:'All types',
   standards:'Standards',stdEff:'Standard efficiency %',stdBal:'Minimum balance rate %',
   kStudies:'Studies',kLines:'Lines',kEff:'Avg efficiency (latest per line)',kStatus:'On standard / Watch / Below',kGap:'Avg gap to target',kPot:'Gain possible by balancing',kReview:'Studies to review',
   needAtt:'Needs attention',allGood:'All studied lines are on standard.',linesTitle:'Latest study per line',effByLine:'Efficiency by line (latest study)',trendTitle:'Efficiency trend',trendWeek:'weekly average, all lines',
@@ -202,7 +203,7 @@ const T = {
   dash:'Bảng theo dõi của giám sát',supTools:'Công cụ giám sát',roleSup:'Giám sát',roleOff:'IE',
   teamLoaded:'Số nghiên cứu đã tải',loadTeam:'Tải nghiên cứu từ thư mục',refreshTeam:'Làm mới nghiên cứu',teamHelp:'Chọn thư mục chứa các tệp nghiên cứu (TimeStudy/reports). Trên máy tính dùng Chrome hoặc Edge, ứng dụng nhớ thư mục nên chỉ cần bấm Làm mới.',teamDone:'Đã đọc {n} tệp, bỏ qua {bad} tệp.',
   noTeam:'Chưa có nghiên cứu nào. Nghiên cứu sẽ hiện ở đây khi IE lưu.',
-  period:'Thời gian',p_7:'7 ngày qua',p_30:'30 ngày qua',p_month:'Tháng này',p_90:'90 ngày qua',p_all:'Tất cả',allPU:'Tất cả PU',allLines:'Tất cả chuyền',allIE:'Tất cả IE',searchStyle:'Tìm mã hàng',allTypes:'Tất cả loại',
+  period:'Thời gian',p_7:'7 ngày qua',p_30:'30 ngày qua',p_month:'Tháng này',p_90:'90 ngày qua',p_all:'Tất cả',allPU:'Tất cả PU',allLines:'Tất cả chuyền',allIE:'Tất cả IE',guide:'Hướng dẫn sử dụng',searchStyle:'Tìm mã hàng',allTypes:'Tất cả loại',
   standards:'Tiêu chuẩn',stdEff:'Hiệu suất chuẩn %',stdBal:'Tỷ lệ cân bằng tối thiểu %',
   kStudies:'Nghiên cứu',kLines:'Chuyền',kEff:'Hiệu suất TB (lần mới nhất mỗi chuyền)',kStatus:'Đạt / Theo dõi / Chưa đạt',kGap:'Chênh lệch TB so với mục tiêu',kPot:'Có thể tăng nhờ cân bằng',kReview:'Nghiên cứu cần xem lại',
   needAtt:'Cần chú ý',allGood:'Tất cả chuyền đã nghiên cứu đều đạt chuẩn.',linesTitle:'Nghiên cứu mới nhất của từng chuyền',effByLine:'Hiệu suất theo chuyền (lần mới nhất)',trendTitle:'Xu hướng hiệu suất',trendWeek:'trung bình theo tuần, tất cả chuyền',
@@ -625,6 +626,7 @@ function viewHome() {
           <div class="muted">${who}</div>
           ${API_URL ? `<div class="muted">${waiting ? `<span class="warn">⏳ ${waiting} ${t('waiting')}</span>` : '✓ ' + t('syncOk')} <button class="sec small" onclick="syncAll(true)">${t('syncNow')}</button></div>`
             : `<div class="warn">${t('notConfigured')}</div><input type="file" id="dataFile" accept=".json,.js,.txt,application/json" style="display:none" onchange="loadDataFile(this)"><button class="sec" onclick="$('dataFile').click()">${t('loadData')}</button>`}
+          <a class="guide" href="huong-dan/" target="_blank" rel="noopener">📘 ${t('guide')}</a>
           <label class="muted"><input type="checkbox" style="width:auto;margin:6px 6px 0 0" ${S.supMode ? 'checked' : ''} onchange="S.supMode=this.checked;save();render()">${t('supTools')}</label>
           <div class="muted">${DATA_INFO.src === 'sample' ? `<span class="warn">${t('sampleData')}</span>`
             : `${t('dataFrom')}: ${esc(DATA_INFO.generated)} · ${EMP.length} / ${DB.styles().length} ${t('style')}`}</div>`;
