@@ -73,6 +73,7 @@ td.l,th.l{text-align:left}
 .dk-p{min-width:40px;min-height:42px;padding:0}.pz{display:inline-block;width:11px;height:14px;border-left:4px solid currentColor;border-right:4px solid currentColor;vertical-align:middle}
 .samed{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;font-size:13px;color:var(--muted)}.samed label{display:inline-flex;align-items:center;gap:6px}.samed input{width:96px;margin:0;padding:4px 8px;font-size:14px}.samed input.ed{border-color:var(--warn);background:var(--warnbg)}.samed button{width:auto;margin:0}
 .card.run{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+#wcard{scroll-margin-top:70px}.sv-row{display:flex;gap:8px}.sv-row button{margin:4px 0 0}#toWorkers{width:auto;flex:none;white-space:nowrap;padding:8px 12px}
 .savebar{position:sticky;bottom:0;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px;box-shadow:0 -2px 8px rgba(0,0,0,.12);margin-top:8px}
 .dot{display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:middle;margin-right:4px}
 .dot.green{background:var(--ok)}.dot.amber{background:var(--warn)}.dot.red{background:var(--bad)}
@@ -338,7 +339,7 @@ function viewNewSkeleton() {
       <div><label>${t('cycles')}</label><input id="cycles" type="number" min="1" max="20" value="${esc(S.cycles || 5)}" oninput="S.cycles=this.value;save();updateCards()"></div></div>
       <textarea id="note" rows="2" placeholder="${t('note')}" oninput="S.note=this.value;save()">${esc(S.note)}</textarea>
     </div>
-    <div class="card"><h3><span class="num">2</span>${t('workers')} <span class="muted" id="wCount"></span><button class="sec small" style="margin-left:auto" onclick="toggleAddW()">${t('addWorker')}</button></h3>
+    <div class="card" id="wcard"><h3><span class="num">2</span>${t('workers')} <span class="muted" id="wCount"></span><button class="sec small" style="margin-left:auto" onclick="toggleAddW()">${t('addWorker')}</button></h3>
       <div id="addW" class="info" style="display:none"><div class="row"><div><label>${t('mwName')}</label><input id="mwName" autocomplete="off"></div><div><label>${t('mwCode')}</label><input id="mwCode" autocomplete="off"></div></div>
         <div class="row"><button onclick="addManual()">${t('add').replace(/ .*/, '')}</button><button class="sec" onclick="toggleAddW()">${t('cancel')}</button></div></div>
       <input id="wq" placeholder="${t('searchWorker')}" oninput="paintWorkers()" autocomplete="off">
@@ -347,7 +348,7 @@ function viewNewSkeleton() {
     <div id="quality"></div>
     <div id="analysis"></div>
     <div class="savebar"><div id="dock" hidden></div><div class="muted" id="saveStatus"></div>
-      <button id="saveBtn" onclick="saveStudy()">${t('save')}</button></div>`;
+      <div class="sv-row"><button class="sec" id="toWorkers" onclick="toWorkers()">↑ ${t('workers')}</button><button id="saveBtn" onclick="saveStudy()">${t('save')}</button></div></div>`;
 }
 function buildNew() {
   fixSel();
@@ -440,6 +441,7 @@ function addEntry(e) {                        // new entry for a worker, placed 
   if (at < 0) { S.rows.push(r); return S.rows.length - 1; }
   S.rows.splice(at + 1, 0, r); return at + 1;
 }
+function toWorkers() { const c = $('wcard'); if (c) c.scrollIntoView({ behavior:'smooth', block:'start' }); }   // back to the operator list from anywhere
 function focusCard(i) { active = S.rows.findIndex(r => r.t0 !== null); const el = $('card' + i); if (el && el.scrollIntoView) el.scrollIntoView({ behavior:'smooth', block:'start' }); }
 function pickWorker(code) {
   const e = DB.employees(S.line).find(x => same(x.code, code)); if (!e) return;
