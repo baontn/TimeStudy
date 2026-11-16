@@ -5,7 +5,11 @@
   const num = v => (isFinite(v) ? Number(v) : 0);
   const mean = a => (a.length ? a.reduce((s, x) => s + x, 0) / a.length : 0);
   const usedOf = w => (w.pieces || []).filter((p, i) => !(w.skip || []).includes(i) && Number(p) > 0).map(Number);
-  const pcsOf = w => (w.pieces || []).reduce((s, p, i) => (!(w.skip || []).includes(i) && Number(p) > 0) ? s + Math.max(1, Math.round(Number((w.cnt || [])[i])) || 1) : s, 0);
+  const lapsOf = w => (w.pieces || []).map((p, i) => ({ p: Number(p), n: Math.max(1, Math.round(Number((w.cnt || [])[i])) || 1), k: Math.max(0, Math.round(Number((w.prt || [])[i])) || 0), i }))
+    .filter(x => !(w.skip || []).includes(x.i) && x.p > 0);
+  const partsOf = w => Math.max(1, Math.round(Number(w.parts)) || 1);
+  const pcsOf = w => { const L = lapsOf(w), P = partsOf(w); if (P === 1) return L.reduce((s, x) => s + x.n, 0);        // garments: the part with the fewest pieces
+    let m = Infinity; for (let k = 0; k < P; k++) m = Math.min(m, L.filter(x => x.k === k).reduce((s, x) => s + x.n, 0)); return m; };
   const cvOf = a => { if (a.length < 2) return 0; const m = mean(a); return m ? Math.sqrt(a.reduce((s, x) => s + (x - m) * (x - m), 0) / (a.length - 1)) / m : 0; };
   const when = s => new Date(s.updated || s.date).getTime();         // newest version of a study
   const at = s => new Date(s.date).getTime();                        // the day the study was done
@@ -16,7 +20,9 @@
     const raw = s.raw || [], R = s.result || {};
     let few = 0, high = 0, excl = 0, cyc = 0, cvs = [];
     raw.forEach(w => { const u = usedOf(w), pc = pcsOf(w); cyc += pc; excl += (w.skip || []).length;
-      if (pc < minCycles) few++; else { const c = cvOf(u); cvs.push(c); if (u.length >= 3 && c > cvMax) high++; } });
+      if (pc < minCycles) few++; else { const P = partsOf(w), L = lapsOf(w);
+        const c = P === 1 ? cvOf(u) : Math.max(0, ...Array.from({ length: P }, (_, k) => cvOf(L.filter(x => x.k === k).map(x => x.p))));
+        cvs.push(c); if (u.length >= 3 && c > cvMax) high++; } });
     const missing = (R.missingOps || []).length, studied = Object.keys(R.opCap || {}).length;
     const coverage = studied + missing ? studied / (studied + missing) : 1;
     const issues = [];

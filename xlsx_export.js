@@ -221,7 +221,8 @@ ${line(1, 'D', 'Line capacity', caps.line, 'DC2626', 22225)}${hasTgt ? line(2, '
       s1.put(6, r, { s: ST.cap, f: `60/F${r}`, v: mins ? 60 / mins : 0 });
       s1.put(7, r, { s: ST.effp, f: `B${r}/F${r}`, v: mins ? num(w.sam) / mins : 0 });
       s1.put(8, r, { s: ST.prev });
-      s1.put(9, r, { s: ST.remark, v: String(rw.remark || w.remark || '') });
+      const pb = w.partSec && w.partSec.length > 1 ? w.partSec.map((v, k) => `${(w.pnames || [])[k] || 'CT' + (k + 1)} ${num(v).toFixed(1)}s`).join(' + ') : '';
+      s1.put(9, r, { s: ST.remark, v: [pb, String(rw.remark || w.remark || '')].filter(Boolean).join('\n') });
       sumB += num(w.sam); sumF += mins;
     }
     for (let i = 0; i < nOps; i++) { s1.put(10, 8 + i, { s: ST.lookK, v: ops[i].no }); s1.put(11, 8 + i, { s: ST.lookL, v: ops[i].sam }); }
