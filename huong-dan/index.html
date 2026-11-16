@@ -362,6 +362,7 @@ footer { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 16
             <li>Kết quả: <b>thời gian/sản phẩm = tổng thời gian TB mỗi cái của các chi tiết</b>, ví dụ CT1 13.0 + CT2 15.0 + Cắt chỉ 4.5 = <b>32.5 giây/SP</b>. Báo cáo Excel ghi phần chi tiết này ở cột ghi chú.</li>
           </ol>
           <ul>
+            <li>Nếu tên công đoạn trong dữ liệu có <span class="key">*2</span>, <span class="key">*3</span>… (ví dụ “Tra tay *2”), ứng dụng tự điền <span class="ui">Số chi tiết / sản phẩm</span> và ghi “theo tên công đoạn (*2)”. Vẫn có thể sửa bằng − / +.</li>
             <li>Số chi tiết và tên chi tiết là của <b>công đoạn</b>: mọi công nhân làm cùng công đoạn có cùng các chi tiết.</li>
             <li>Công nhân chỉ được tính vào năng lực chuyền khi <b>mọi chi tiết đã được bấm</b>. Trước đó thẻ ghi <span class="ui">Còn thiếu: …</span>. Nếu lưu lúc đó, công nhân được giữ lại để bấm tiếp (xem mục 06.2).</li>
             <li>Phải chờ chi tiết giữa chừng: bấm tạm dừng, đi bấm giờ người khác, quay lại bấm <span class="ui">Tiếp tục</span>. Thời gian chờ không bị tính.</li>
