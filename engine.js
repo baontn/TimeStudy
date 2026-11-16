@@ -13,13 +13,21 @@ function mean(arr) {
 }
 // A row = one operator on one operation. row.pieces[i] = seconds PER PIECE of lap i, row.cnt[i] = pieces in lap i (default 1:
 // a chain of 4 pieces cut after the 4th = one lap of 4 pieces). Excluded laps are listed in row.skip = [index, ...].
+// A garment can need several different parts at the operation (row.parts, e.g. front, back, trimming the chain): every lap
+// belongs to one part (row.prt[i], 0-based). Time per garment = sum over the parts of the average seconds per piece of that part.
+const nParts = row => Math.max(1, Math.round(Number(row.parts)) || 1);
 const usedCycles = row => (row.pieces || []).filter((p, i) => !(row.skip || []).includes(i) && Number(p) > 0);
-const usedLaps = row => (row.pieces || []).map((p, i) => ({ p: Number(p), w: Math.max(1, Math.round(Number((row.cnt || [])[i])) || 1), i }))
+const usedLaps = row => (row.pieces || []).map((p, i) => ({ p: Number(p), w: Math.max(1, Math.round(Number((row.cnt || [])[i])) || 1), i,
+    k: Math.max(0, Math.round(Number((row.prt || [])[i])) || 0) }))
   .filter(x => !(row.skip || []).includes(x.i) && x.p > 0);
-const piecesUsed = row => usedLaps(row).reduce((s, x) => s + x.w, 0);
-function wmean(row) {                        // average seconds per piece, weighted by the pieces of each lap
-  const u = usedLaps(row), w = u.reduce((s, x) => s + x.w, 0);
-  return w ? u.reduce((s, x) => s + x.p * x.w, 0) / w : 0;
+const partPieces = (row, k) => usedLaps(row).filter(x => x.k === k).reduce((s, x) => s + x.w, 0);
+// garments covered: the part with the fewest pieces decides (one part = all pieces)
+const piecesUsed = row => { const P = nParts(row); if (P === 1) return usedLaps(row).reduce((s, x) => s + x.w, 0);
+  let m = Infinity; for (let k = 0; k < P; k++) m = Math.min(m, partPieces(row, k)); return m; };
+const partsComplete = row => { const P = nParts(row); for (let k = 0; k < P; k++) if (!partPieces(row, k)) return false; return true; };
+const wmeanOf = u => { const w = u.reduce((s, x) => s + x.w, 0); return w ? u.reduce((s, x) => s + x.p * x.w, 0) / w : 0; };
+function wmean(row) {                        // average seconds per piece, weighted by the pieces of each lap (all parts together)
+  return wmeanOf(usedLaps(row));
 }
 function variation(arr) {                    // coefficient of variation (sd / mean)
   const v = arr.map(Number), m = mean(v);
@@ -37,11 +45,17 @@ function calcOperator(row, opMap, table = ALLOWANCE) {
   const allow = sam > 0                                                    // SAM-weighted allowance
     ? ops.reduce((s, o) => s + (opMap[o]?.sam || 0) * allowanceFor(opMap[o]?.machine, table), 0) / sam
     : DEFAULT_ALLOWANCE;
-  const parts = Math.max(1, Math.round(Number(row.parts)) || 1);       // parts of one garment done at this operation (1 = the whole garment)
-  const used = usedCycles(row), secCycle = wmean(row), sec = secCycle * parts;
+  const parts = nParts(row), u = usedLaps(row), used = usedCycles(row);
+  let sec, cv, partSec = null, partsMissing = [];
+  if (parts === 1) { sec = wmeanOf(u); cv = variation(used); }
+  else {                                     // several parts: each part timed on its own, time per garment = sum of the parts
+    partSec = []; cv = 0;
+    for (let k = 0; k < parts; k++) { const uk = u.filter(x => x.k === k); partSec.push(wmeanOf(uk)); if (!uk.length) partsMissing.push(k); cv = Math.max(cv, variation(uk.map(x => x.p))); }
+    sec = partsMissing.length ? 0 : partSec.reduce((a, b) => a + b, 0);    // a part not timed yet: not counted
+  }
   const min = sec / 60 * (1 + allow);
   const machines = [...new Set(ops.map(o => opMap[o]?.machine).filter(Boolean))];
-  return { ...row, ops, key: ops.join('+'), sam, allow, parts, secCycle, sec, min, n: used.length, cv: variation(used), machines,
+  return { ...row, ops, key: ops.join('+'), sam, allow, parts, partSec, partsMissing, sec, min, n: used.length, cv, machines,
            pcs: piecesUsed(row), capacity: min > 0 ? 60 / min : 0, eff: min > 0 ? sam / min : 0 };
 }
 
@@ -139,4 +153,4 @@ function staffingPlan(r, tgt, snap) {
   return { rows, acts, need: rows.reduce((a, x) => a + x.need, 0), have: rows.reduce((a, x) => a + x.have, 0) };
 }
 
-if (typeof module !== 'undefined') module.exports = { analyze, staffingPlan, calcOperator, lineCapacity, personKey, usedCycles, usedLaps, piecesUsed, wmean, variation, ALLOWANCE };
+if (typeof module !== 'undefined') module.exports = { analyze, staffingPlan, partPieces, partsComplete, nParts, calcOperator, lineCapacity, personKey, usedCycles, usedLaps, piecesUsed, wmean, variation, ALLOWANCE };

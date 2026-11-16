@@ -211,7 +211,7 @@ footer { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 16
             <tr><td>Người làm</td><td>Tên IE. Bắt buộc để lưu.</td></tr>
             <tr><td>Mục tiêu SL/giờ</td><td>Sản lượng mục tiêu mỗi giờ của chuyền. Nên nhập để có bảng <b>Số lao động cần cho mục tiêu</b>.</td></tr>
             <tr><td>Số lao động của chuyền</td><td>Tổng số người trên chuyền. Ứng dụng cảnh báo nếu số người đã bấm giờ khác số này.</td></tr>
-            <tr><td>Số chu kỳ mặc định mỗi công nhân</td><td>Số chu kỳ cần bấm cho mỗi người (mặc định 5). Có thể đổi riêng từng người.</td></tr>
+            <tr><td>Số sản phẩm mặc định mỗi công nhân</td><td>Số sản phẩm cần bấm cho mỗi người (mặc định 3). Nếu sản phẩm có nhiều chi tiết, mỗi chi tiết được bấm đủ số này. Có thể đổi riêng từng người.</td></tr>
             <tr><td>Đã thay đổi gì / nhận xét</td><td>Ghi lại tình hình chuyền hoặc thay đổi đã làm. Hiện trong báo cáo.</td></tr>
           </table></div>
           <div class="note warn"><b>Cẩn thận</b><span>Đổi PU, chuyền, mã hàng hoặc loại nghiên cứu sẽ <b>xóa các công nhân đã nhập</b>. Ứng dụng sẽ hỏi trước khi xóa.</span></div>
@@ -249,16 +249,16 @@ footer { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 16
     <!-- 03 -->
     <section class="ch" id="bam-gio">
       <div class="ch-head"><span class="ch-no">03</span><h2>Bấm giờ</h2>
-        <p>Đồng hồ hoạt động như đồng hồ bấm giờ của điện thoại. Mỗi <b>vòng</b> là một lần công nhân làm xong một <b>chu kỳ</b>: một chi tiết, hoặc cả sản phẩm nếu công đoạn chỉ có một chi tiết. Màn hình điện thoại được giữ sáng trong khi đồng hồ chạy.</p></div>
+        <p>Đồng hồ hoạt động như đồng hồ bấm giờ của điện thoại. Mỗi <b>vòng</b> là một lần công nhân làm xong một cái (hoặc một dây nhiều cái khi may dây chuyền). Màn hình điện thoại được giữ sáng trong khi đồng hồ chạy.</p></div>
 
       <div class="step">
         <div class="txt">
           <h3><span class="n">1</span>Bắt đầu, Vòng, Dừng</h3>
           <ol>
-            <li>Kiểm tra <span class="ui">Số chi tiết / sản phẩm</span> (thường là 1, xem mục 04.D) và <span class="ui">Số chu kỳ trong vòng (may dây chuyền)</span> (thường là 1, xem mục 04.A).</li>
+            <li>Kiểm tra <span class="ui">Số chi tiết / sản phẩm</span> (thường là 1, xem mục 04.D) và <span class="ui">Số cái mỗi vòng (may dây chuyền)</span> (thường là 1, xem mục 04.A).</li>
             <li>Bấm <span class="ui">Bắt đầu</span> khi công nhân bắt đầu cầm sản phẩm.</li>
-            <li>Bấm <span class="ui">Vòng</span> mỗi khi công nhân làm xong một chu kỳ. Thời gian vòng được ghi vào bảng.</li>
-            <li>Khi đủ <span class="ui">Số chu kỳ cần bấm</span>, đồng hồ tự dừng và màn hình chuyển xuống công nhân kế tiếp chưa bấm xong.</li>
+            <li>Bấm <span class="ui">Vòng</span> mỗi khi công nhân làm xong số cái của vòng. Thời gian vòng được ghi vào bảng.</li>
+            <li>Khi đủ <span class="ui">Số sản phẩm cần bấm</span>, đồng hồ tự dừng và màn hình chuyển xuống công nhân kế tiếp chưa bấm xong.</li>
           </ol>
           <ul>
             <li><span class="ui">Dừng</span> tạm ngưng khi công nhân rời chỗ (đi vệ sinh, chờ hàng). Bấm <span class="ui">Tiếp tục</span> để chạy lại. Vòng đang chạy được giữ nguyên.</li>
@@ -276,14 +276,14 @@ footer { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 16
           <p>Khi đứng giữa 2 đến 4 công nhân ngồi gần nhau, có thể bấm giờ tất cả cùng lúc:</p>
           <ol>
             <li>Bấm <span class="ui">Bắt đầu</span> trên thẻ của từng người. Bắt đầu người sau <b>không</b> dừng người trước.</li>
-            <li>Thanh <span class="ui">Đang bấm giờ</span> ở cuối màn hình hiện mỗi người một dòng: tên, công đoạn, số chu kỳ đã bấm, thời gian vòng đang chạy.</li>
+            <li>Thanh <span class="ui">Đang bấm giờ</span> ở cuối màn hình hiện mỗi người một dòng: tên, công đoạn, chi tiết đang bấm, số sản phẩm đã bấm, thời gian vòng đang chạy.</li>
             <li>Bấm nút <span class="ui">Vòng</span> trên dòng của người vừa làm xong. Không cần cuộn lên tìm thẻ.</li>
             <li>Bấm nút tạm dừng (hai vạch) khi người đó chờ hàng. Dòng chuyển màu vàng <span class="ui">đang chờ</span> với nút <span class="ui">Tiếp tục</span>.</li>
           </ol>
           <ul>
-            <li>Bấm vào tên trên dòng để mở thẻ của người đó (đổi số chi tiết, số chu kỳ trong vòng, loại vòng, ghi chú).</li>
+            <li>Bấm vào tên trên dòng để mở thẻ của người đó (đổi chi tiết, số cái mỗi vòng, loại vòng, ghi chú).</li>
             <li>Bấm vào tiêu đề <span class="ui">Đang bấm giờ</span> để thu gọn thanh thành một dòng khi cần xem nội dung phía sau. Bấm lần nữa để mở lại.</li>
-            <li>Khi đủ số chu kỳ cần bấm, người đó tự rời khỏi thanh.</li>
+            <li>Khi đủ số sản phẩm cần bấm, người đó tự rời khỏi thanh.</li>
             <li>Nếu điện thoại tắt trình duyệt hoặc tải lại trang, các đồng hồ vẫn tiếp tục chạy và ứng dụng mở lại đúng màn hình bấm giờ.</li>
           </ul>
           <div class="note warn"><b>Đừng bấm quá nhiều người</b><span>Chỉ bấm cùng lúc những người bạn nhìn rõ được tay. Bấm Vòng trễ vài giây làm sai thời gian của vòng đó.</span></div>
@@ -315,13 +315,13 @@ footer { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 16
           <h3><span class="n">A</span>May dây chuyền (may liền nhiều cái rồi cắt)</h3>
           <p>Ví dụ: lên lai tay áo máy viền, công nhân may liền 10 cái, sau đó cắt rời và cắt chỉ.</p>
           <ol>
-            <li><b>Trước khi bấm Vòng</b>, đặt <span class="ui">Số chu kỳ trong vòng (may dây chuyền)</span> = <b>10</b> bằng nút <span class="key">+</span>.</li>
+            <li><b>Trước khi bấm Vòng</b>, đặt <span class="ui">Số cái mỗi vòng (may dây chuyền)</span> = <b>10</b> bằng nút <span class="key">+</span>.</li>
             <li>Bấm <span class="ui">Vòng</span> <b>sau khi công nhân cắt rời và cắt chỉ xong</b>, để thời gian cắt cũng được tính.</li>
-            <li>Ứng dụng tự chia: 230 giây ÷ 10 chu kỳ = <b>23 giây/chu kỳ</b>.</li>
+            <li>Ứng dụng tự chia: 230 giây ÷ 10 cái = <b>23 giây/cái</b>.</li>
           </ol>
-          <div class="note bad"><b>Lỗi hay gặp</b><span>Quên đặt số chu kỳ nên vòng 230 giây bị tính là 1 chu kỳ, năng lực chuyền tụt xuống rất thấp. Sửa bằng nút <span class="key">−</span> / <span class="key">+</span> ở cột <b>chu kỳ</b> của vòng đó trong bảng.</span></div>
+          <div class="note bad"><b>Lỗi hay gặp</b><span>Quên đặt số cái nên vòng 230 giây bị tính là 1 cái, năng lực chuyền tụt xuống rất thấp. Sửa bằng nút <span class="key">−</span> / <span class="key">+</span> ở cột <b>cái</b> của vòng đó trong bảng.</span></div>
         </div>
-        <figure><img src="img/07-chain.png" alt="Bảng vòng với 10 chu kỳ mỗi vòng" width="366" height="942" loading="lazy"><figcaption>Mỗi vòng 10 chu kỳ: 230 giây = 23 giây/chu kỳ</figcaption></figure>
+        <figure><img src="img/07-chain.png" alt="Bảng vòng với 10 cái mỗi vòng" width="366" height="942" loading="lazy"><figcaption>Mỗi vòng 10 cái: 230 giây = 23 giây/cái</figcaption></figure>
       </div>
 
       <div class="step">
@@ -353,22 +353,22 @@ footer { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 16
       <div class="step">
         <div class="txt">
           <h3><span class="n">D</span>Một sản phẩm có nhiều chi tiết ở công đoạn</h3>
-          <p>Ví dụ: tra tay áo. Mỗi áo có <b>2 tay</b>, công nhân tra từng tay một. SAM của công đoạn tính cho <b>cả áo</b>.</p>
+          <p>Ví dụ: Giang làm CĐ 35 gồm 3 phần cho mỗi sản phẩm: <b>thân trước</b>, <b>thân sau</b> và <b>cắt chỉ</b> sau khi may dây chuyền. Mỗi phần có thời gian khác nhau, nên được bấm <b>riêng từng chi tiết</b> rồi cộng lại.</p>
           <ol>
-            <li>Đặt <span class="ui">Số chi tiết / sản phẩm</span> = <b>2</b>.</li>
-            <li>Bấm <span class="ui">Vòng</span> mỗi khi xong <b>một tay</b> (một chu kỳ).</li>
-            <li>Ứng dụng tính: thời gian/sản phẩm = thời gian TB mỗi chu kỳ × số chi tiết. Ví dụ 20 giây/tay × 2 = <b>40 giây/áo</b>. Dưới kết quả ghi rõ “= 20.0 giây/chu kỳ × 2 chi tiết”.</li>
+            <li>Đặt <span class="ui">Số chi tiết / sản phẩm</span> = <b>3</b>. Thẻ hiện 3 nút chi tiết <span class="key">CT1</span> <span class="key">CT2</span> <span class="key">CT3</span>. Bấm <span class="key">✎</span> để đặt tên chi tiết đang chọn, ví dụ “Cắt chỉ”.</li>
+            <li><span class="ui">Số sản phẩm cần bấm</span> = <b>3</b>: mỗi chi tiết được bấm 3 cái.</li>
+            <li>Vòng được ghi vào chi tiết đang chọn (nút xanh). Mỗi chi tiết có <span class="ui">Số cái mỗi vòng</span> riêng: may dây chuyền 3 cái thì đặt 3 và bấm Vòng một lần; bấm riêng từng cái thì để 1.</li>
+            <li>Khi một chi tiết đủ 3 cái, ứng dụng <b>tự chuyển sang chi tiết kế tiếp</b>. Có thể bấm vào nút chi tiết để đổi bằng tay.</li>
+            <li>Kết quả: <b>thời gian/sản phẩm = tổng thời gian TB mỗi cái của các chi tiết</b>, ví dụ CT1 13.0 + CT2 15.0 + Cắt chỉ 4.5 = <b>32.5 giây/SP</b>. Báo cáo Excel ghi phần chi tiết này ở cột ghi chú.</li>
           </ol>
-          <p><b>Phải chờ chi tiết giữa chừng?</b> Ví dụ Chi may xong bó 10 thân trước rồi phải chờ bó thân sau:</p>
-          <ol>
-            <li>Đặt <span class="ui">Số chi tiết / sản phẩm</span> = <b>2</b> và <span class="ui">Số chu kỳ trong vòng</span> = <b>10</b>, bấm <span class="ui">Bắt đầu</span>.</li>
-            <li>Xong 10 thân trước: bấm <span class="ui">Vòng</span>. Khi Chi bắt đầu chờ: bấm <b>tạm dừng</b>, rồi đi bấm giờ người khác.</li>
-            <li>Bó thân sau đến: bấm <span class="ui">Tiếp tục</span>. Xong 10 thân sau: bấm <span class="ui">Vòng</span>.</li>
-            <li>Kết quả gồm 20 chu kỳ (chi tiết), <b>không tính thời gian chờ</b>, và được nhân 2 thành thời gian cho mỗi sản phẩm.</li>
-          </ol>
-          <div class="note"><b>Một chi tiết</b><span>Nếu công đoạn chỉ có một chi tiết trên sản phẩm (trường hợp thường gặp), để <span class="ui">Số chi tiết / sản phẩm</span> = 1: một chu kỳ chính là một sản phẩm.</span></div>
+          <ul>
+            <li>Số chi tiết và tên chi tiết là của <b>công đoạn</b>: mọi công nhân làm cùng công đoạn có cùng các chi tiết.</li>
+            <li>Công nhân chỉ được tính vào năng lực chuyền khi <b>mọi chi tiết đã được bấm</b>. Trước đó thẻ ghi <span class="ui">Còn thiếu: …</span>. Nếu lưu lúc đó, công nhân được giữ lại để bấm tiếp (xem mục 06.2).</li>
+            <li>Phải chờ chi tiết giữa chừng: bấm tạm dừng, đi bấm giờ người khác, quay lại bấm <span class="ui">Tiếp tục</span>. Thời gian chờ không bị tính.</li>
+          </ul>
+          <div class="note"><b>Một chi tiết</b><span>Phần lớn công đoạn chỉ có một chi tiết: để <span class="ui">Số chi tiết / sản phẩm</span> = 1 và bấm như bình thường.</span></div>
         </div>
-        <figure><img src="img/33-parts.png" alt="Số chi tiết / sản phẩm = 2 trên thẻ bấm giờ" width="390" height="260" loading="lazy"><figcaption>2 chi tiết mỗi sản phẩm</figcaption></figure>
+        <figure><img src="img/33-parts.png" alt="Ba chi tiết trên thẻ bấm giờ" width="366" height="628" loading="lazy"><figcaption>3 chi tiết: CT1 + CT2 + Cắt chỉ = 32.5 giây/SP</figcaption></figure>
       </div>
 
       <div class="step">
@@ -482,11 +482,12 @@ footer { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 16
       <div class="step">
         <div class="txt">
           <h3><span class="n">2</span>Lưu khi còn vòng chưa xong</h3>
-          <p>Nếu bấm <span class="ui">Lưu nghiên cứu</span> khi còn công nhân đang giữa vòng (đang chạy hoặc đang chờ), ứng dụng hiện bảng <span class="ui">Vòng chưa xong</span> với tên và thời gian của từng người. Thời gian này chưa được tính vì chưa biết số chu kỳ.</p>
+          <p>Nếu bấm <span class="ui">Lưu nghiên cứu</span> khi còn công nhân đang giữa vòng (đang chạy hoặc đang chờ), ứng dụng hiện bảng <span class="ui">Vòng chưa xong</span> với tên và thời gian của từng người. Thời gian này chưa được tính vì chưa biết số cái.</p>
           <ul>
             <li><span class="ui">Quay lại bấm giờ</span>: bấm Vòng khi công nhân làm xong, rồi lưu.</li>
             <li><span class="ui">Lưu, giữ vòng chưa xong</span>: lưu các vòng đã xong. Vòng chưa xong được giữ trên điện thoại này, và trang chi tiết ghi rõ ai còn vòng chưa xong.</li>
             <li>Để bấm tiếp: mở nghiên cứu → <span class="ui">Sửa / Tiếp tục nghiên cứu</span>. Những người đó hiện lại <span class="ui">đang chờ</span> với đúng thời gian. Bấm <span class="ui">Tiếp tục</span>, rồi <span class="ui">Vòng</span> khi xong.</li>
+            <li>Công nhân <b>còn chi tiết chưa bấm</b> (mục 04.D) cũng được liệt kê trong bảng này và được giữ lại cùng các vòng đã bấm, để bấm tiếp sau.</li>
             <li>Nếu chưa ai có vòng nào xong, bảng chỉ nhắc bấm Vòng trước, chưa lưu được.</li>
           </ul>
           <div class="note warn"><b>Bấm tiếp trên cùng điện thoại</b><span>Vòng chưa xong chỉ lưu trên điện thoại đã bấm giờ, không gửi lên máy chủ.</span></div>
@@ -628,8 +629,8 @@ footer { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 16
         <p>Các công thức ứng dụng dùng, để IE kiểm tra lại bằng tay khi cần.</p></div>
       <div class="tbl"><table>
         <tr><th>Chỉ số</th><th>Công thức</th><th>Ghi chú</th></tr>
-        <tr><td>Thời gian TB mỗi chu kỳ</td><td class="f">Σ thời gian vòng ÷ Σ số chu kỳ</td><td>Chỉ tính các vòng không bị loại.</td></tr>
-        <tr><td>Thời gian TB mỗi sản phẩm</td><td class="f">giây/chu kỳ × số chi tiết</td><td>Số chi tiết / sản phẩm, mặc định 1.</td></tr>
+        <tr><td>Thời gian TB mỗi cái (từng chi tiết)</td><td class="f">Σ thời gian vòng ÷ Σ số cái</td><td>Chỉ tính các vòng không bị loại.</td></tr>
+        <tr><td>Thời gian TB mỗi sản phẩm</td><td class="f">Σ giây/cái của các chi tiết</td><td>Một chi tiết: bằng giây/cái.</td></tr>
         <tr><td>Phút/sản phẩm (có hao phí)</td><td class="f">giây/sản phẩm ÷ 60 × (1 + 13%)</td><td>Hao phí mặc định 13%.</td></tr>
         <tr><td>Năng lực công nhân</td><td class="f">60 ÷ phút/cái</td><td>cái/giờ</td></tr>
         <tr><td>Hiệu suất công nhân</td><td class="f">SAM ÷ phút/cái</td><td>Công đoạn ghép: cộng SAM.</td></tr>
@@ -657,14 +658,14 @@ footer { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 16
           <p>Mã hàng chưa có trong dữ liệu SAM. Kiểm tra lại mã hàng hoặc báo phòng IED cập nhật.</p></details>
         <details><summary>Điện thoại tắt màn hình hoặc tôi lỡ đóng trình duyệt khi đang bấm giờ?</summary>
           <p>Các đồng hồ vẫn tiếp tục chạy. Mở lại ứng dụng, màn hình bấm giờ hiện ra với thời gian đúng. Ứng dụng cũng giữ màn hình sáng trong khi có đồng hồ chạy.</p></details>
-        <details><summary>Bấm nhầm Vòng hoặc quên đặt số chu kỳ?</summary>
-          <p>Bấm nhầm: dùng <span class="ui">Hoàn tác vòng cuối</span>. Sai số chu kỳ: sửa bằng nút − / + ở cột chu kỳ của vòng đó. Vòng bất thường: bấm ✕ để loại.</p></details>
+        <details><summary>Bấm nhầm Vòng hoặc quên đặt số cái?</summary>
+          <p>Bấm nhầm: dùng <span class="ui">Hoàn tác vòng cuối</span>. Sai số cái: sửa bằng nút − / + ở cột cái của vòng đó. Vòng ghi nhầm chi tiết: hoàn tác rồi chọn đúng chi tiết. Vòng bất thường: bấm ✕ để loại.</p></details>
         <details><summary>Bấm Lưu khi còn công nhân đang giữa vòng?</summary>
-          <p>Ứng dụng hiện bảng <span class="ui">Vòng chưa xong</span>. Thời gian của vòng chưa xong chưa được tính vì chưa biết số chu kỳ. Chọn <span class="ui">Quay lại bấm giờ</span> để bấm Vòng trước, hoặc <span class="ui">Lưu, giữ vòng chưa xong</span>: nghiên cứu được lưu với các vòng đã xong, còn vòng chưa xong được giữ trên điện thoại. Mở nghiên cứu → <span class="ui">Sửa / Tiếp tục nghiên cứu</span>: những công nhân đó hiện lại ở trạng thái <span class="ui">đang chờ</span> với đúng thời gian, bấm <span class="ui">Tiếp tục</span> rồi <span class="ui">Vòng</span> như bình thường.</p></details>
+          <p>Ứng dụng hiện bảng <span class="ui">Vòng chưa xong</span>. Thời gian của vòng chưa xong chưa được tính vì chưa biết số cái. Chọn <span class="ui">Quay lại bấm giờ</span> để bấm Vòng trước, hoặc <span class="ui">Lưu, giữ vòng chưa xong</span>: nghiên cứu được lưu với các vòng đã xong, còn vòng chưa xong được giữ trên điện thoại. Mở nghiên cứu → <span class="ui">Sửa / Tiếp tục nghiên cứu</span>: những công nhân đó hiện lại ở trạng thái <span class="ui">đang chờ</span> với đúng thời gian, bấm <span class="ui">Tiếp tục</span> rồi <span class="ui">Vòng</span> như bình thường.</p></details>
         <details><summary>Cần sửa nghiên cứu đã lưu?</summary>
           <p>Mở nghiên cứu trong <span class="ui">Lịch sử</span> → <span class="ui">Sửa / Tiếp tục nghiên cứu</span>. Lưu lại sẽ cập nhật cùng nghiên cứu đó.</p></details>
         <details><summary>Năng lực chuyền thấp bất thường?</summary>
-          <p>Kiểm tra: vòng may dây chuyền có đặt đúng số chu kỳ chưa, số chi tiết / sản phẩm có đúng không, có vòng bất thường chưa loại, có công đoạn nào chưa bấm giờ (cảnh báo màu vàng trong kết quả), và có công nhân nào đang làm nhiều công đoạn không.</p></details>
+          <p>Kiểm tra: vòng may dây chuyền có đặt đúng số cái chưa, các chi tiết đã bấm đủ chưa, có vòng bất thường chưa loại, có công đoạn nào chưa bấm giờ (cảnh báo màu vàng trong kết quả), và có công nhân nào đang làm nhiều công đoạn không.</p></details>
       </div>
     </section>
   </main>
