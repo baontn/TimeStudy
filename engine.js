@@ -37,10 +37,11 @@ function calcOperator(row, opMap, table = ALLOWANCE) {
   const allow = sam > 0                                                    // SAM-weighted allowance
     ? ops.reduce((s, o) => s + (opMap[o]?.sam || 0) * allowanceFor(opMap[o]?.machine, table), 0) / sam
     : DEFAULT_ALLOWANCE;
-  const used = usedCycles(row), sec = wmean(row);
+  const parts = Math.max(1, Math.round(Number(row.parts)) || 1);       // parts of one garment done at this operation (1 = the whole garment)
+  const used = usedCycles(row), secCycle = wmean(row), sec = secCycle * parts;
   const min = sec / 60 * (1 + allow);
   const machines = [...new Set(ops.map(o => opMap[o]?.machine).filter(Boolean))];
-  return { ...row, ops, key: ops.join('+'), sam, allow, sec, min, n: used.length, cv: variation(used), machines,
+  return { ...row, ops, key: ops.join('+'), sam, allow, parts, secCycle, sec, min, n: used.length, cv: variation(used), machines,
            pcs: piecesUsed(row), capacity: min > 0 ? 60 / min : 0, eff: min > 0 ? sam / min : 0 };
 }
 
