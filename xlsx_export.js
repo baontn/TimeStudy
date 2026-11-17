@@ -284,7 +284,8 @@ ${line(1, 'D', 'Line capacity', caps.line, 'DC2626', 22225)}${hasTgt ? line(2, '
     const moves = (R.suggestion && R.suggestion.moves) || [];
     if (!moves.length) s2.put(0, mr + 1, { s: ST.aValTxt, v: 'No improving move found' });
     moves.forEach((m, i) => s2.put(0, mr + 1 + i, { s: ST.aValTxt,
-      v: `Move ${m.name || m.emp} from ${m.from} to ${m.to}  ->  line capacity ${m.newCapacity.toFixed(1)} pcs/hr` }));
+      v: m.kind === 'give' ? `Give operation ${m.from} of ${m.name || m.emp} to ${m.toName || m.toEmp} (same machine)  ->  line capacity ${m.newCapacity.toFixed(1)} pcs/hr (estimate)`
+                           : `Move ${m.name || m.emp} from ${m.from} to ${m.to}  ->  line capacity ${m.newCapacity.toFixed(1)} pcs/hr` }));
     // operators needed for the target (Vietnamese)
     mr = mr + 2 + Math.max(moves.length, 1);
     s2.put(0, mr, { s: ST.aTitle, v: 'Số lao động cần cho mục tiêu' });

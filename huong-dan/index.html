@@ -206,7 +206,7 @@ footer { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 16
           <div class="tbl"><table>
             <tr><th>Ô</th><th>Nhập gì</th></tr>
             <tr><td>PU, Chuyền</td><td>Chọn PU trước, sau đó chọn chuyền. Danh sách công nhân của chuyền sẽ hiện ở phần 2.</td></tr>
-            <tr><td>Mã hàng</td><td>Gõ vài ký tự rồi chọn trong danh sách. Ứng dụng lấy SAM và loại máy của từng công đoạn theo mã hàng.</td></tr>
+            <tr><td>Mã hàng</td><td>Bấm một nút trong <b>Mã hàng gần đây</b> (các mã đã nghiên cứu gần đây trên chuyền này), hoặc gõ vài ký tự rồi chọn trong danh sách. Ứng dụng lấy SAM và loại máy của từng công đoạn theo mã hàng. <b>Kiểm tra lại mã hàng trước khi bấm giờ</b>: ô này có thể đang giữ mã của lần trước.</td></tr>
             <tr><td>Loại nghiên cứu</td><td><b>Nghiên cứu mới</b>: lần đầu trên chuyền. <b>QCO</b>: khi chuyển mã hàng. <b>Nghiên cứu lại</b>: sau khi cải tiến (xem chương 07).</td></tr>
             <tr><td>Người làm</td><td>Tên IE. Bắt buộc để lưu.</td></tr>
             <tr><td>Mục tiêu SL/giờ</td><td>Sản lượng mục tiêu mỗi giờ của chuyền. Nên nhập để có bảng <b>Số lao động cần cho mục tiêu</b>.</td></tr>
@@ -216,7 +216,7 @@ footer { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 16
           </table></div>
           <div class="note warn"><b>Cẩn thận</b><span>Đổi PU, chuyền, mã hàng hoặc loại nghiên cứu sẽ <b>xóa các công nhân đã nhập</b>. Ứng dụng sẽ hỏi trước khi xóa.</span></div>
         </div>
-        <figure><img src="img/03-setup.png" alt="Phần 1: Thiết lập nghiên cứu" width="366" height="535" loading="lazy"><figcaption>Phần 1: Thiết lập nghiên cứu</figcaption></figure>
+        <figure><img src="img/03-setup.png" alt="Phần 1: Thiết lập nghiên cứu" width="366" height="604" loading="lazy"><figcaption>Phần 1: Thiết lập nghiên cứu</figcaption></figure>
       </div>
 
       <div class="step">
@@ -236,13 +236,13 @@ footer { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 16
         <div class="txt">
           <h3><span class="n">3</span>Chọn công đoạn của công nhân</h3>
           <ul>
-            <li>Bấm số công đoạn (31 đến 116) mà người này đang làm. Ô bên dưới hiện SAM và loại máy để kiểm tra.</li>
+            <li>Bấm công đoạn (31 đến 116) mà người này đang làm. Nếu dữ liệu có tên công đoạn, mỗi nút hiện cả <b>số và tên</b> (ví dụ “34 Tra tay *2”). Ô bên dưới hiện SAM và loại máy để kiểm tra.</li>
             <li>Bấm <span class="ui">Xác nhận công đoạn</span>. Đồng hồ bấm giờ hiện ra.</li>
             <li>Công đoạn có <b>viền xanh</b> là đã có người được bấm giờ.</li>
           </ul>
           <div class="note"><b>Công đoạn ghép</b><span>Nếu công nhân làm <b>liền nhiều công đoạn trên cùng một sản phẩm</b> (ví dụ 33 rồi 34 ngay trên cái đó), hãy chọn <b>cả hai</b> cùng lúc. Ứng dụng ghi là <span class="key">33+34</span>, cộng SAM và bấm giờ một lần cho cả hai.</span></div>
         </div>
-        <figure><img src="img/05-ops.png" alt="Chọn công đoạn bằng các nút số" width="366" height="288" loading="lazy"><figcaption>Chọn công đoạn: nút xanh đậm là đang chọn</figcaption></figure>
+        <figure><img src="img/05-ops.png" alt="Chọn công đoạn: nút hiện số và tên công đoạn" width="366" height="396" loading="lazy"><figcaption>Chọn công đoạn: mỗi nút có số và tên</figcaption></figure>
       </div>
     </section>
 
@@ -265,6 +265,7 @@ footer { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 16
             <li><span class="ui">Xóa vòng đang chạy</span> (khi đã dừng) bỏ phần thời gian của vòng chưa xong.</li>
             <li><span class="ui">Hoàn tác vòng cuối</span> xóa vòng vừa ghi nếu bấm nhầm. Hai lần bấm Vòng cách nhau dưới 1,5 giây được coi là bấm nhầm và bỏ qua.</li>
           </ul>
+          <p>Bấm Vòng hai lần cách nhau dưới 1,5 giây: ứng dụng báo <span class="ui">Quá ngắn (dưới 1,5 giây): đã bỏ qua</span> và không ghi vòng đó.</p>
           <p>Dưới bảng vòng là kết quả của người này: <b>TB (giây)</b> mỗi cái, <b>cái/giờ</b>, <b>Hiệu suất</b> và <b>Độ biến động</b>.</p>
         </div>
         <figure><img src="img/06-stopwatch.png" alt="Đồng hồ đang chạy với nút Vòng và Dừng" width="366" height="965" loading="lazy"><figcaption>Đồng hồ đang chạy: thời gian vòng hiện tại ở trên, tổng ở dưới</figcaption></figure>
@@ -301,6 +302,35 @@ footer { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 16
           </ul>
           <p>Ghi chú hiện trong kết quả, báo cáo Excel và trong từng nghiên cứu trên bảng theo dõi của giám sát.</p>
           <div class="note warn"><b>Độ biến động cao</b><span>Nếu thời gian các vòng chênh nhau nhiều (độ biến động trên 15%), ứng dụng hiện ⚠. Hãy xem lại thao tác của công nhân hoặc loại các vòng bất thường.</span></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="txt">
+          <h3><span class="n">4</span>Tiến độ cả chuyền</h3>
+          <p>Thanh <span class="ui">Tiến độ</span> nằm ngay trên các thẻ công nhân. Dòng đầu cho biết số người <b>xong</b> (✓), <b>đang bấm</b> (▶), <b>đang chờ</b> (‖) và <b>chưa bấm</b> (○).</p>
+          <ul>
+            <li>Mỗi người một nút (tên gọi và công đoạn). Màu xanh lá: xong. Màu vàng: đang chờ hoặc còn dở. Bấm vào nút để nhảy thẳng tới thẻ của người đó, không cần cuộn.</li>
+            <li>Nút nét đứt có dấu <span class="key">+</span> là người của chuyền <b>chưa được thêm</b> vào nghiên cứu. Bấm để thêm.</li>
+            <li>Bấm vào dòng đầu để thu gọn hoặc mở rộng.</li>
+          </ul>
+        </div>
+        <figure><img src="img/34-progress.png" alt="Thanh Tiến độ với các nút công nhân" width="366" height="172" loading="lazy"><figcaption>Thanh Tiến độ: 12 người xong, 3 người còn dở</figcaption></figure>
+      </div>
+
+      <div class="step">
+        <div class="txt">
+          <h3><span class="n">5</span>Cảnh báo khi bấm nhầm</h3>
+          <p>Ứng dụng nhắc ngay trên thẻ khi số liệu có vẻ sai. Không có cảnh báo nghĩa là chưa thấy dấu hiệu bất thường, không phải là chắc chắn đúng.</p>
+          <ul>
+            <li><b>Vòng dài bất thường</b> (từ 1,6 lần các vòng khác): “Vòng 3: 150 giây, gấp 2,2 lần các vòng khác. Làm lại hoặc chờ hàng?”. Bấm <span class="ui">✕ Loại vòng này</span> nếu đó là làm lại hoặc chờ hàng. Khi đủ số sản phẩm mà vòng cuối bất thường, thẻ <b>giữ nguyên để bạn loại vòng</b> thay vì nhảy sang người kế tiếp.</li>
+            <li><b>Hiệu suất dưới 40%</b>: thường là may dây chuyền mà quên đặt <span class="ui">Số cái mỗi vòng</span>. Ứng dụng đoán số cái và hiện nút, ví dụ <span class="ui">Đặt 3 cái mỗi vòng</span>. Bấm một lần để sửa mọi vòng của người đó.</li>
+            <li><b>Hiệu suất trên 130%</b>: kiểm tra <span class="ui">Số chi tiết / sản phẩm</span> hoặc SAM.</li>
+          </ul>
+        </div>
+        <div class="pair">
+          <figure><img src="img/35-rework.png" alt="Cảnh báo vòng làm lại 150 giây" width="366" height="329" loading="lazy"><figcaption>Vòng 3 dài bất thường (làm lại)</figcaption></figure>
+          <figure><img src="img/36-chain-warning.png" alt="Cảnh báo hiệu suất 24% và nút đặt 3 cái mỗi vòng" width="366" height="390" loading="lazy"><figcaption>Quên số cái mỗi vòng: hiệu suất 24%</figcaption></figure>
         </div>
       </div>
     </section>
@@ -398,21 +428,34 @@ footer { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 16
 
       <div class="step">
         <div class="txt">
-          <h3><span class="n">1</span>Chất lượng nghiên cứu</h3>
-          <p>Cho biết nghiên cứu có đủ tin cậy để ra quyết định hay chưa:</p>
-          <div class="tbl"><table>
-            <tr><th>Mức</th><th>Khi nào</th></tr>
-            <tr><td><b>Đạt</b></td><td>Mọi công nhân đã bấm ít nhất 3 cái, đủ công đoạn, thời gian ổn định.</td></tr>
-            <tr><td><b>Cần kiểm tra</b></td><td>Có công nhân biến động trên 15%, hoặc còn vài công đoạn chưa bấm giờ.</td></tr>
-            <tr><td><b>Cần xem lại</b></td><td>Có công nhân bấm ít hơn 3 cái, hoặc dưới 80% công đoạn được bấm giờ.</td></tr>
-          </table></div>
+          <h3><span class="n">1</span>Kết luận ở đầu trang</h3>
+          <p>Khung đầu tiên trả lời ngay: chuyền đã đạt mục tiêu chưa, nút cổ chai ở đâu và nên làm gì.</p>
+          <ul>
+            <li>Viền và màu tiêu đề: <b style="color:var(--ok)">xanh</b> = đạt mục tiêu, <b style="color:var(--warn)">vàng</b> = đạt từ 90% đến dưới 100%, <b style="color:var(--red)">đỏ</b> = dưới 90%.</li>
+            <li><span class="ui">Cách xử lý</span> lấy từ đề xuất điều chuyển (mục 05.6), kèm năng lực dự kiến sau khi làm.</li>
+            <li>Nếu còn công đoạn chưa bấm giờ, tiêu đề ghi <span class="ui">(tạm tính…)</span>: kết luận chưa chắc chắn.</li>
+          </ul>
         </div>
-        <figure><img src="img/10-quality.png" alt="Chất lượng nghiên cứu: Đạt" width="366" height="47" loading="lazy"><figcaption>Thanh chất lượng nghiên cứu</figcaption></figure>
+        <figure><img src="img/37-verdict.png" alt="Khung kết luận: chưa đạt mục tiêu, nút cổ chai và cách xử lý" width="366" height="187" loading="lazy"><figcaption>Kết luận ở đầu trang</figcaption></figure>
       </div>
 
       <div class="step">
         <div class="txt">
-          <h3><span class="n">2</span>Các chỉ số chính</h3>
+          <h3><span class="n">2</span>Chất lượng nghiên cứu</h3>
+          <p>Cho biết nghiên cứu có đủ tin cậy để ra quyết định hay chưa. Mỗi cảnh báo <b>ghi rõ tên công nhân hoặc công đoạn</b>, ví dụ “1 công nhân bấm ít hơn 3 cái: Đặng Thị Hà (CĐ 36)” hay “công đoạn chưa nghiên cứu: 41, 42, 43”:</p>
+          <div class="tbl"><table>
+            <tr><th>Mức</th><th>Khi nào</th></tr>
+            <tr><td><b>Đạt</b></td><td>Mọi công nhân đã bấm ít nhất 3 cái, đủ công đoạn, thời gian ổn định.</td></tr>
+            <tr><td><b>Cần kiểm tra</b></td><td>Có công nhân biến động trên 15%, hiệu suất bất thường (dưới 40% hoặc trên 130%), hoặc còn vài công đoạn chưa bấm giờ.</td></tr>
+            <tr><td><b>Cần xem lại</b></td><td>Có công nhân bấm ít hơn 3 cái, hoặc dưới 80% công đoạn được bấm giờ.</td></tr>
+          </table></div>
+        </div>
+        <figure><img src="img/10-quality.png" alt="Chất lượng nghiên cứu: Đạt" width="366" height="129" loading="lazy"><figcaption>Chất lượng nghiên cứu, có tên công nhân và công đoạn</figcaption></figure>
+      </div>
+
+      <div class="step">
+        <div class="txt">
+          <h3><span class="n">3</span>Các chỉ số chính</h3>
           <ul>
             <li><b>Năng lực chuyền (cái/giờ)</b>: năng lực của công đoạn chậm nhất. Bên cạnh là mục tiêu (ví dụ 61,7 / 90).</li>
             <li><b>Hiệu suất chuyền</b>: tổng SAM ÷ tổng thời gian thực tế của mọi công nhân.</li>
@@ -426,41 +469,43 @@ footer { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 16
 
       <div class="step">
         <div class="txt">
-          <h3><span class="n">3</span>Biểu đồ cân bằng chuyền</h3>
-          <p>Mỗi cột là năng lực một công đoạn (cái/giờ). Cột <b style="color:var(--red)">đỏ</b> là nút cổ chai. Đường đỏ gạch là năng lực chuyền, đường xanh lá là mục tiêu. Cột thấp hơn đường xanh lá là công đoạn chưa đạt mục tiêu.</p>
+          <h3><span class="n">4</span>Biểu đồ cân bằng chuyền</h3>
+          <p>Mỗi cột là năng lực một công đoạn (cái/giờ). Cột <b style="color:var(--red)">đỏ</b> là nút cổ chai. Đường đỏ gạch là năng lực chuyền, đường xanh lá là mục tiêu. Cột thấp hơn đường xanh lá là công đoạn chưa đạt mục tiêu. Biểu đồ vừa với màn hình khi có đến 14 công đoạn; nhiều hơn thì vuốt ngang. Con số bên phải đường xanh lá là mục tiêu. Bảng <span class="ui">Năng lực từng công đoạn</span> ở dưới đã được thu gọn, bấm vào tiêu đề để mở.</p>
         </div>
-        <figure><img src="img/12-chart.png" alt="Biểu đồ năng lực từng công đoạn" width="366" height="292" loading="lazy"><figcaption>Cột đỏ: nút cổ chai (CĐ 33 và 38)</figcaption></figure>
+        <figure><img src="img/12-chart.png" alt="Biểu đồ năng lực từng công đoạn" width="366" height="291" loading="lazy"><figcaption>Cột đỏ: nút cổ chai (CĐ 33 và 38)</figcaption></figure>
       </div>
 
       <div class="step">
         <div class="txt">
-          <h3><span class="n">4</span>Số lao động cần cho mục tiêu</h3>
+          <h3><span class="n">5</span>Số lao động cần cho mục tiêu</h3>
           <p>Bảng quan trọng nhất để quyết định điều chuyển. Mỗi dòng là một công đoạn, sắp xếp từ thiếu nhiều nhất:</p>
           <ul>
             <li><b>Có</b>: số lao động đang làm công đoạn (người làm nhiều công đoạn được tính theo phần thời gian, ví dụ 0,7).</li>
             <li><b>Cần</b>: số lao động cần để đạt mục tiêu.</li>
-            <li><b>Chênh lệch</b> = Có − Cần. Âm (đỏ, <b>thiếu</b>) là công đoạn không đạt mục tiêu. Dương (xanh, <b>dư</b>) là công đoạn còn thời gian rảnh.</li>
+            <li><b>Chênh lệch</b> = Có − Cần. Âm (đỏ, <b>thiếu</b>) là công đoạn không đạt mục tiêu. Dương (xanh, <b>dư</b>) là công đoạn còn thời gian rảnh. Chênh lệch dưới 0,05 hiện <b>0.0</b> (đủ).</li>
           </ul>
           <p>Phía trên bảng, ứng dụng ghi việc cần làm:</p>
           <ul>
-            <li><b>Một người làm nhiều công đoạn đang thiếu</b> → giao một công đoạn cho người khác.</li>
+            <li><b>Một người làm nhiều công đoạn đang thiếu</b> → giao một công đoạn cho người khác. Nếu có người cùng loại máy, ứng dụng nêu luôn tên (“Gợi ý: giao CĐ 38 cho Dương Thị Nga”).</li>
             <li><b>Có công đoạn dư cùng loại máy</b> → chuyển phần thời gian dư sang công đoạn thiếu.</li>
             <li><b>Không có công đoạn dư cùng loại máy</b> → thêm hoặc đào tạo người, hoặc cải tiến thao tác.</li>
           </ul>
         </div>
-        <figure><img src="img/13-staffing.png" alt="Bảng số lao động cần cho mục tiêu" width="366" height="523" loading="lazy"><figcaption>CĐ 33 và 38 thiếu vì Chi làm cả hai</figcaption></figure>
+        <figure><img src="img/13-staffing.png" alt="Bảng số lao động cần cho mục tiêu" width="366" height="563" loading="lazy"><figcaption>CĐ 33 và 38 thiếu vì Chi làm cả hai</figcaption></figure>
       </div>
 
       <div class="step">
         <div class="txt">
-          <h3><span class="n">5</span>Bảng công nhân và đề xuất điều chuyển</h3>
+          <h3><span class="n">6</span>Bảng công nhân và đề xuất điều chuyển</h3>
           <ul>
             <li>Mỗi dòng: thời gian trung bình mỗi cái, cái/giờ, hiệu suất (%), kèm ghi chú.</li>
             <li>Dấu <span class="key">*</span> ở cột cái/giờ: người này chia thời gian cho nhiều công đoạn. Con số là sản lượng thật người đó làm ra cho chuyền.</li>
-            <li><b>Đề xuất điều chuyển</b> (cuối trang): ứng dụng thử chuyển từng người sang công đoạn khác dùng <b>cùng loại máy</b> và chỉ đề xuất khi năng lực chuyền tăng.</li>
+            <li><b>Đề xuất điều chuyển</b> (cuối trang) có hai kiểu, chỉ đề xuất khi năng lực chuyền <b>tăng</b> và chỉ chuyển sang người cùng loại máy:
+              <ul><li><b>Chuyển</b> một người sang công đoạn khác.</li><li><b>Giao</b> một công đoạn của người đang làm nhiều công đoạn cho người khác. Kiểu này ghi <b>(ước tính)</b>, vì dùng thời gian đã bấm của người đang làm; hãy bấm thử để kiểm tra.</li></ul></li>
           </ul>
         </div>
-        <figure><img src="img/14-workers-table.png" alt="Bảng kết quả từng công nhân" width="366" height="621" loading="lazy"><figcaption>Bảng công nhân</figcaption></figure>
+        <div class="pair"><figure><img src="img/14-workers-table.png" alt="Bảng kết quả từng công nhân" width="366" height="621" loading="lazy"><figcaption>Bảng công nhân</figcaption></figure>
+          <figure><img src="img/38-moves.png" alt="Đề xuất điều chuyển: giao CĐ 38 cho Nga" width="366" height="129" loading="lazy"><figcaption>Đề xuất điều chuyển (ước tính)</figcaption></figure></div>
       </div>
     </section>
 
@@ -606,9 +651,9 @@ footer { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 16
       <div class="step wide">
         <div class="txt">
           <h3><span class="n">4</span>Bảng chuyền và kết quả nghiên cứu lại</h3>
-          <p>Bảng <b>Nghiên cứu mới nhất của từng chuyền</b> xếp theo tên chuyền (L2 trước L10), có năng lực so với mục tiêu, tỷ lệ cân bằng, nút cổ chai và chất lượng nghiên cứu. Bảng <b>Kết quả nghiên cứu lại</b> so sánh trước → sau: thay đổi hiệu suất (điểm %) và năng lực (%). Trên điện thoại, kéo ngang để xem hết cột.</p>
+          <p>Bảng <b>Nghiên cứu mới nhất của từng chuyền</b> xếp theo tên chuyền (L2 trước L10). Chuyền màu vàng hoặc đỏ có <b>dòng lý do màu đỏ ngay bên dưới</b> (ví dụ “Năng lực đạt 59% so với mục tiêu”). Bảng có năng lực so với mục tiêu, tỷ lệ cân bằng, nút cổ chai và chất lượng nghiên cứu. Bảng <b>Kết quả nghiên cứu lại</b> so sánh trước → sau: thay đổi hiệu suất (điểm %) và năng lực (%). Trên điện thoại, kéo ngang để xem hết cột.</p>
         </div>
-        <figure class="doc"><img src="img/26-sup-lines.png" alt="Bảng nghiên cứu mới nhất của từng chuyền" width="736" height="608" loading="lazy"><figcaption>Nghiên cứu mới nhất của từng chuyền</figcaption></figure>
+        <figure class="doc"><img src="img/26-sup-lines.png" alt="Bảng nghiên cứu mới nhất của từng chuyền" width="736" height="387" loading="lazy"><figcaption>Nghiên cứu mới nhất của từng chuyền</figcaption></figure>
         <figure class="doc"><img src="img/24-sup-restudy.png" alt="Bảng kết quả nghiên cứu lại trước và sau" width="1472" height="228" loading="lazy"><figcaption>Kết quả nghiên cứu lại của L05: trước → sau</figcaption></figure>
       </div>
 
@@ -665,6 +710,10 @@ footer { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 16
           <p>Ứng dụng hiện bảng <span class="ui">Vòng chưa xong</span>. Thời gian của vòng chưa xong chưa được tính vì chưa biết số cái. Chọn <span class="ui">Quay lại bấm giờ</span> để bấm Vòng trước, hoặc <span class="ui">Lưu, giữ vòng chưa xong</span>: nghiên cứu được lưu với các vòng đã xong, còn vòng chưa xong được giữ trên điện thoại. Mở nghiên cứu → <span class="ui">Sửa / Tiếp tục nghiên cứu</span>: những công nhân đó hiện lại ở trạng thái <span class="ui">đang chờ</span> với đúng thời gian, bấm <span class="ui">Tiếp tục</span> rồi <span class="ui">Vòng</span> như bình thường.</p></details>
         <details><summary>Cần sửa nghiên cứu đã lưu?</summary>
           <p>Mở nghiên cứu trong <span class="ui">Lịch sử</span> → <span class="ui">Sửa / Tiếp tục nghiên cứu</span>. Lưu lại sẽ cập nhật cùng nghiên cứu đó.</p></details>
+        <details><summary>Ứng dụng báo hiệu suất dưới 40% hoặc trên 130%?</summary>
+          <p>Gần như luôn là bấm nhầm, không phải công nhân thật sự như vậy. Dưới 40%: quên <span class="ui">Số cái mỗi vòng</span> khi may dây chuyền (bấm nút <span class="ui">Đặt … cái mỗi vòng</span>), hoặc quên bấm Vòng giữa chừng. Trên 130%: sai <span class="ui">Số chi tiết / sản phẩm</span> hoặc SAM.</p></details>
+        <details><summary>Ứng dụng dừng đồng hồ khi đủ số sản phẩm nhưng vòng cuối là làm lại?</summary>
+          <p>Thẻ sẽ giữ nguyên với cảnh báo <span class="ui">Vòng … gấp … lần các vòng khác</span>. Bấm <span class="ui">✕ Loại vòng này</span>, rồi bấm <span class="ui">Tiếp tục</span> để bấm thêm một vòng.</p></details>
         <details><summary>Năng lực chuyền thấp bất thường?</summary>
           <p>Kiểm tra: vòng may dây chuyền có đặt đúng số cái chưa, các chi tiết đã bấm đủ chưa, có vòng bất thường chưa loại, có công đoạn nào chưa bấm giờ (cảnh báo màu vàng trong kết quả), và có công nhân nào đang làm nhiều công đoạn không.</p></details>
       </div>

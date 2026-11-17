@@ -18,19 +18,22 @@
   function quality(s, o) {
     o = o || {}; const minCycles = o.minCycles || 3, cvMax = o.cvMax || 0.15;
     const raw = s.raw || [], R = s.result || {};
-    let few = 0, high = 0, excl = 0, cyc = 0, cvs = [];
+    let few = 0, high = 0, excl = 0, cyc = 0, cvs = []; const fewW = [], highW = [], tag = w => `${w.name || w.emp} (CĐ ${w.opText})`;
     raw.forEach(w => { const u = usedOf(w), pc = pcsOf(w); cyc += pc; excl += (w.skip || []).length;
-      if (pc < minCycles) few++; else { const P = partsOf(w), L = lapsOf(w);
+      if (pc < minCycles) { few++; fewW.push(tag(w)); } else { const P = partsOf(w), L = lapsOf(w);
         const c = P === 1 ? cvOf(u) : Math.max(0, ...Array.from({ length: P }, (_, k) => cvOf(L.filter(x => x.k === k).map(x => x.p))));
-        cvs.push(c); if (u.length >= 3 && c > cvMax) high++; } });
+        cvs.push(c); if (u.length >= 3 && c > cvMax) { high++; highW.push(tag(w)); } } });
+    // an efficiency far from normal almost always means a typing / setting mistake (pieces per lap, parts per garment, SAM)
+    const odd = (R.workers || []).filter(w => num(w.sec) > 0 && (num(w.eff) < 0.4 || num(w.eff) > 1.3)).map(w => `${w.name || w.emp} (CĐ ${w.opText}, ${Math.round(num(w.eff) * 100)}%)`);
     const missing = (R.missingOps || []).length, studied = Object.keys(R.opCap || {}).length;
     const coverage = studied + missing ? studied / (studied + missing) : 1;
     const issues = [];
-    if (few) issues.push({ k: 'few', n: few });
-    if (coverage < 0.8) issues.push({ k: 'cover', n: missing, v: coverage });
-    else if (missing) issues.push({ k: 'missing', n: missing });
-    if (high) issues.push({ k: 'var', n: high });
-    const status = (few || coverage < 0.8) ? 'review' : (high || missing) ? 'check' : 'ok';
+    if (few) issues.push({ k: 'few', n: few, who: fewW });
+    if (coverage < 0.8) issues.push({ k: 'cover', n: missing, v: coverage, who: (R.missingOps || []).slice() });
+    else if (missing) issues.push({ k: 'missing', n: missing, who: (R.missingOps || []).slice() });
+    if (high) issues.push({ k: 'var', n: high, who: highW });
+    if (odd.length) issues.push({ k: 'implaus', n: odd.length, who: odd });
+    const status = (few || coverage < 0.8) ? 'review' : (high || missing || odd.length) ? 'check' : 'ok';
     return { status, issues, coverage, operators: raw.length, avgCycles: raw.length ? cyc / raw.length : 0, excluded: excl, avgCv: mean(cvs) };
   }
 

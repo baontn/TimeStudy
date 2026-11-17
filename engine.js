@@ -86,18 +86,33 @@ function suggestMoves(workers, requiredOps, maxMoves = 10) {
     const groups = {};
     cur.forEach(w => (groups[w.key] ||= { ops: w.ops, machines: w.machines || [], list: [] }).list.push(w));
     let best = null;
+    // (1) move a whole operator to another operation (only if she already runs the machine(s) it needs)
     for (const w of cur) for (const [key, g] of Object.entries(groups)) {
       if (key === w.key) continue;
-      // only suggest a move if the operator already runs the machine(s) the target operation needs
       if (g.machines.length && !g.machines.every(m => (w.machines || []).includes(m))) continue;
       const avgMin = g.list.reduce((s, x) => s + x.min, 0) / g.list.length;
       const trial = cur.map(x => x === w ? { ...x, key, ops: g.ops, min: avgMin } : x);
       const cap = lineCapacity(trial, requiredOps).capacity;
-      if (cap > base + 1e-9 && (!best || cap > best.cap)) best = { w, key, cap, trial };
+      if (cap > base + 1e-9 && (!best || cap > best.cap)) best = { kind: 'move', w, key, cap, trial };
+    }
+    // (2) give ONE operation of an operator who carries several to another operator on the same machine type
+    //     (the receiver's hour is then shared between her own operation and the new one; time taken from the giver's measurement)
+    const cnt = {}, people = {};
+    cur.forEach(w => { const k = personKey(w); cnt[k] = (cnt[k] || 0) + 1; const q = people[k] ||= { emp: w.emp, name: w.name, machines: new Set() }; (w.machines || []).forEach(m => q.machines.add(m)); });
+    for (const w of cur) {
+      if (cnt[personKey(w)] < 2) continue;
+      for (const [qk, q] of Object.entries(people)) {
+        if (qk === personKey(w)) continue;
+        if ((w.machines || []).length && !w.machines.every(m => q.machines.has(m))) continue;
+        const trial = cur.map(x => x === w ? { ...x, emp: q.emp, name: q.name } : x);
+        const cap = lineCapacity(trial, requiredOps).capacity;
+        if (cap > base + 1e-9 && (!best || cap > best.cap)) best = { kind: 'give', w, to: q, cap, trial };
+      }
     }
     if (!best) break;
-    moves.push({ emp: best.w.emp, name: best.w.name, from: best.w.key, to: best.key, newCapacity: best.cap });
-    cur = best.trial.map(x => x.key === best.key && x.emp === best.w.emp ? { ...x, machines: groups[best.key].machines } : x);
+    if (best.kind === 'give') moves.push({ kind: 'give', emp: best.w.emp, name: best.w.name, from: best.w.key, toEmp: best.to.emp, toName: best.to.name, newCapacity: best.cap, est: true });
+    else moves.push({ emp: best.w.emp, name: best.w.name, from: best.w.key, to: best.key, newCapacity: best.cap });
+    cur = best.kind === 'give' ? best.trial : best.trial.map(x => x.key === best.key && x.emp === best.w.emp ? { ...x, machines: groups[best.key].machines } : x);
     base = best.cap;
   }
   return { moves, finalCapacity: base };
